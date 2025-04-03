@@ -19,7 +19,8 @@ CREATE TABLE Roles
   Name NVARCHAR(50) NOT NULL,
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
-  DeletedAt DATETIME NULL
+  DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1
 );
 GO
 
@@ -31,6 +32,7 @@ CREATE TABLE Operations
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   CONSTRAINT UC_Operations UNIQUE (Name)
 );
 GO
@@ -42,6 +44,7 @@ CREATE TABLE RoleOperations
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   PRIMARY KEY (RoleId, OperationId),
   FOREIGN KEY (RoleId) REFERENCES Roles(RoleId),
   FOREIGN KEY (OperationId) REFERENCES Operations(OperationId)
@@ -55,6 +58,7 @@ CREATE TABLE TopCategories
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   CONSTRAINT UC_TopCategories UNIQUE (Name)
 );
 GO
@@ -66,6 +70,7 @@ CREATE TABLE SubCategories
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   CONSTRAINT UC_SubCategories UNIQUE (Name)
 );
 GO
@@ -77,6 +82,7 @@ CREATE TABLE CategoryRelations
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   PRIMARY KEY (TopCategoryId, SubCategoryId),
   FOREIGN KEY (TopCategoryId) REFERENCES TopCategories(TopCategoryId),
   FOREIGN KEY (SubCategoryId) REFERENCES SubCategories(SubCategoryId)
@@ -89,7 +95,8 @@ CREATE TABLE AttributeTypes (
   AttributeName NVARCHAR(50) UNIQUE NOT NULL CHECK (AttributeName <> ''),
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
-  DeletedAt DATETIME NULL
+  DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1
 );
 
 
@@ -104,6 +111,7 @@ CREATE TABLE Products (
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   FOREIGN KEY (SubCategoryID) REFERENCES SubCategories(SubCategoryID),
   FOREIGN KEY (TopCategoryID) REFERENCES TopCategories(TopCategoryID)
 );
@@ -117,6 +125,7 @@ CREATE TABLE ProductAttributeValues (
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   FOREIGN KEY (ProductID) REFERENCES Products(ProductID),
   FOREIGN KEY (AttributeTypeID) REFERENCES AttributeTypes(AttributeTypeID),
   CONSTRAINT UQ_ProductAttributeValues_ProductID_AttributeTypeID UNIQUE (ProductID, AttributeTypeID)
@@ -130,6 +139,7 @@ CREATE TABLE ProductVariantAttributeTypes (
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   FOREIGN KEY (ProductID) REFERENCES Products(ProductID),
   FOREIGN KEY (AttributeTypeID) REFERENCES AttributeTypes(AttributeTypeID),
   CONSTRAINT UQ_ProductVariantAttributeTypes_ProductID_AttributeTypeID UNIQUE (ProductID, AttributeTypeID)
@@ -144,6 +154,7 @@ CREATE TABLE Variants (
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
 );
 
@@ -156,6 +167,7 @@ CREATE TABLE VariantAttributeValues (
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   FOREIGN KEY (VariantID) REFERENCES Variants(VariantID),
   FOREIGN KEY (AttributeTypeID) REFERENCES AttributeTypes(AttributeTypeID),
   CONSTRAINT UQ_VariantAttributeValues_VariantID_AttributeTypeID UNIQUE (VariantID, AttributeTypeID)
@@ -169,6 +181,7 @@ CREATE TABLE Orders
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
 GO
@@ -182,6 +195,7 @@ CREATE TABLE OrderItems
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   FOREIGN KEY (OrderId) REFERENCES Orders(OrderId),
   FOREIGN KEY (ProductId) REFERENCES Products(ProductId)
 );
@@ -194,6 +208,7 @@ CREATE TABLE FavoriteProducts
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   PRIMARY KEY (UserId, ProductId),
   FOREIGN KEY (UserId) REFERENCES Users(UserId),
   FOREIGN KEY (ProductId) REFERENCES Products(ProductId)
@@ -210,6 +225,7 @@ CREATE TABLE Payments
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   FOREIGN KEY (OrderId) REFERENCES Orders(OrderId),
   FOREIGN KEY (PaymentStatusId) REFERENCES PaymentStatus(PaymentStatusId)
 );
@@ -223,6 +239,7 @@ CREATE TABLE PasswordResetRequests
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
 GO
@@ -235,7 +252,8 @@ CREATE TABLE PromotionCodes
   ExpiryDate DATE NOT NULL,
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
-  DeletedAt DATETIME NULL
+  DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1
 );
 GO
 
@@ -253,6 +271,7 @@ CREATE TABLE UserAddresses
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
 GO
@@ -270,7 +289,8 @@ CREATE TABLE ShippingAddress
   PhoneNumber NVARCHAR(20) NOT NULL,
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
-  DeletedAt DATETIME NULL
+  DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1
 );
 GO
 
@@ -286,6 +306,7 @@ CREATE TABLE Orders
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   FOREIGN KEY (UserId) REFERENCES Users(UserId),
   FOREIGN KEY (ShippingAddressId) REFERENCES ShippingAddress(ShippingAddressId),
   FOREIGN KEY (PromotionCodeId) REFERENCES PromotionCodes(PromotionCodeId),
@@ -303,6 +324,7 @@ CREATE TABLE ProductImages
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   FOREIGN KEY (ProductId) REFERENCES Products(ProductId)
 );
 GO
@@ -313,6 +335,7 @@ CREATE TABLE ShoppingCart
   UserId INT NOT NULL,
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
 GO
@@ -326,6 +349,7 @@ CREATE TABLE CartItems
   Quantity INT NOT NULL DEFAULT 1,
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
+  IsActive BIT DEFAULT 1,
   FOREIGN KEY (CartId) REFERENCES ShoppingCart(CartId),
   FOREIGN KEY (VariantId) REFERENCES Variants(VariantId),
   FOREIGN KEY (ProductId) REFERENCES Products(ProductId)
@@ -337,6 +361,7 @@ CREATE TABLE OrderStatus
   StatusId INT PRIMARY KEY IDENTITY(1,1),
   Name NVARCHAR(50) NOT NULL, -- e.g., Pending, Processing, Shipped, Delivered, Cancelled
   Description NVARCHAR(200),
+  IsActive BIT DEFAULT 1,
   CONSTRAINT UC_OrderStatus UNIQUE (Name)
 );
 GO
@@ -345,6 +370,7 @@ CREATE TABLE PaymentStatus
 (
   PaymentStatusId INT PRIMARY KEY IDENTITY(1,1),
   Name NVARCHAR(50) NOT NULL,
+  IsActive BIT DEFAULT 1,
   CONSTRAINT UC_PaymentStatus UNIQUE (Name)
 );
 GO

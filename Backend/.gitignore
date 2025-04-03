@@ -1,0 +1,61 @@
+# Ignore Visual Studio specific files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Ignore build and output directories
+bin/
+obj/
+out/
+Debug/
+Release/
+
+# Ignore NuGet packages
+*.nupkg
+packages/
+project.lock.json
+project.assets.json
+
+# Ignore build logs and lock files
+msbuild.log
+msbuild.err
+msbuild.wrn
+project.lock.json
+
+# Ignore Rider / JetBrains IDE files
+.idea/
+*.sln.iml
+
+# Ignore Resharper files
+_ReSharper*/
+*.DotSettings.user
+
+# Ignore dotnet core user secrets and config
+secrets.json
+appsettings.Development.json
+
+# Ignore Mac and Linux system files
+.DS_Store
+*.swp
+*.swo
+
+# Ignore temporary files
+*.tmp
+*.bak
+*.log
+
+# Ignore coverage reports
+coverage/
+*.coverage
+*.testresults
+
+# Ignore environment-specific files
+.env
+.env.local
+.env.development
+.env.production
+
+# Ignore published builds
+publish/

@@ -1,14 +1,20 @@
 import { Form, redirect, Link } from "react-router";
 import type { Route } from "./+types/login";
+import { auth } from "../api/client";
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();
-  const email = formData.get("email");
-  const password = formData.get("password");
-  console.log(email, password);
-  // TODO: Implement login logic
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
 
-  return redirect("/");
+  try {
+    const response = await auth.login(email, password);
+    // Store the token in localStorage
+    localStorage.setItem("token", response.token);
+    return redirect("/");
+  } catch (error) {
+    return { error: "Invalid email or password" };
+  }
 }
 
 export default function Login() {

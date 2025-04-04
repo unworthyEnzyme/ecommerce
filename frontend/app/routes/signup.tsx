@@ -1,14 +1,19 @@
 import { Form, redirect, Link } from "react-router";
 import type { Route } from "./+types/signup";
+import { auth } from "../api/client";
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();
-  const email = formData.get("email");
-  const password = formData.get("password");
-  console.log(email, password);
-  // TODO: Implement login logic
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
 
-  return redirect("/");
+  try {
+    await auth.register(email, password, confirmPassword);
+    return redirect("/login");
+  } catch (error) {
+    return { error: "Registration failed. Please try again." };
+  }
 }
 
 export default function Signup() {
@@ -36,8 +41,17 @@ export default function Signup() {
                 type="password"
                 name="password"
                 required
-                className="relative block w-full appearance-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
+                className="relative block w-full appearance-none border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
                 placeholder="Password"
+              />
+            </div>
+            <div>
+              <input
+                type="password"
+                name="confirmPassword"
+                required
+                className="relative block w-full appearance-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
+                placeholder="Confirm Password"
               />
             </div>
           </div>

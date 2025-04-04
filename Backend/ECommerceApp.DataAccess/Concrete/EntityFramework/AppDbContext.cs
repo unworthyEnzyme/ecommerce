@@ -5,6 +5,7 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework {
     public class AppDbContext : DbContext {
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<Operation> Operations { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             optionsBuilder.UseSqlServer("Server=localhost,1433;Database=ECommerceDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;");
@@ -15,6 +16,10 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework {
                 .HasOne(u => u.Role)
                 .WithMany(r => r.Users)
                 .HasForeignKey(u => u.RoleId);
+
+            modelBuilder.Entity<Role>()
+                .HasMany(r => r.Operations)
+                .WithMany(o => o.Roles);
 
             base.OnModelCreating(modelBuilder);
             

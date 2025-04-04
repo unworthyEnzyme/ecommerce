@@ -17,14 +17,20 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework {
                 .HasForeignKey(u => u.RoleId);
 
             base.OnModelCreating(modelBuilder);
+            
+            var defaultDate = new DateTime(2025, 4, 4);
             modelBuilder.Entity<Role>().HasData(
                 new Role {
                     RoleId = 1,
                     Name = "Admin",
+                    CreatedAt = defaultDate,
+                    IsActive = true,
                 },
                 new Role {
                     RoleId = 2,
                     Name = "User",
+                    CreatedAt = defaultDate,
+                    IsActive = true,
                 });
         }
     }

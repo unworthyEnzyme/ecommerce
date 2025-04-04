@@ -4,6 +4,7 @@ using ECommerceApp.DataAccess.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerceApp.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250404131827_SimplifyRoleOperations")]
+    partial class SimplifyRoleOperations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,56 +56,6 @@ namespace ECommerceApp.DataAccess.Migrations
                     b.HasKey("OperationId");
 
                     b.ToTable("Operations");
-                });
-
-            modelBuilder.Entity("ECommerceApp.Entities.Concrete.Product", b =>
-                {
-                    b.Property<int>("ProductId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProductCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("SubCategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TopCategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ProductId");
-
-                    b.HasIndex("ProductCode")
-                        .IsUnique();
-
-                    b.HasIndex("SubCategoryId");
-
-                    b.HasIndex("TopCategoryId");
-
-                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("ECommerceApp.Entities.Concrete.Role", b =>
@@ -148,70 +101,6 @@ namespace ECommerceApp.DataAccess.Migrations
                             IsActive = true,
                             Name = "User"
                         });
-                });
-
-            modelBuilder.Entity("ECommerceApp.Entities.Concrete.SubCategory", b =>
-                {
-                    b.Property<int>("SubCategoryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubCategoryId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("SubCategoryId");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("SubCategories");
-                });
-
-            modelBuilder.Entity("ECommerceApp.Entities.Concrete.TopCategory", b =>
-                {
-                    b.Property<int>("TopCategoryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TopCategoryId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("TopCategoryId");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("TopCategories");
                 });
 
             modelBuilder.Entity("ECommerceApp.Entities.Concrete.User", b =>
@@ -267,40 +156,6 @@ namespace ECommerceApp.DataAccess.Migrations
                     b.ToTable("OperationRole");
                 });
 
-            modelBuilder.Entity("SubCategoryTopCategory", b =>
-                {
-                    b.Property<int>("SubCategoriesSubCategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TopCategoriesTopCategoryId")
-                        .HasColumnType("int");
-
-                    b.HasKey("SubCategoriesSubCategoryId", "TopCategoriesTopCategoryId");
-
-                    b.HasIndex("TopCategoriesTopCategoryId");
-
-                    b.ToTable("CategoryRelations", (string)null);
-                });
-
-            modelBuilder.Entity("ECommerceApp.Entities.Concrete.Product", b =>
-                {
-                    b.HasOne("ECommerceApp.Entities.Concrete.SubCategory", "SubCategory")
-                        .WithMany("Products")
-                        .HasForeignKey("SubCategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ECommerceApp.Entities.Concrete.TopCategory", "TopCategory")
-                        .WithMany("Products")
-                        .HasForeignKey("TopCategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("SubCategory");
-
-                    b.Navigation("TopCategory");
-                });
-
             modelBuilder.Entity("ECommerceApp.Entities.Concrete.User", b =>
                 {
                     b.HasOne("ECommerceApp.Entities.Concrete.Role", "Role")
@@ -327,34 +182,9 @@ namespace ECommerceApp.DataAccess.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SubCategoryTopCategory", b =>
-                {
-                    b.HasOne("ECommerceApp.Entities.Concrete.SubCategory", null)
-                        .WithMany()
-                        .HasForeignKey("SubCategoriesSubCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ECommerceApp.Entities.Concrete.TopCategory", null)
-                        .WithMany()
-                        .HasForeignKey("TopCategoriesTopCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("ECommerceApp.Entities.Concrete.Role", b =>
                 {
                     b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("ECommerceApp.Entities.Concrete.SubCategory", b =>
-                {
-                    b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("ECommerceApp.Entities.Concrete.TopCategory", b =>
-                {
-                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,14 +1,18 @@
+using System;
+using System.Collections.Generic;
+
 namespace ECommerceApp.Entities.Concrete
 {
-    public class Role
+    public class SubCategory
     {
-        public int RoleId { get; set; }
+        public int SubCategoryId { get; set; }
         public string Name { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
         public bool IsActive { get; set; }
-        public virtual ICollection<User> Users { get; set; }
-        public virtual ICollection<Operation> Operations { get; set; }
+
+        public virtual ICollection<TopCategory> TopCategories { get; set; }
+        public virtual ICollection<Product> Products { get; set; }
     }
 }

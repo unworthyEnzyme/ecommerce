@@ -47,7 +47,14 @@ export const products = {
     ];
   },
 
-  getAttributeTypes: async () => {},
+  getAttributeTypes: async () => {
+    return [
+      { id: 1, name: "Brand" },
+      { id: 2, name: "Color" },
+      { id: 3, name: "Size" },
+      { id: 4, name: "Material" },
+    ];
+  },
 };
 
 export default apiClient;

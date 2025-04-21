@@ -35,9 +35,7 @@ namespace ECommerceApp.Business.Concrete
         {
             if (!IsAdmin(token))
                 throw new UnauthorizedAccessException("Only administrators can perform this operation");
-        }
-
-        private ProductDto MapToDto(Product product)
+        }        private ProductDto MapToDto(Product product)
         {
             return new ProductDto
             {
@@ -48,7 +46,29 @@ namespace ECommerceApp.Business.Concrete
                 SubCategoryId = product.SubCategoryId,
                 TopCategoryId = product.TopCategoryId,
                 TopCategoryName = product.TopCategory?.Name,
-                SubCategoryName = product.SubCategory?.Name
+                SubCategoryName = product.SubCategory?.Name,
+                Attributes = product.ProductAttributeValues
+                    .Where(pav => pav.IsActive)
+                    .Select(pav => new ProductAttributeDto 
+                    {
+                        AttributeName = pav.AttributeType.AttributeName,
+                        AttributeValue = pav.AttributeValue
+                    }).ToList(),
+                Variants = product.Variants
+                    .Where(v => v.IsActive)
+                    .Select(v => new VariantDto
+                    {
+                        VariantId = v.VariantId,
+                        Price = v.Price,
+                        StockQuantity = v.StockQuantity,
+                        Attributes = v.VariantAttributeValues
+                            .Where(vav => vav.IsActive)
+                            .Select(vav => new VariantAttributeDto
+                            {
+                                AttributeName = vav.AttributeType.AttributeName,
+                                AttributeValue = vav.AttributeValue
+                            }).ToList()
+                    }).ToList()
             };
         }
 

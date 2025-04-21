@@ -11,39 +11,51 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
         public ProductRepository(AppDbContext context)
         {
             _context = context;
-        }
-
-        public IEnumerable<Product> GetAll()
+        }        public IEnumerable<Product> GetAll()
         {
             return _context.Products
                 .Include(p => p.TopCategory)
                 .Include(p => p.SubCategory)
+                .Include(p => p.ProductAttributeValues)
+                    .ThenInclude(pav => pav.AttributeType)
+                .Include(p => p.Variants)
+                    .ThenInclude(v => v.VariantAttributeValues)
+                        .ThenInclude(vav => vav.AttributeType)
                 .Where(p => p.IsActive)
                 .ToList();
-        }
-
-        public Product GetById(int id)
+        }        public Product GetById(int id)
         {
             return _context.Products
                 .Include(p => p.TopCategory)
                 .Include(p => p.SubCategory)
+                .Include(p => p.ProductAttributeValues)
+                    .ThenInclude(pav => pav.AttributeType)
+                .Include(p => p.Variants)
+                    .ThenInclude(v => v.VariantAttributeValues)
+                        .ThenInclude(vav => vav.AttributeType)
                 .FirstOrDefault(p => p.ProductId == id && p.IsActive);
-        }
-
-        public IEnumerable<Product> GetByTopCategory(int topCategoryId)
+        }        public IEnumerable<Product> GetByTopCategory(int topCategoryId)
         {
             return _context.Products
                 .Include(p => p.TopCategory)
                 .Include(p => p.SubCategory)
+                .Include(p => p.ProductAttributeValues)
+                    .ThenInclude(pav => pav.AttributeType)
+                .Include(p => p.Variants)
+                    .ThenInclude(v => v.VariantAttributeValues)
+                        .ThenInclude(vav => vav.AttributeType)
                 .Where(p => p.TopCategoryId == topCategoryId && p.IsActive)
                 .ToList();
-        }
-
-        public IEnumerable<Product> GetBySubCategory(int subCategoryId)
+        }        public IEnumerable<Product> GetBySubCategory(int subCategoryId)
         {
             return _context.Products
                 .Include(p => p.TopCategory)
                 .Include(p => p.SubCategory)
+                .Include(p => p.ProductAttributeValues)
+                    .ThenInclude(pav => pav.AttributeType)
+                .Include(p => p.Variants)
+                    .ThenInclude(v => v.VariantAttributeValues)
+                        .ThenInclude(vav => vav.AttributeType)
                 .Where(p => p.SubCategoryId == subCategoryId && p.IsActive)
                 .ToList();
         }

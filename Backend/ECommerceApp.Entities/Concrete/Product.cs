@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ECommerceApp.Entities.Concrete
 {
@@ -17,5 +18,8 @@ namespace ECommerceApp.Entities.Concrete
 
         public virtual SubCategory SubCategory { get; set; }
         public virtual TopCategory TopCategory { get; set; }
+        public virtual ICollection<ProductAttributeValue> ProductAttributeValues { get; set; }
+        public virtual ICollection<ProductVariantAttributeType> ProductVariantAttributeTypes { get; set; }
+        public virtual ICollection<Variant> Variants { get; set; }
     }
 }

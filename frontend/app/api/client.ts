@@ -26,4 +26,28 @@ export const auth = {
   },
 };
 
+export const products = {
+  getTopCategories: async () => {
+    // return mock data for now
+    return [
+      { id: 1, name: "Electronics" },
+      { id: 2, name: "Clothing" },
+      { id: 3, name: "Home & Kitchen" },
+      { id: 4, name: "Books" },
+    ];
+  },
+
+  getSubCategories: async (categoryId: number) => {
+    // return mock data for now
+    return [
+      { id: 1, name: "Mobile Phones" },
+      { id: 2, name: "Laptops" },
+      { id: 3, name: "Tablets" },
+      { id: 4, name: "Cameras" },
+    ];
+  },
+
+  getAttributeTypes: async () => {},
+};
+
 export default apiClient;

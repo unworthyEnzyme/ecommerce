@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
@@ -9,8 +10,11 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   return (
-    <div>
+    <div className="flex flex-col">
       <p>hello, world!</p>
+      <Link to="/login">Login</Link>
+      <Link to="/signup">Sign Up</Link>
+      <Link to="/products/add">Add Product</Link>
     </div>
   );
 }

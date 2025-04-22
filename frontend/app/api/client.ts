@@ -1,5 +1,4 @@
 import axios from "axios";
-import { create } from "node_modules/axios/index.cjs";
 
 const apiClient = axios.create({
   baseURL: "https://localhost:7215/api",
@@ -28,6 +27,20 @@ export const auth = {
 };
 
 export const products = {
+  getProductById: async (id: string) => {
+    return {
+      id: id,
+      code: "P12345",
+      name: "Sample Product",
+      description: "Sample Description",
+      topCategory: { id: 1, name: "Electronics" },
+      subCategory: { id: 1, name: "Mobile Phones" },
+      attributes: [
+        { id: 1, type: { id: 1, name: "Brand" }, value: "Apple" },
+        { id: 2, type: { id: 2, name: "Color" }, value: "Black" },
+      ],
+    };
+  },
   getTopCategories: async () => {
     // return mock data for now
     return [

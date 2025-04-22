@@ -7,4 +7,5 @@ export default [
   //TODO: Only users who have access to the admin panel should be able to access this route
   route("products/add", "routes/add-product.tsx"),
   route("products/create-attribute-type", "routes/create-attribute-type.tsx"),
+  route("products/:id/add-attribute", "routes/add-attribute.tsx"),
 ] satisfies RouteConfig;

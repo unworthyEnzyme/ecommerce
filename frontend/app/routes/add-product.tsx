@@ -5,9 +5,8 @@ import { useState } from "react";
 
 export async function clientLoader({ request }: Route.LoaderArgs) {
   const topCategories = await products.getTopCategories();
-  const attributeTypes = await products.getAttributeTypes();
 
-  return { topCategories, attributeTypes };
+  return { topCategories };
 }
 
 interface Category {
@@ -15,27 +14,9 @@ interface Category {
   name: string;
 }
 
-type AttributeType = {
-  id: number;
-  name: string;
-};
-
-interface Attribute {
-  id: number;
-  name: string;
-  type: AttributeType;
-  value: string;
-}
-
 export default function AddProduct({ loaderData }: Route.ComponentProps) {
-  const { topCategories, attributeTypes } = loaderData;
+  const { topCategories } = loaderData;
   const [subCategories, setSubCategories] = useState<Category[]>([]);
-  const [attributes, setAttributes] = useState<Attribute[]>([]);
-  const [currentAttributeType, setCurrentAttributeType] =
-    useState<AttributeType>(attributeTypes[0]);
-  const unusedAttributeTypes = attributeTypes.filter(
-    (type) => !attributes.some((attr) => attr.id === type.id),
-  );
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
@@ -110,77 +91,6 @@ export default function AddProduct({ loaderData }: Route.ComponentProps) {
                 ))}
               </select>
             </div>
-          </fieldset>
-          <fieldset className="space-y-4 rounded-md border border-gray-200 p-4">
-            <legend className="px-2 text-lg font-medium text-gray-900">
-              Variant Level Attributes
-            </legend>
-            <div>
-              <input
-                type="text"
-                name="price"
-                placeholder="Price"
-                className="mb-3 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
-              />
-            </div>
-            <div>
-              <input
-                type="number"
-                name="stock"
-                placeholder="Stock"
-                className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
-              />
-            </div>
-            {attributes.map((attribute) => (
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  {attribute.name}
-                </label>
-                <input
-                  type="text"
-                  name={`attribute-${attribute.id}`}
-                  className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
-                />
-              </div>
-            ))}
-            <select
-              name="_attribute-type-id"
-              onChange={(e) => {
-                const attributeTypeId = e.target.value;
-                const attributeType = attributeTypes.find(
-                  (type) => type.id === parseInt(attributeTypeId),
-                );
-                if (attributeType) {
-                  setCurrentAttributeType(attributeType);
-                }
-              }}
-              className="mb-3 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
-            >
-              <option value="">Select Attribute Type</option>
-              {unusedAttributeTypes.map((attributeType) => (
-                <option key={attributeType.id} value={attributeType.id}>
-                  {attributeType.name}
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              className="mb-3 block w-full appearance-none rounded-md border border-gray-300 bg-gray-200 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
-              disabled={!currentAttributeType}
-              onClick={() => {
-                setAttributes((prev) => [
-                  ...prev,
-                  {
-                    id: currentAttributeType.id,
-                    name: currentAttributeType.name,
-                    type: currentAttributeType,
-                    value: "",
-                  },
-                ]);
-              }}
-            >
-              Add Attribute
-            </button>
           </fieldset>
           <div>
             <button

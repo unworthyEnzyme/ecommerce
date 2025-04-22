@@ -15,6 +15,7 @@ export default function Home() {
       <Link to="/login">Login</Link>
       <Link to="/signup">Sign Up</Link>
       <Link to="/products/add">Add Product</Link>
+      <Link to="/products/create-attribute-type">Create Attribute</Link>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { create } from "node_modules/axios/index.cjs";
 
 const apiClient = axios.create({
   baseURL: "https://localhost:7215/api",
@@ -54,6 +55,11 @@ export const products = {
       { id: 3, name: "Size" },
       { id: 4, name: "Material" },
     ];
+  },
+
+  createAttributeType: async (name: string) => {
+    console.log("Creating attribute type:", name);
+    return { id: Math.random(), name };
   },
 };
 

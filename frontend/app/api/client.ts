@@ -1,4 +1,5 @@
 import axios from "axios";
+import { faker } from "@faker-js/faker";
 
 const apiClient = axios.create({
   baseURL: "https://localhost:7215/api",
@@ -31,8 +32,8 @@ export const products = {
     return {
       id: id,
       code: "P12345",
-      name: "Sample Product",
-      description: "Sample Description",
+      name: faker.commerce.product(),
+      description: faker.commerce.productDescription(),
       topCategory: { id: 1, name: "Electronics" },
       subCategory: { id: 1, name: "Mobile Phones" },
       attributes: [

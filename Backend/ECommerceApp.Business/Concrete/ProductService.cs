@@ -23,8 +23,8 @@ namespace ECommerceApp.Business.Concrete
 
             var handler = new JwtSecurityTokenHandler();
             var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
-            
-            if (jsonToken == null) 
+
+            if (jsonToken == null)
                 return false;
 
             var roleClaim = jsonToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
@@ -35,7 +35,8 @@ namespace ECommerceApp.Business.Concrete
         {
             if (!IsAdmin(token))
                 throw new UnauthorizedAccessException("Only administrators can perform this operation");
-        }        private ProductDto MapToDto(Product product)
+        }
+        private ProductDto MapToDto(Product product)
         {
             return new ProductDto
             {
@@ -49,7 +50,7 @@ namespace ECommerceApp.Business.Concrete
                 SubCategoryName = product.SubCategory?.Name,
                 Attributes = product.ProductAttributeValues
                     .Where(pav => pav.IsActive)
-                    .Select(pav => new ProductAttributeDto 
+                    .Select(pav => new ProductAttributeDto
                     {
                         AttributeName = pav.AttributeType.AttributeName,
                         AttributeValue = pav.AttributeValue

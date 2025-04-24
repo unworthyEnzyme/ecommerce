@@ -1,17 +1,19 @@
-import { Link } from "react-router";
-import type { Route } from "./+types/home";
-import * as api from "~/api/client";
-import { useState, useRef, useEffect, useCallback } from "react";
 import {
-  LogIn,
-  UserPlus,
   ChevronDown,
-  LayoutDashboard,
-  PlusCircle,
   Edit,
-  Tag,
+  LayoutDashboard,
+  LogIn,
+  PlusCircle,
   Settings,
+  ShoppingCart,
+  Tag,
+  UserPlus,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router";
+import { useLocalStorage } from "usehooks-ts";
+import * as api from "~/api/client";
+import type { Route } from "./+types/home";
 
 type CategoryDropdownProps = {
   category: { id: number; name: string };
@@ -109,7 +111,19 @@ export async function clientLoader() {
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { products, topCategories } = loaderData;
   const [dashboardOpen, setDashboardOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const cartDropdownRef = useRef<HTMLDivElement>(null);
+
+  const [cart, setCart] = useLocalStorage<
+    Array<{
+      id: string;
+      price: number;
+      name: string;
+      attributes?: Record<string, string>;
+      amount: number;
+    }>
+  >("cart", []);
 
   const [subCategories, setSubCategories] = useState<
     Record<number, Array<{ id: number; name: string }>>
@@ -137,10 +151,52 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       ) {
         setDashboardOpen(false);
       }
+
+      if (
+        cartDropdownRef.current &&
+        !cartDropdownRef.current.contains(event.target as Node)
+      ) {
+        setCartOpen(false);
+      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Calculate the total price of items in cart
+  const cartTotal = cart.reduce(
+    (sum, item) => sum + item.price * (item.amount || 1),
+    0,
+  );
+
+  // Function to add product to cart
+  const addToCart = (product: any) => {
+    const existingItemIndex = cart.findIndex((item) => item.id === product.id);
+
+    if (existingItemIndex !== -1) {
+      // Product already in cart, increase amount
+      const updatedCart = [...cart];
+      updatedCart[existingItemIndex] = {
+        ...updatedCart[existingItemIndex],
+        amount: (updatedCart[existingItemIndex].amount || 1) + 1,
+      };
+      setCart(updatedCart);
+    } else {
+      // Product not in cart, add it
+      setCart([
+        ...cart,
+        {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          amount: 1,
+        },
+      ]);
+    }
+
+    // Show cart dropdown when adding items
+    setCartOpen(true);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -158,7 +214,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             ))}
           </div>
 
-          {/* Login, Signup, and Dashboard */}
+          {/* Login, Signup, Dashboard and Cart */}
           <div className="flex items-center space-x-6">
             <Link
               to="/login"
@@ -172,6 +228,102 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             >
               <UserPlus size={16} className="mr-2" /> Sign Up
             </Link>
+
+            {/* Cart Dropdown */}
+            <div className="relative" ref={cartDropdownRef}>
+              <button
+                onClick={() => setCartOpen(!cartOpen)}
+                className={`flex items-center gap-1 rounded-md px-3 py-2 transition-all duration-200 ${
+                  cartOpen
+                    ? "bg-indigo-600 text-white shadow-md"
+                    : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
+                }`}
+              >
+                <div className="relative">
+                  <ShoppingCart size={16} />
+                  {cart.length > 0 && (
+                    <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                      {cart.length}
+                    </span>
+                  )}
+                </div>
+                <span className="ml-1">Cart</span>
+              </button>
+
+              {cartOpen && (
+                <div
+                  className="ring-opacity-5 absolute right-0 z-10 mt-2 w-80 origin-top-right rounded-lg bg-white py-2 shadow-lg ring-1 ring-black transition-all duration-200"
+                  style={{
+                    animation: "fadeIn 0.2s ease-out forwards",
+                  }}
+                >
+                  <div className="border-b border-gray-100 px-4 py-2">
+                    <h3 className="text-sm font-medium text-gray-500">
+                      Your Cart ({cart.length}{" "}
+                      {cart.length === 1 ? "item" : "items"})
+                    </h3>
+                  </div>
+
+                  <div className="max-h-80 overflow-y-auto py-1">
+                    {cart.length > 0 ? (
+                      cart.map((item) => (
+                        <Link
+                          key={item.id + JSON.stringify(item.attributes)}
+                          to={`/products/${item.id}`}
+                          className="group flex items-center border-b border-gray-100 px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50"
+                          onClick={() => setCartOpen(false)}
+                        >
+                          <div className="flex-1">
+                            <p className="font-medium group-hover:text-indigo-600">
+                              {item.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {item.attributes &&
+                                Object.entries(item.attributes)
+                                  .filter(([_, value]) => value) // Filter out empty attributes
+                                  .map(([key, value]) => `${key}: ${value}`)
+                                  .join(", ")}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-medium text-indigo-600">
+                              ${item.price}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Qty: {item.amount || 1}
+                            </p>
+                          </div>
+                        </Link>
+                      ))
+                    ) : (
+                      <div className="px-4 py-6 text-center text-sm text-gray-500">
+                        Your cart is empty
+                      </div>
+                    )}
+                  </div>
+
+                  {cart.length > 0 && (
+                    <>
+                      <div className="border-t border-gray-100 px-4 py-3">
+                        <div className="flex justify-between font-medium">
+                          <span>Total:</span>
+                          <span>${cartTotal.toFixed(2)}</span>
+                        </div>
+                      </div>
+                      <div className="border-t border-gray-100 px-4 py-2">
+                        <Link
+                          to="/cart"
+                          className="block rounded-md bg-indigo-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-indigo-700"
+                          onClick={() => setCartOpen(false)}
+                        >
+                          View Cart
+                        </Link>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Dashboard Dropdown */}
             <div className="relative" ref={dropdownRef}>
@@ -301,16 +453,24 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 <p className="mb-3 line-clamp-2 text-sm text-gray-600">
                   {product.description}
                 </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">
-                    {product.topCategory.name}
-                  </span>
-                  <Link
-                    to={`/products/${product.id}`}
-                    className="text-sm text-indigo-600 hover:text-indigo-500"
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500">
+                      {product.topCategory.name}
+                    </span>
+                    <Link
+                      to={`/products/${product.id}`}
+                      className="text-sm text-indigo-600 hover:text-indigo-500"
+                    >
+                      View Details
+                    </Link>
+                  </div>
+                  <button
+                    onClick={() => addToCart(product)}
+                    className="mt-2 flex w-full items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
                   >
-                    View Details
-                  </Link>
+                    <ShoppingCart size={16} className="mr-2" /> Add to Cart
+                  </button>
                 </div>
               </div>
             </div>

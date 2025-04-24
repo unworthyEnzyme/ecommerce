@@ -1,8 +1,9 @@
-import * as api from "~/api/client";
-import type { Route } from "./+types/product";
-import { Link } from "react-router";
 import { Tag } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router";
+import { useLocalStorage } from "usehooks-ts";
+import * as api from "~/api/client";
+import type { Route } from "./+types/product";
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
   const product = await api.products.getProductById(params.id);
@@ -14,7 +15,16 @@ export default function Product({ loaderData }: Route.ComponentProps) {
   // Add state for selected attribute options
   const [selectedOptions, setSelectedOptions] = useState<
     Record<string, string>
-  >({});
+  >({
+    Color:
+      product.attributes.find((attr) => attr.type.name === "Color")?.value ||
+      "",
+    Size:
+      product.attributes.find((attr) => attr.type.name === "Size")?.value || "",
+    Material:
+      product.attributes.find((attr) => attr.type.name === "Material")?.value ||
+      "",
+  });
 
   // Handle attribute option selection
   const handleOptionSelect = (attributeName: string, value: string) => {
@@ -37,6 +47,20 @@ export default function Product({ loaderData }: Route.ComponentProps) {
   // Helper function to safely check if an attribute exists in our options
   const hasAttributeOptions = (key: string): key is AttributeKey => {
     return Object.keys(attributeOptions).includes(key);
+  };
+
+  const [_cart, setCart] = useLocalStorage("cart", [] as Array<{ id: string }>);
+  const addToCart = () => {
+    setCart((prev) => [
+      ...prev,
+      {
+        id: product.id,
+        price: product.price,
+        name: product.name,
+        attributes: selectedOptions,
+        amount: 1,
+      },
+    ]);
   };
 
   return (
@@ -160,7 +184,10 @@ export default function Product({ loaderData }: Route.ComponentProps) {
 
           {/* Add to cart button */}
           <div className="mt-auto">
-            <button className="focus:ring-opacity-50 w-full rounded-md bg-indigo-600 px-4 py-3 text-center text-white shadow-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            <button
+              className="focus:ring-opacity-50 w-full rounded-md bg-indigo-600 px-4 py-3 text-center text-white shadow-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              onClick={addToCart}
+            >
               Add to Cart
             </button>
           </div>

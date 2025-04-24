@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import type { Route } from "./+types/home";
 import * as api from "~/api/client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   LogIn,
   UserPlus,
@@ -12,6 +12,85 @@ import {
   Tag,
   Settings,
 } from "lucide-react";
+
+type CategoryDropdownProps = {
+  category: { id: number; name: string };
+  onLoadSubCategories: (categoryId: number) => Promise<void>;
+  subCategories: Array<{ id: number; name: string }> | undefined;
+};
+
+function CategoryDropdown({
+  category,
+  onLoadSubCategories,
+  subCategories,
+}: CategoryDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Handle toggle
+  const handleToggle = () => {
+    const newIsOpen = !isOpen;
+    setIsOpen(newIsOpen);
+    if (newIsOpen) {
+      onLoadSubCategories(category.id);
+    }
+  };
+
+  // Close when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={dropdownRef} className="relative">
+      <button
+        onClick={handleToggle}
+        className="flex items-center text-gray-700 hover:text-indigo-600 hover:underline focus:outline-none"
+      >
+        {category.name}
+        <ChevronDown
+          size={16}
+          className={`ml-1 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {isOpen && (
+        <div className="ring-opacity-5 absolute left-0 z-10 mt-2 w-48 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black">
+          <div className="py-1">
+            {subCategories ? (
+              subCategories.length > 0 ? (
+                subCategories.map((subCategory) => (
+                  <Link
+                    key={subCategory.id}
+                    to={`/categories/${category.id}/subcategories/${subCategory.id}`}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
+                  >
+                    {subCategory.name}
+                  </Link>
+                ))
+              ) : (
+                <div className="px-4 py-2 text-sm text-gray-500">
+                  No subcategories
+                </div>
+              )
+            ) : (
+              <div className="px-4 py-2 text-sm text-gray-500">Loading...</div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -32,7 +111,24 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const [dashboardOpen, setDashboardOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
+  const [subCategories, setSubCategories] = useState<
+    Record<number, Array<{ id: number; name: string }>>
+  >({});
+
+  const loadSubCategories = async (categoryId: number) => {
+    if (!subCategories[categoryId]) {
+      try {
+        const categories = await api.products.getSubCategories(categoryId);
+        setSubCategories((prev) => ({
+          ...prev,
+          [categoryId]: categories,
+        }));
+      } catch (error) {
+        console.error("Failed to fetch subcategories:", error);
+      }
+    }
+  };
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -50,16 +146,15 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     <div className="container mx-auto px-4 py-8">
       <header className="mb-8">
         <div className="flex items-center justify-between">
-          {/* Categories */}
+          {/* Categories with dropdowns */}
           <div className="flex space-x-6">
             {topCategories.map((category) => (
-              <Link
+              <CategoryDropdown
                 key={category.id}
-                to={`/categories/${category.id}`}
-                className="text-gray-700 hover:text-indigo-600 hover:underline"
-              >
-                {category.name}
-              </Link>
+                category={category}
+                onLoadSubCategories={loadSubCategories}
+                subCategories={subCategories[category.id]}
+              />
             ))}
           </div>
 

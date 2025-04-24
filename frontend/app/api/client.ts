@@ -42,6 +42,26 @@ export const products = {
       ],
     };
   },
+
+  getProducts: async () => {
+    const products = Array.from({ length: 10 }, (_, index) => {
+      return {
+        id: index + 1,
+        code: `P${index + 1}`,
+        name: faker.commerce.product(),
+        description: faker.commerce.productDescription(),
+        topCategory: { id: 1, name: "Electronics" },
+        subCategory: { id: 1, name: "Mobile Phones" },
+        image: faker.image.url(),
+        price: faker.commerce.price(),
+        attributes: [
+          { id: 1, type: { id: 1, name: "Brand" }, value: "Apple" },
+          { id: 2, type: { id: 2, name: "Color" }, value: "Black" },
+        ],
+      };
+    });
+    return products;
+  },
   getTopCategories: async () => {
     // return mock data for now
     return [

@@ -9,4 +9,5 @@ export default [
   route("products/create-attribute-type", "routes/create-attribute-type.tsx"),
   route("products/:id/add-attribute", "routes/add-attribute.tsx"),
   route("products/:id/edit", "routes/edit-product.tsx"),
+  route("products/:id", "routes/product.tsx"),
 ] satisfies RouteConfig;

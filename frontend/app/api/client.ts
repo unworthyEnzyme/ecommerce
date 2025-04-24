@@ -34,6 +34,8 @@ export const products = {
       code: "P12345",
       name: faker.commerce.product(),
       description: faker.commerce.productDescription(),
+      image: faker.image.url(),
+      price: faker.commerce.price(),
       topCategory: { id: 1, name: "Electronics" },
       subCategory: { id: 1, name: "Mobile Phones" },
       attributes: [

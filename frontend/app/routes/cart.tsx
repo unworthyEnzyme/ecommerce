@@ -184,9 +184,12 @@ export default function Cart() {
               </div>
             </div>
 
-            <button className="w-full rounded-md bg-indigo-600 px-4 py-3 text-center font-medium text-white hover:bg-indigo-700">
+            <Link
+              to="/payment"
+              className="block w-full rounded-md bg-indigo-600 px-4 py-3 text-center font-medium text-white hover:bg-indigo-700"
+            >
               Proceed to Checkout
-            </button>
+            </Link>
           </div>
         </div>
       </div>

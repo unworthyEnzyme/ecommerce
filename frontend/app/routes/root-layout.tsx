@@ -7,6 +7,7 @@ import {
   Settings,
   ShoppingCart,
   Tag,
+  User,
   UserPlus,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -130,25 +131,11 @@ function Header() {
     loadTopCategories();
   }, []);
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setDashboardOpen(false);
-      }
-
-      if (
-        cartDropdownRef.current &&
-        !cartDropdownRef.current.contains(event.target as Node)
-      ) {
-        setCartOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  //@ts-ignore
+  useOnClickOutside([dropdownRef, cartDropdownRef], () => {
+    setDashboardOpen(false);
+    setCartOpen(false);
+  });
 
   const cartTotal = cart.reduce(
     (sum, item) => sum + item.price * (item.amount || 1),
@@ -183,6 +170,12 @@ function Header() {
             className="flex items-center text-gray-700 hover:text-indigo-600 hover:underline"
           >
             <UserPlus size={16} className="mr-2" /> Sign Up
+          </Link>
+          <Link
+            to="/account"
+            className="flex items-center text-gray-700 hover:text-indigo-600 hover:underline"
+          >
+            <User size={16} className="mr-2" /> Account
           </Link>
 
           {/* Cart Dropdown */}

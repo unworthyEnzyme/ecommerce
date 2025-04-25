@@ -9,7 +9,6 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 
   try {
     const response = await auth.login(email, password);
-    // Store the token in localStorage
     localStorage.setItem("token", response.token);
     return redirect("/");
   } catch (error) {

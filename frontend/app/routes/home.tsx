@@ -31,7 +31,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     }>
   >("cart", []);
 
-  // Function to add product to cart
   const addToCart = (product: any) => {
     const existingItemIndex = cart.findIndex((item) => item.id === product.id);
 

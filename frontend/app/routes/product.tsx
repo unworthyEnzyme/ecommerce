@@ -1,4 +1,4 @@
-import { Tag } from "lucide-react";
+import { Heart, Tag } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import { useLocalStorage } from "usehooks-ts";
@@ -12,7 +12,6 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 
 export default function Product({ loaderData }: Route.ComponentProps) {
   const { product } = loaderData;
-  // Add state for selected attribute options
   const [selectedOptions, setSelectedOptions] = useState<
     Record<string, string>
   >({
@@ -26,7 +25,6 @@ export default function Product({ loaderData }: Route.ComponentProps) {
       "",
   });
 
-  // Handle attribute option selection
   const handleOptionSelect = (attributeName: string, value: string) => {
     setSelectedOptions((prev) => ({
       ...prev,
@@ -34,22 +32,24 @@ export default function Product({ loaderData }: Route.ComponentProps) {
     }));
   };
 
-  // Define attribute option types
   type AttributeKey = "Color" | "Size" | "Material";
 
-  // Sample attribute options for demonstration
   const attributeOptions: Record<AttributeKey, string[]> = {
     Color: ["Red", "White", "Black"],
     Size: ["S", "M", "L", "XL"],
     Material: ["Cotton", "Polyester", "Wool"],
   };
 
-  // Helper function to safely check if an attribute exists in our options
   const hasAttributeOptions = (key: string): key is AttributeKey => {
     return Object.keys(attributeOptions).includes(key);
   };
 
   const [_cart, setCart] = useLocalStorage("cart", [] as Array<{ id: string }>);
+  const [favorites, setFavorites] = useLocalStorage(
+    "favorites",
+    [] as string[],
+  );
+
   const addToCart = () => {
     setCart((prev) => [
       ...prev,
@@ -62,6 +62,18 @@ export default function Product({ loaderData }: Route.ComponentProps) {
       },
     ]);
   };
+
+  const toggleFavorite = () => {
+    setFavorites((prev) => {
+      if (prev.includes(product.id)) {
+        return prev.filter((id) => id !== product.id);
+      } else {
+        return [...prev, product.id];
+      }
+    });
+  };
+
+  const isFavorite = favorites.includes(product.id);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -182,13 +194,24 @@ export default function Product({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
 
-          {/* Add to cart button */}
-          <div className="mt-auto">
+          {/* Add to cart and favorite buttons */}
+          <div className="mt-auto flex gap-2">
             <button
-              className="focus:ring-opacity-50 w-full rounded-md bg-indigo-600 px-4 py-3 text-center text-white shadow-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="focus:ring-opacity-50 flex-1 rounded-md bg-indigo-600 px-4 py-3 text-center text-white shadow-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               onClick={addToCart}
             >
               Add to Cart
+            </button>
+            <button
+              className={`focus:ring-opacity-50 flex items-center justify-center rounded-md px-4 py-3 shadow-md focus:ring-2 focus:outline-none ${
+                isFavorite
+                  ? "bg-red-100 text-red-600 focus:ring-red-500"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 focus:ring-gray-500"
+              }`}
+              onClick={toggleFavorite}
+              aria-label="Add to favorites"
+            >
+              <Heart size={20} fill={isFavorite ? "currentColor" : "none"} />
             </button>
           </div>
         </div>

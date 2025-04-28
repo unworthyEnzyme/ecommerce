@@ -45,9 +45,19 @@ export default function Product({ loaderData }: Route.ComponentProps) {
   };
 
   const [_cart, setCart] = useLocalStorage("cart", [] as Array<{ id: string }>);
-  const [favorites, setFavorites] = useLocalStorage(
+
+  type FavoriteItem = {
+    id: string;
+    name: string;
+    price: number;
+    image: string | null;
+    attributes: Record<string, string>;
+    code: string;
+  };
+
+  const [favorites, setFavorites] = useLocalStorage<FavoriteItem[]>(
     "favorites",
-    [] as string[],
+    [],
   );
 
   const addToCart = () => {
@@ -65,15 +75,26 @@ export default function Product({ loaderData }: Route.ComponentProps) {
 
   const toggleFavorite = () => {
     setFavorites((prev) => {
-      if (prev.includes(product.id)) {
-        return prev.filter((id) => id !== product.id);
+      const existingIndex = prev.findIndex((item) => item.id === product.id);
+      if (existingIndex >= 0) {
+        return prev.filter((item) => item.id !== product.id);
       } else {
-        return [...prev, product.id];
+        return [
+          ...prev,
+          {
+            id: product.id,
+            name: product.name,
+            price: Number(product.price), // Convert to number explicitly
+            image: product.image,
+            code: product.code,
+            attributes: selectedOptions,
+          },
+        ];
       }
     });
   };
 
-  const isFavorite = favorites.includes(product.id);
+  const isFavorite = favorites.some((item) => item.id === product.id);
 
   return (
     <div className="container mx-auto px-4 py-8">

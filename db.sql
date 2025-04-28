@@ -190,14 +190,14 @@ CREATE TABLE OrderItems
 (
   OrderItemId INT PRIMARY KEY IDENTITY(1,1),
   OrderId INT NOT NULL,
-  ProductId INT NOT NULL,
+  VariantId INT NOT NULL,
   Quantity INT NOT NULL,
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
   IsActive BIT DEFAULT 1,
   FOREIGN KEY (OrderId) REFERENCES Orders(OrderId),
-  FOREIGN KEY (ProductId) REFERENCES Products(ProductId)
+  FOREIGN KEY (VariantId) REFERENCES Variants(VariantId)
 );
 GO
 

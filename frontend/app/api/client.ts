@@ -66,13 +66,12 @@ export const products = {
     return products;
   },
   getTopCategories: async () => {
-    // return mock data for now
-    return [
-      { id: 1, name: "Electronics" },
-      { id: 2, name: "Clothing" },
-      { id: 3, name: "Home & Kitchen" },
-      { id: 4, name: "Books" },
-    ];
+    type Result = {
+      id: number;
+      name: string;
+    };
+    const { data } = await apiClient.get<Result[]>("/product/top-categories");
+    return data;
   },
 
   getSubCategories: async (categoryId: number) => {

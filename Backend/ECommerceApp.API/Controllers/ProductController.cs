@@ -7,7 +7,6 @@ namespace ECommerceApp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
@@ -148,6 +147,20 @@ namespace ECommerceApp.API.Controllers
             catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("top-categories")]
+        public ActionResult<IEnumerable<TopCategoryDto>> GetTopCategories()
+        {
+            try
+            {
+                var topCategories = _productService.GetTopCategories();
+                return Ok(topCategories);
             }
             catch (Exception ex)
             {

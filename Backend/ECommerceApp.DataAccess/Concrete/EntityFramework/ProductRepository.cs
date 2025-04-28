@@ -11,7 +11,8 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
         public ProductRepository(AppDbContext context)
         {
             _context = context;
-        }        public IEnumerable<Product> GetAll()
+        }
+        public IEnumerable<Product> GetAll()
         {
             return _context.Products
                 .Include(p => p.TopCategory)
@@ -23,7 +24,8 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                         .ThenInclude(vav => vav.AttributeType)
                 .Where(p => p.IsActive)
                 .ToList();
-        }        public Product GetById(int id)
+        }
+        public Product GetById(int id)
         {
             return _context.Products
                 .Include(p => p.TopCategory)
@@ -34,7 +36,8 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                     .ThenInclude(v => v.VariantAttributeValues)
                         .ThenInclude(vav => vav.AttributeType)
                 .FirstOrDefault(p => p.ProductId == id && p.IsActive);
-        }        public IEnumerable<Product> GetByTopCategory(int topCategoryId)
+        }
+        public IEnumerable<Product> GetByTopCategory(int topCategoryId)
         {
             return _context.Products
                 .Include(p => p.TopCategory)
@@ -46,7 +49,8 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                         .ThenInclude(vav => vav.AttributeType)
                 .Where(p => p.TopCategoryId == topCategoryId && p.IsActive)
                 .ToList();
-        }        public IEnumerable<Product> GetBySubCategory(int subCategoryId)
+        }
+        public IEnumerable<Product> GetBySubCategory(int subCategoryId)
         {
             return _context.Products
                 .Include(p => p.TopCategory)
@@ -89,6 +93,14 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
         public bool Exists(string productCode)
         {
             return _context.Products.Any(p => p.ProductCode == productCode && p.IsActive);
+        }
+
+        public IEnumerable<TopCategory> GetTopCategories()
+        {
+            return _context.TopCategories
+                .Include(tc => tc.SubCategories)
+                .Where(tc => tc.IsActive)
+                .ToList();
         }
     }
 }

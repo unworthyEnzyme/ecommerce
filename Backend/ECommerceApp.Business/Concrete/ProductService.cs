@@ -134,5 +134,14 @@ namespace ECommerceApp.Business.Concrete
             ValidateAdminAccess(token);
             _productRepository.Delete(id);
         }
+
+        public IEnumerable<TopCategoryDto> GetTopCategories()
+        {
+            return _productRepository.GetTopCategories().Select(tc => new TopCategoryDto
+            {
+                TopCategoryId = tc.TopCategoryId,
+                TopCategoryName = tc.Name
+            });
+        }
     }
 }

@@ -11,5 +11,6 @@ namespace ECommerceApp.Business.Abstract
         void Add(CreateProductDto productDto, string token);
         void Update(int id, UpdateProductDto productDto, string token);
         void Delete(int id, string token);
+        IEnumerable<TopCategoryDto> GetTopCategories();
     }
 }

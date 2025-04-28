@@ -12,5 +12,6 @@ namespace ECommerceApp.Core.DataAccess.Abstract
         void Update(Product product);
         void Delete(int id);
         bool Exists(string productCode);
+        IEnumerable<TopCategory> GetTopCategories();
     }
 }

@@ -1,5 +1,6 @@
 namespace ECommerceApp.Business.DTOs.Product
-{    public class ProductAttributeDto
+{
+    public class ProductAttributeDto
     {
         public string AttributeName { get; set; }
         public string AttributeValue { get; set; }
@@ -47,6 +48,19 @@ namespace ECommerceApp.Business.DTOs.Product
         public string Name { get; set; }
         public string Description { get; set; }
         public int SubCategoryId { get; set; }
+        public int TopCategoryId { get; set; }
+    }
+
+    public class TopCategoryDto
+    {
+        public int TopCategoryId { get; set; }
+        public string TopCategoryName { get; set; }
+    }
+
+    public class SubCategoryDto
+    {
+        public int SubCategoryId { get; set; }
+        public string SubCategoryName { get; set; }
         public int TopCategoryId { get; set; }
     }
 }

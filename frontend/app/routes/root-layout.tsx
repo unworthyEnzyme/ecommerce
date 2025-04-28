@@ -1,14 +1,17 @@
 import {
   ChevronDown,
   Edit,
+  Home,
   LayoutDashboard,
   LogIn,
+  Menu,
   PlusCircle,
   Settings,
   ShoppingCart,
   Tag,
   User,
   UserPlus,
+  X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, Outlet } from "react-router";
@@ -87,8 +90,10 @@ function Header() {
   >([]);
   const [dashboardOpen, setDashboardOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const cartDropdownRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const [cart, setCart] = useLocalStorage<
     Array<{
@@ -132,9 +137,10 @@ function Header() {
   }, []);
 
   //@ts-ignore
-  useOnClickOutside([dropdownRef, cartDropdownRef], () => {
+  useOnClickOutside([dropdownRef, cartDropdownRef, mobileMenuRef], () => {
     setDashboardOpen(false);
     setCartOpen(false);
+    setMobileMenuOpen(false);
   });
 
   const cartTotal = cart.reduce(
@@ -144,9 +150,71 @@ function Header() {
 
   return (
     <header className="mb-8">
-      <div className="flex items-center justify-between">
+      {/* Mobile menu button */}
+      <div className="flex items-center justify-between lg:hidden">
+        <Link to="/" className="flex items-center font-medium text-indigo-600">
+          <Home size={20} className="mr-2" /> Home
+        </Link>
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="p-2 text-gray-600"
+        >
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
+
+      {/* Mobile menu */}
+      {mobileMenuOpen && (
+        <div
+          ref={mobileMenuRef}
+          className="absolute top-16 right-0 left-0 z-20 bg-white p-4 shadow-lg lg:hidden"
+        >
+          <div className="flex flex-col space-y-4">
+            {topCategories.map((category) => (
+              <CategoryDropdown
+                key={category.id}
+                category={category}
+                onLoadSubCategories={loadSubCategories}
+                subCategories={subCategories[category.id]}
+              />
+            ))}
+            <div className="mt-2 border-t border-gray-200 pt-4">
+              <Link
+                to="/login"
+                className="flex items-center py-2 text-gray-700"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <LogIn size={16} className="mr-2" /> Login
+              </Link>
+              <Link
+                to="/signup"
+                className="flex items-center py-2 text-gray-700"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <UserPlus size={16} className="mr-2" /> Sign Up
+              </Link>
+              <Link
+                to="/account"
+                className="flex items-center py-2 text-gray-700"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <User size={16} className="mr-2" /> Account
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Desktop menu */}
+      <div className="hidden items-center justify-between lg:flex">
         {/* Categories with dropdowns */}
-        <div className="flex space-x-6">
+        <div className="flex items-center space-x-6">
+          <Link
+            to="/"
+            className="mr-4 flex items-center font-medium text-indigo-600 hover:text-indigo-800"
+          >
+            <Home size={18} className="mr-2" /> Home
+          </Link>
           {topCategories.map((category) => (
             <CategoryDropdown
               key={category.id}

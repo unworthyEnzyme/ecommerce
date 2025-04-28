@@ -11,5 +11,6 @@ namespace ECommerceApp.Entities.Concrete
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
         public virtual Role Role { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
     }
 }

@@ -1,0 +1,136 @@
+using System;
+using System.Linq;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using ECommerceApp.Business.Abstract;
+using ECommerceApp.Business.DTOs.Order;
+using ECommerceApp.DataAccess.Concrete.EntityFramework;
+using ECommerceApp.Entities.Concrete;
+
+namespace ECommerceApp.Business.Concrete
+{
+  public class OrderService : IOrderService
+  {
+    private readonly AppDbContext _context;
+
+    public OrderService(AppDbContext context)
+    {
+      _context = context;
+    }
+
+    private int GetUserIdFromToken(string token)
+    {
+      if (string.IsNullOrEmpty(token))
+        throw new UnauthorizedAccessException("No token provided");
+
+      var handler = new JwtSecurityTokenHandler();
+      var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
+
+      if (jsonToken == null)
+        throw new UnauthorizedAccessException("Invalid token");
+
+      var userIdClaim = jsonToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+      if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+        throw new UnauthorizedAccessException("Invalid user ID in token");
+
+      return userId;
+    }
+
+    public int CreateOrder(CreateOrderDto orderDto, string token)
+    {
+      var userId = GetUserIdFromToken(token);
+
+      using (var transaction = _context.Database.BeginTransaction())
+      {
+        try
+        {
+          // Create shipping address
+          var shippingAddress = new ShippingAddress
+          {
+            AddressLine1 = orderDto.Address,
+            City = orderDto.City,
+            State = orderDto.State,
+            Country = orderDto.Country,
+            PostalCode = orderDto.PostalCode,
+            PhoneNumber = orderDto.PhoneNumber,
+            CreatedAt = DateTime.Now,
+            IsActive = true
+          };
+          _context.ShippingAddresses.Add(shippingAddress);
+          _context.SaveChanges();
+
+          // Calculate total amount and validate stock
+          decimal totalAmount = 0;
+          var itemsWithVariants = orderDto.Items.Select(item =>
+          {
+            var variant = _context.Variants.Find(item.VariantId);
+            if (variant == null || !variant.IsActive)
+              throw new InvalidOperationException($"Variant {item.VariantId} not found or inactive");
+
+            if (variant.StockQuantity < item.Quantity)
+              throw new InvalidOperationException($"Insufficient stock for variant {item.VariantId}");
+
+            totalAmount += variant.Price * item.Quantity;
+            variant.StockQuantity -= item.Quantity;
+
+            return (Item: item, Variant: variant);
+          }).ToList();
+
+          // Add tax
+          totalAmount += totalAmount * 0.07m;
+
+          // Create order
+          var order = new Order
+          {
+            OrderDate = DateTime.Now,
+            UserId = userId,
+            StatusId = 1, // Pending
+            ShippingAddressId = shippingAddress.ShippingAddressId,
+            TotalAmount = totalAmount,
+            CreatedAt = DateTime.Now,
+            IsActive = true
+          };
+          _context.Orders.Add(order);
+          _context.SaveChanges();
+
+          // Create order items
+          foreach (var (item, variant) in itemsWithVariants)
+          {
+            var orderItem = new OrderItem
+            {
+              OrderId = order.OrderId,
+              VariantId = item.VariantId,
+              Quantity = item.Quantity,
+              UnitPrice = variant.Price,
+              CreatedAt = DateTime.Now,
+              IsActive = true
+            };
+            _context.OrderItems.Add(orderItem);
+          }
+          _context.SaveChanges();
+
+          // Create initial payment record
+          var payment = new Payment
+          {
+            OrderId = order.OrderId,
+            Amount = totalAmount,
+            PaymentDate = DateTime.Now,
+            PaymentStatusId = 1, // Pending
+            CreatedAt = DateTime.Now,
+            IsActive = true
+          };
+          _context.Payments.Add(payment);
+          _context.SaveChanges();
+
+          transaction.Commit();
+          return order.OrderId;
+        }
+        catch
+        {
+          transaction.Rollback();
+          throw;
+        }
+      }
+    }
+  }
+}

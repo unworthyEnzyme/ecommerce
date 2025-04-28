@@ -1,8 +1,10 @@
 using ECommerceApp.Entities.Concrete;
 using Microsoft.EntityFrameworkCore;
 
-namespace ECommerceApp.DataAccess.Concrete.EntityFramework {
-    public class AppDbContext : DbContext {        
+namespace ECommerceApp.DataAccess.Concrete.EntityFramework
+{
+    public class AppDbContext : DbContext
+    {
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Operation> Operations { get; set; }
@@ -14,13 +16,21 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework {
         public DbSet<ProductVariantAttributeType> ProductVariantAttributeTypes { get; set; }
         public DbSet<Variant> Variants { get; set; }
         public DbSet<VariantAttributeValue> VariantAttributeValues { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderStatus> OrderStatuses { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<ShippingAddress> ShippingAddresses { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<PaymentStatus> PaymentStatuses { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
             optionsBuilder.UseSqlServer("Server=localhost,1433;Database=ECommerceDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;");
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder) {
-            // Existing relationships
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // User relationships
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Role)
                 .WithMany(r => r.Users)
@@ -49,6 +59,69 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework {
                 .WithMany(sc => sc.TopCategories)
                 .UsingEntity(j => j.ToTable("CategoryRelations"));
 
+            // Configure primary keys
+            modelBuilder.Entity<OrderStatus>()
+                .HasKey(os => os.StatusId);
+
+            modelBuilder.Entity<PaymentStatus>()
+                .HasKey(ps => ps.PaymentStatusId);
+
+            modelBuilder.Entity<ShippingAddress>()
+                .HasKey(sa => sa.ShippingAddressId);
+
+            modelBuilder.Entity<Order>()
+                .HasKey(o => o.OrderId);
+
+            modelBuilder.Entity<OrderItem>()
+                .HasKey(oi => oi.OrderItemId);
+
+            modelBuilder.Entity<Payment>()
+                .HasKey(p => p.PaymentId);
+
+            modelBuilder.Entity<PromotionCode>()
+                .HasKey(pc => pc.PromotionCodeId);
+
+            // Order relationships
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.User)
+                .WithMany(u => u.Orders)
+                .HasForeignKey(o => o.UserId);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Status)
+                .WithMany()
+                .HasForeignKey(o => o.StatusId);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.ShippingAddress)
+                .WithMany()
+                .HasForeignKey(o => o.ShippingAddressId);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.PromotionCode)
+                .WithMany()
+                .HasForeignKey(o => o.PromotionCodeId);
+
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.Order)
+                .WithMany(o => o.OrderItems)
+                .HasForeignKey(oi => oi.OrderId);
+
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.Variant)
+                .WithMany()
+                .HasForeignKey(oi => oi.VariantId);
+
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Order)
+                .WithMany(o => o.Payments)
+                .HasForeignKey(p => p.OrderId);
+
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Status)
+                .WithMany()
+                .HasForeignKey(p => p.PaymentStatusId);
+
             // Configure unique constraints
             modelBuilder.Entity<Product>()
                 .HasIndex(p => p.ProductCode)
@@ -62,22 +135,21 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework {
                 .HasIndex(sc => sc.Name)
                 .IsUnique();
 
-            base.OnModelCreating(modelBuilder);
-            
-            var defaultDate = new DateTime(2025, 4, 4);
-            modelBuilder.Entity<Role>().HasData(
-                new Role {
-                    RoleId = 1,
-                    Name = "Admin",
-                    CreatedAt = defaultDate,
-                    IsActive = true,
-                },
-                new Role {
-                    RoleId = 2,
-                    Name = "User",
-                    CreatedAt = defaultDate,
-                    IsActive = true,
-                });
+            modelBuilder.Entity<AttributeType>()
+                .HasIndex(at => at.AttributeName)
+                .IsUnique();
+
+            modelBuilder.Entity<OrderStatus>()
+                .HasIndex(os => os.Name)
+                .IsUnique();
+
+            modelBuilder.Entity<PaymentStatus>()
+                .HasIndex(ps => ps.Name)
+                .IsUnique();
+
+            modelBuilder.Entity<PromotionCode>()
+                .HasIndex(pc => pc.Code)
+                .IsUnique();
 
             // Product attribute and variant relationships
             modelBuilder.Entity<ProductAttributeValue>()
@@ -122,15 +194,42 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework {
                 .HasForeignKey(vav => vav.AttributeTypeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Unique constraint for AttributeType name
-            modelBuilder.Entity<AttributeType>()
-                .HasIndex(at => at.AttributeName)
-                .IsUnique();
+            // Seed data
+            var defaultDate = new DateTime(2025, 4, 4);
+            modelBuilder.Entity<Role>().HasData(
+                new Role
+                {
+                    RoleId = 1,
+                    Name = "Admin",
+                    CreatedAt = defaultDate,
+                    IsActive = true,
+                },
+                new Role
+                {
+                    RoleId = 2,
+                    Name = "User",
+                    CreatedAt = defaultDate,
+                    IsActive = true,
+                });
 
-            // Unique constraint for Product-AttributeType combination
-            modelBuilder.Entity<ProductAttributeValue>()
-                .HasIndex(pav => new { pav.ProductId, pav.AttributeTypeId })
-                .IsUnique();
+            // Seed OrderStatus
+            modelBuilder.Entity<OrderStatus>().HasData(
+                new OrderStatus { StatusId = 1, Name = "Pending", Description = "Order has been placed", IsActive = true },
+                new OrderStatus { StatusId = 2, Name = "Processing", Description = "Order is being processed", IsActive = true },
+                new OrderStatus { StatusId = 3, Name = "Shipped", Description = "Order has been shipped", IsActive = true },
+                new OrderStatus { StatusId = 4, Name = "Delivered", Description = "Order has been delivered", IsActive = true },
+                new OrderStatus { StatusId = 5, Name = "Cancelled", Description = "Order has been cancelled", IsActive = true }
+            );
+
+            // Seed PaymentStatus
+            modelBuilder.Entity<PaymentStatus>().HasData(
+                new PaymentStatus { PaymentStatusId = 1, Name = "Pending", IsActive = true },
+                new PaymentStatus { PaymentStatusId = 2, Name = "Completed", IsActive = true },
+                new PaymentStatus { PaymentStatusId = 3, Name = "Failed", IsActive = true },
+                new PaymentStatus { PaymentStatusId = 4, Name = "Refunded", IsActive = true }
+            );
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

@@ -100,7 +100,7 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                string token = Request.Headers[key: "Authorization"].ToString().Replace("Bearer ", "");
                 _productService.Add(productDto, token);
                 return Ok(new { message = "Product added successfully" });
             }

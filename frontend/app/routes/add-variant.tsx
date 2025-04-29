@@ -47,9 +47,7 @@ export default function AddAttribute({ loaderData }: Route.ComponentProps) {
   const [currentAttributeType, setCurrentAttributeType] =
     useState<AttributeType>(attributeTypes[0]);
   const unusedAttributeTypes = attributeTypes.filter(
-    (type) =>
-      !attributes.some((attr) => attr.id === type.id) &&
-      !product.attributes.some((attr) => attr.type.id === type.id),
+    (type) => !attributes.some((attr) => attr.id === type.id),
   );
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">

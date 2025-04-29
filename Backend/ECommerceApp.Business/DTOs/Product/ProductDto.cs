@@ -17,6 +17,7 @@ namespace ECommerceApp.Business.DTOs.Product
         public int VariantId { get; set; }
         public decimal Price { get; set; }
         public int StockQuantity { get; set; }
+        public ProductDto Product { get; set; }
         public List<VariantAttributeDto> Attributes { get; set; } = new();
     }
 

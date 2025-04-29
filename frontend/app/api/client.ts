@@ -49,37 +49,40 @@ export const variants = {
   async create(payload: CreateVariantBody) {
     await apiClient.post("/variant", payload);
   },
+
+  async getById(id: number) {
+    type Variant = {
+      variantId: number;
+      price: number;
+      stockQuantity: number;
+      product: {
+        productId: number;
+        productCode: string;
+        name: string;
+        description: string;
+        topCategory: {
+          id: number;
+          name: string;
+        };
+        subCategory: {
+          id: number;
+          name: string;
+          topCategoryId: number;
+        };
+      };
+      attributes: {
+        attributeName: string;
+        attributeValue: string;
+      }[];
+    };
+
+    const { data } = await apiClient.get<Variant>(`/variant/${id}`);
+    return data;
+  },
 };
 
 export const products = {
   getProductById: async (id: string) => {
-    // return {
-    //   id: id,
-    //   code: "P12345",
-    //   name: faker.commerce.product(),
-    //   description: faker.commerce.productDescription(),
-    //   image: faker.image.url(),
-    //   price: faker.commerce.price(),
-    //   topCategory: { id: 1, name: "Electronics" },
-    //   subCategory: { id: 1, name: "Mobile Phones" },
-    //   attributes: [
-    //     { id: 1, type: { id: 3, name: "Size" }, value: "S" },
-    //     { id: 2, type: { id: 2, name: "Color" }, value: "Black" },
-    //     { id: 3, type: { id: 4, name: "Material" }, value: "Cotton" },
-    //   ],
-    // };
-    // {
-    //   "productId": 1,
-    //   "productCode": "P12345",
-    //   "name": "iPhone 10",
-    //   "description": "A description",
-    //   "subCategoryId": 1,
-    //   "topCategoryId": 1,
-    //   "topCategoryName": "Electronics",
-    //   "subCategoryName": "Mobile Phones",
-    //   "attributes": [],
-    //   "variants": []
-    // }
     type Result = {
       productId: number;
       productCode: string;

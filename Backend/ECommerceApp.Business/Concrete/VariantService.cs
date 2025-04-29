@@ -65,9 +65,20 @@ namespace ECommerceApp.Business.Concrete
                     VariantId = v.VariantId,
                     Price = v.Price,
                     StockQuantity = v.StockQuantity,
-                    //ProductId = v.ProductId,
-                    //CreatedAt = v.CreatedAt,
-                    //IsActive = v.IsActive,
+                    Product = new ProductDto {
+                        ProductId = v.Product.ProductId,
+                        Name = v.Product.Name,
+                        TopCategory = new TopCategoryDto {
+                            Id = v.Product.TopCategoryId,
+                            Name = v.Product.TopCategory.Name
+                        },
+                        SubCategory = new SubCategoryDto {
+                            Id = v.Product.SubCategoryId,
+                            Name = v.Product.SubCategory.Name,
+                        },
+                        ProductCode = v.Product.ProductCode,
+                        Description = v.Product.Description,
+                    },
                     Attributes = v.VariantAttributeValues.Select(attr => new VariantAttributeDto {
                         AttributeName = attr.AttributeType.AttributeName,
                         AttributeValue = attr.AttributeValue

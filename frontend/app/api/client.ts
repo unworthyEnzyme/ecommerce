@@ -1,5 +1,5 @@
-import axios from "axios";
 import { faker } from "@faker-js/faker";
+import axios from "axios";
 
 const apiClient = axios.create({
   baseURL: "https://localhost:7215/api",
@@ -7,6 +7,14 @@ const apiClient = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+type CreateProductBody = {
+  productCode: string;
+  name: string;
+  description: string;
+  topCategoryId: string;
+  subCategoryId: string;
+};
 
 export const auth = {
   login: async (email: string, password: string) => {
@@ -64,6 +72,15 @@ export const products = {
       };
     });
     return products;
+  },
+
+  createProduct: async (product: CreateProductBody) => {
+    const token = localStorage.getItem("token");
+    await apiClient.post("/product", product, {
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
   },
   getTopCategories: async () => {
     type Result = {

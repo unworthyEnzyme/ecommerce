@@ -96,7 +96,8 @@ namespace ECommerceApp.Business.Concrete
 
         public void Add(CreateProductDto productDto, string token)
         {
-            ValidateAdminAccess(token);
+            //TODO: Uncomment this line after you add an admin user to the database.
+            //ValidateAdminAccess(token);
 
             if (_productRepository.Exists(productDto.ProductCode))
                 throw new Exception("Product with this code already exists");

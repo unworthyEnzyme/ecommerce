@@ -1,12 +1,30 @@
-import { Form } from "react-router";
-import type { Route } from "./+types/add-product";
-import { products } from "~/api/client";
 import { useState } from "react";
+import { Form, redirect } from "react-router";
+import { products } from "~/api/client";
+import type { Route } from "./+types/add-product";
 
 export async function clientLoader({ request }: Route.LoaderArgs) {
   const topCategories = await products.getTopCategories();
 
   return { topCategories };
+}
+
+export async function clientAction({ request }: Route.ActionArgs) {
+  const form = await request.formData();
+  const productCode = form.get("product-code") as string;
+  const name = form.get("name") as string;
+  const description = form.get("description") as string;
+  const topCategoryId = form.get("top-category-id") as string;
+  const subCategoryId = form.get("sub-category-id") as string;
+
+  await products.createProduct({
+    productCode,
+    name,
+    description,
+    topCategoryId,
+    subCategoryId,
+  });
+  return redirect("/products/add");
 }
 
 interface Category {

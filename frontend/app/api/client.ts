@@ -132,6 +132,7 @@ export const products = {
       { id: 2, name: "Color" },
       { id: 3, name: "Size" },
       { id: 4, name: "Material" },
+      { id: 5, name: "Memory" },
     ];
   },
 

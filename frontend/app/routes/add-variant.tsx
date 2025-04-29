@@ -1,5 +1,5 @@
 import { Form } from "react-router";
-import type { Route } from "./+types/add-attribute";
+import type { Route } from "./+types/add-variant";
 import * as api from "~/api/client";
 import { useState } from "react";
 
@@ -8,6 +8,26 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
   const product = await api.products.getProductById(params.id);
 
   return { attributeTypes, product };
+}
+
+export async function clientAction({ request, params }: Route.ActionArgs) {
+  const productId = params.id;
+  const form = await request.formData();
+  const price = form.get("price");
+  const stock = form.get("stock");
+  const attributes: Array<{ id: number; value: string }> = [];
+  for (const [key, value] of form.entries()) {
+    if (key.startsWith("attribute-")) {
+      const idMatch = key.match(/^attribute-(\d+)$/);
+      if (idMatch) {
+        const id = parseInt(idMatch[1], 10);
+        attributes.push({ id, value: value as string });
+      }
+    }
+  }
+  const requestBody = { productId, price, stock, attributes };
+  console.log(requestBody);
+  return requestBody;
 }
 
 type AttributeType = {
@@ -48,21 +68,6 @@ export default function AddAttribute({ loaderData }: Route.ComponentProps) {
             <div className="text-sm">
               <span className="font-medium text-gray-500">Subcategory:</span>{" "}
               <span className="text-gray-900">{product.subCategory.name}</span>
-            </div>
-          </div>
-          <div className="mt-4">
-            <span className="text-sm font-medium text-gray-500">
-              Current Attributes:
-            </span>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {product.attributes.map((attr) => (
-                <span
-                  key={attr.id}
-                  className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
-                >
-                  {attr.type.name}: {attr.value}
-                </span>
-              ))}
             </div>
           </div>
         </div>
@@ -138,6 +143,12 @@ export default function AddAttribute({ loaderData }: Route.ComponentProps) {
               Add Attribute
             </button>
           </fieldset>
+          <button
+            type="submit"
+            className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+          >
+            Create
+          </button>
         </Form>
       </div>
     </div>

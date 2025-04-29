@@ -405,7 +405,7 @@ function Header() {
                   <div className="my-1 border-t border-gray-100"></div>
 
                   <Link
-                    to="/products/1/add-attribute"
+                    to="/products/1/add-variant"
                     className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50"
                     onClick={() => setDashboardOpen(false)}
                   >
@@ -414,7 +414,7 @@ function Header() {
                       className="mr-3 text-gray-400 group-hover:text-indigo-500"
                     />
                     <span className="group-hover:text-indigo-600">
-                      Add Attribute
+                      Add Variant
                     </span>
                   </Link>
 

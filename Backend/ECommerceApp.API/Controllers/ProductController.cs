@@ -21,13 +21,8 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                var products = _productService.GetAll(token);
+                var products = _productService.GetAll();
                 return Ok(products);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -40,15 +35,10 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                var product = _productService.GetById(id, token);
+                var product = _productService.GetById(id);
                 if (product == null)
                     return NotFound(new { message = "Product not found" });
                 return Ok(product);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -61,13 +51,8 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                var products = _productService.GetByTopCategory(topCategoryId, token);
+                var products = _productService.GetByTopCategory(topCategoryId);
                 return Ok(products);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -80,13 +65,8 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                var products = _productService.GetBySubCategory(subCategoryId, token);
+                var products = _productService.GetBySubCategory(subCategoryId);
                 return Ok(products);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
             }
             catch (Exception ex)
             {

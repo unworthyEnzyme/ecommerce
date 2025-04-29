@@ -73,23 +73,23 @@ namespace ECommerceApp.Business.Concrete
             };
         }
 
-        public IEnumerable<ProductDto> GetAll(string token)
+        public IEnumerable<ProductDto> GetAll()
         {
             return _productRepository.GetAll().Select(MapToDto);
         }
 
-        public ProductDto GetById(int id, string token)
+        public ProductDto GetById(int id)
         {
             var product = _productRepository.GetById(id);
             return product != null ? MapToDto(product) : null;
         }
 
-        public IEnumerable<ProductDto> GetByTopCategory(int topCategoryId, string token)
+        public IEnumerable<ProductDto> GetByTopCategory(int topCategoryId)
         {
             return _productRepository.GetByTopCategory(topCategoryId).Select(MapToDto);
         }
 
-        public IEnumerable<ProductDto> GetBySubCategory(int subCategoryId, string token)
+        public IEnumerable<ProductDto> GetBySubCategory(int subCategoryId)
         {
             return _productRepository.GetBySubCategory(subCategoryId).Select(MapToDto);
         }

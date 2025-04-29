@@ -47,9 +47,9 @@ export const products = {
       topCategory: { id: 1, name: "Electronics" },
       subCategory: { id: 1, name: "Mobile Phones" },
       attributes: [
-        { id: 1, type: { id: 1, name: "Size" }, value: "S" },
+        { id: 1, type: { id: 3, name: "Size" }, value: "S" },
         { id: 2, type: { id: 2, name: "Color" }, value: "Black" },
-        { id: 3, type: { id: 3, name: "Material" }, value: "Cotton" },
+        { id: 3, type: { id: 4, name: "Material" }, value: "Cotton" },
       ],
     };
   },

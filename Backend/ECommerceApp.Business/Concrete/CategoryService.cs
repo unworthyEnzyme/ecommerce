@@ -33,7 +33,7 @@ namespace ECommerceApp.Business.Concrete
         {
             _categoryRepository.AddTopCategory(new TopCategory
             {
-                Name = topCategoryDto.TopCategoryName,
+                Name = topCategoryDto.Name,
             });
         }
 
@@ -42,8 +42,8 @@ namespace ECommerceApp.Business.Concrete
             return _categoryRepository.GetSubCategoriesByTopCategoryId(topCategoryId)
                 .Select(sc => new SubCategoryDto
                 {
-                    SubCategoryId = sc.SubCategoryId,
-                    SubCategoryName = sc.Name,
+                    Id = sc.SubCategoryId,
+                    Name = sc.Name,
                     TopCategoryId = topCategoryId,
                 }).ToList();
         }
@@ -53,8 +53,8 @@ namespace ECommerceApp.Business.Concrete
             var topCategories = _categoryRepository.GetTopCategories();
             return topCategories.Select(tc => new TopCategoryDto
             {
-                TopCategoryId = tc.TopCategoryId,
-                TopCategoryName = tc.Name,
+                Id = tc.TopCategoryId,
+                Name = tc.Name,
             }).ToList();
         }
     }

@@ -44,10 +44,15 @@ namespace ECommerceApp.Business.Concrete
                 ProductCode = product.ProductCode,
                 Name = product.Name,
                 Description = product.Description,
-                SubCategoryId = product.SubCategoryId,
-                TopCategoryId = product.TopCategoryId,
-                TopCategoryName = product.TopCategory?.Name,
-                SubCategoryName = product.SubCategory?.Name,
+                SubCategory = new SubCategoryDto { 
+                    Id = product.SubCategoryId, 
+                    Name = product.SubCategory.Name, 
+                    TopCategoryId = product.TopCategoryId 
+                },
+                TopCategory = new TopCategoryDto { 
+                    Id = product.TopCategoryId, 
+                    Name = product.TopCategory.Name 
+                },
                 Attributes = product.ProductAttributeValues
                     .Where(pav => pav.IsActive)
                     .Select(pav => new ProductAttributeDto
@@ -140,8 +145,8 @@ namespace ECommerceApp.Business.Concrete
         {
             return _productRepository.GetTopCategories().Select(tc => new TopCategoryDto
             {
-                TopCategoryId = tc.TopCategoryId,
-                TopCategoryName = tc.Name
+                Id = tc.TopCategoryId,
+                Name = tc.Name
             });
         }
     }

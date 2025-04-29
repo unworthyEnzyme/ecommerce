@@ -26,10 +26,8 @@ namespace ECommerceApp.Business.DTOs.Product
         public string ProductCode { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public int SubCategoryId { get; set; }
-        public int TopCategoryId { get; set; }
-        public string TopCategoryName { get; set; }
-        public string SubCategoryName { get; set; }
+        public TopCategoryDto TopCategory { get; set; }
+        public SubCategoryDto SubCategory { get; set; }
         public List<ProductAttributeDto> Attributes { get; set; } = new();
         public List<VariantDto> Variants { get; set; } = new();
     }
@@ -53,14 +51,14 @@ namespace ECommerceApp.Business.DTOs.Product
 
     public class TopCategoryDto
     {
-        public int TopCategoryId { get; set; }
-        public string TopCategoryName { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 
     public class SubCategoryDto
     {
-        public int SubCategoryId { get; set; }
-        public string SubCategoryName { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
         public int TopCategoryId { get; set; }
     }
 }

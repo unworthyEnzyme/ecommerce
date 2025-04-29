@@ -85,10 +85,15 @@ export const products = {
       productCode: string;
       name: string;
       description: string;
-      subCategoryId: number;
-      topCategoryId: number;
-      subCategoryName: string;
-      topCategoryName: string;
+      subCategory: {
+        topCategoryId: number;
+        id: number;
+        name: string;
+      };
+      topCategory: {
+        id: number;
+        name: string;
+      };
     };
     const { data } = await apiClient.get<Result>(`/product/${id}`);
     return {
@@ -96,8 +101,8 @@ export const products = {
       code: data.productCode,
       name: data.name,
       description: data.description,
-      topCategory: { id: data.topCategoryId, name: data.topCategoryName },
-      subCategory: { id: data.subCategoryId, name: data.subCategoryName },
+      topCategory: data.topCategory,
+      subCategory: data.subCategory,
     };
   },
 
@@ -131,14 +136,11 @@ export const products = {
   },
   getTopCategories: async () => {
     type Result = {
-      topCategoryId: number;
-      topCategoryName: string;
+      id: number;
+      name: string;
     };
     const { data } = await apiClient.get<Result[]>("/category/top-categories");
-    return data.map((c) => ({
-      id: c.topCategoryId,
-      name: c.topCategoryName,
-    }));
+    return data;
   },
 
   createTopCategory: async (name: string) => {
@@ -160,17 +162,14 @@ export const products = {
 
   getSubCategories: async (categoryId: number) => {
     type Result = {
-      subCategoryId: number;
-      subCategoryName: string;
+      id: number;
+      name: string;
       topCategoryId: number;
     };
     const { data } = await apiClient.get<Result[]>(
       `/category/sub-categories/${categoryId}`,
     );
-    return data.map((c) => ({
-      id: c.subCategoryId,
-      name: c.subCategoryName,
-    }));
+    return data;
   },
 
   getAttributeTypes: async () => {

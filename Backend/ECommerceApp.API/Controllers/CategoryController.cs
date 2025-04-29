@@ -1,4 +1,5 @@
 ﻿using ECommerceApp.Business.Abstract;
+using ECommerceApp.Business.DTOs.Category;
 using ECommerceApp.Business.DTOs.Product;
 using Microsoft.AspNetCore.Mvc;
 
@@ -50,7 +51,7 @@ namespace ECommerceApp.API.Controllers
             try
             {
                 _categoryService.AddTopCategory(topCategoryDto);
-                return CreatedAtAction(nameof(GetTopCategories), new { id = topCategoryDto.TopCategoryId }, topCategoryDto);
+                return Ok(new { success = true });
             }
             catch (Exception ex)
             {
@@ -59,14 +60,14 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpPost("sub-category")]
-        public ActionResult AddSubCategory([FromBody] SubCategoryDto subCategoryDto)
+        public ActionResult AddSubCategory([FromBody] CreateSubCategoryDto createSubCategoryDto)
         {
             try
             {
-                _categoryService.AddSubCategory(subCategoryDto);
-                return CreatedAtAction(nameof(GetSubCategories), new { id = subCategoryDto.SubCategoryId }, subCategoryDto);
-            }
-            catch (Exception ex)
+                _categoryService.AddSubCategory(createSubCategoryDto);
+                return Ok(new { success = true });
+
+            } catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
             }

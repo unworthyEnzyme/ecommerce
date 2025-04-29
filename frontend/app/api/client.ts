@@ -35,22 +35,69 @@ export const auth = {
   },
 };
 
+type CreateVariantBody = {
+  productId: string;
+  price: string;
+  stock: string;
+  attributes: {
+    id: number;
+    value: string;
+  }[];
+};
+
+export const variants = {
+  async create(payload: CreateVariantBody) {
+    await apiClient.post("/variant", payload);
+  },
+};
+
 export const products = {
   getProductById: async (id: string) => {
+    // return {
+    //   id: id,
+    //   code: "P12345",
+    //   name: faker.commerce.product(),
+    //   description: faker.commerce.productDescription(),
+    //   image: faker.image.url(),
+    //   price: faker.commerce.price(),
+    //   topCategory: { id: 1, name: "Electronics" },
+    //   subCategory: { id: 1, name: "Mobile Phones" },
+    //   attributes: [
+    //     { id: 1, type: { id: 3, name: "Size" }, value: "S" },
+    //     { id: 2, type: { id: 2, name: "Color" }, value: "Black" },
+    //     { id: 3, type: { id: 4, name: "Material" }, value: "Cotton" },
+    //   ],
+    // };
+    // {
+    //   "productId": 1,
+    //   "productCode": "P12345",
+    //   "name": "iPhone 10",
+    //   "description": "A description",
+    //   "subCategoryId": 1,
+    //   "topCategoryId": 1,
+    //   "topCategoryName": "Electronics",
+    //   "subCategoryName": "Mobile Phones",
+    //   "attributes": [],
+    //   "variants": []
+    // }
+    type Result = {
+      productId: number;
+      productCode: string;
+      name: string;
+      description: string;
+      subCategoryId: number;
+      topCategoryId: number;
+      subCategoryName: string;
+      topCategoryName: string;
+    };
+    const { data } = await apiClient.get<Result>(`/product/${id}`);
     return {
-      id: id,
-      code: "P12345",
-      name: faker.commerce.product(),
-      description: faker.commerce.productDescription(),
-      image: faker.image.url(),
-      price: faker.commerce.price(),
-      topCategory: { id: 1, name: "Electronics" },
-      subCategory: { id: 1, name: "Mobile Phones" },
-      attributes: [
-        { id: 1, type: { id: 3, name: "Size" }, value: "S" },
-        { id: 2, type: { id: 2, name: "Color" }, value: "Black" },
-        { id: 3, type: { id: 4, name: "Material" }, value: "Cotton" },
-      ],
+      id: data.productId,
+      code: data.productCode,
+      name: data.name,
+      description: data.description,
+      topCategory: { id: data.topCategoryId, name: data.topCategoryName },
+      subCategory: { id: data.subCategoryId, name: data.subCategoryName },
     };
   },
 
@@ -127,13 +174,12 @@ export const products = {
   },
 
   getAttributeTypes: async () => {
-    return [
-      { id: 1, name: "Brand" },
-      { id: 2, name: "Color" },
-      { id: 3, name: "Size" },
-      { id: 4, name: "Material" },
-      { id: 5, name: "Memory" },
-    ];
+    type Result = {
+      id: number;
+      name: string;
+    };
+    const { data } = await apiClient.get<Result[]>("/AttributeType");
+    return data;
   },
 
   createAttributeType: async (name: string) => {

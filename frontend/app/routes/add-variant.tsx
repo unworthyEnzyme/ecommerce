@@ -13,8 +13,8 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 export async function clientAction({ request, params }: Route.ActionArgs) {
   const productId = params.id;
   const form = await request.formData();
-  const price = form.get("price");
-  const stock = form.get("stock");
+  const price = form.get("price") as string;
+  const stock = form.get("stock") as string;
   const attributes: Array<{ id: number; value: string }> = [];
   for (const [key, value] of form.entries()) {
     if (key.startsWith("attribute-")) {
@@ -26,7 +26,7 @@ export async function clientAction({ request, params }: Route.ActionArgs) {
     }
   }
   const requestBody = { productId, price, stock, attributes };
-  console.log(requestBody);
+  await api.variants.create(requestBody);
   return requestBody;
 }
 

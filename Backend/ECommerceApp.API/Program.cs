@@ -52,6 +52,10 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IVariantRepository, VariantRepository>();
+builder.Services.AddScoped<IVariantService, VariantService>();
+builder.Services.AddScoped<IAttributeTypeRepository, AttributeTypeRepository>();
+builder.Services.AddScoped<IAttributeTypeService, AttributeTypeService>();
 
 var app = builder.Build();
 

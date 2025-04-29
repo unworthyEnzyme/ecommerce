@@ -1,4 +1,5 @@
-﻿using ECommerceApp.Business.DTOs.Product;
+﻿using ECommerceApp.Business.DTOs.Category;
+using ECommerceApp.Business.DTOs.Product;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,6 @@ namespace ECommerceApp.Business.Abstract {
         IEnumerable<TopCategoryDto> GetTopCategories();
         IEnumerable<SubCategoryDto> GetSubCategories(int topCategoryId);
         void AddTopCategory(TopCategoryDto topCategoryDto);
-        void AddSubCategory(SubCategoryDto subCategoryDto);
+        void AddSubCategory(CreateSubCategoryDto createSubCategoryDto);
     }
 }

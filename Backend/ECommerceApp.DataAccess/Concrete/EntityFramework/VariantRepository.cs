@@ -1,0 +1,42 @@
+﻿using ECommerceApp.Core.DataAccess.Abstract;
+using ECommerceApp.Entities.Concrete;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ECommerceApp.DataAccess.Concrete.EntityFramework
+{
+    public class VariantRepository : IVariantRepository
+    {
+        private readonly AppDbContext _context;
+
+        public VariantRepository(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        public void Add(Variant variant)
+        {
+            _context.Variants.Add(variant);
+            _context.SaveChanges();
+        }
+
+        public IEnumerable<Variant> GetAll()
+        {
+            return _context.Variants
+                .Include(v => v.VariantAttributeValues)
+                .ThenInclude(vav => vav.AttributeType)
+                .ToList();
+        }
+
+        public Variant GetById(int id) {
+            return _context.Variants
+                .Include(v => v.VariantAttributeValues)
+                .ThenInclude(vav => vav.AttributeType)
+                .FirstOrDefault(v => v.VariantId == id);
+        }
+    }
+}

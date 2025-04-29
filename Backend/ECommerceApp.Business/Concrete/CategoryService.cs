@@ -1,4 +1,5 @@
 ﻿using ECommerceApp.Business.Abstract;
+using ECommerceApp.Business.DTOs.Category;
 using ECommerceApp.Business.DTOs.Product;
 using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.Entities.Concrete;
@@ -18,14 +19,14 @@ namespace ECommerceApp.Business.Concrete
             _categoryRepository = categoryRepository;
         }
 
-        public void AddSubCategory(SubCategoryDto subCategoryDto)
+        public void AddSubCategory(CreateSubCategoryDto createSubCategoryDto)
         {
             var subCategory = new SubCategory
             {
-                Name = subCategoryDto.SubCategoryName,
+                Name = createSubCategoryDto.Name,
             };
 
-            _categoryRepository.AddSubCategory(subCategory, subCategoryDto.TopCategoryId);
+            _categoryRepository.AddSubCategory(subCategory, createSubCategoryDto.TopCategoryId);
         }
 
         public void AddTopCategory(TopCategoryDto topCategoryDto)

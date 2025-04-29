@@ -42,5 +42,7 @@ namespace ECommerceApp.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        //TODO: Get possible attribute types and values for a variant.
     }
 }

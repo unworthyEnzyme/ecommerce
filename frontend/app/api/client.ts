@@ -67,21 +67,46 @@ export const products = {
   },
   getTopCategories: async () => {
     type Result = {
-      id: number;
-      name: string;
+      topCategoryId: number;
+      topCategoryName: string;
     };
-    const { data } = await apiClient.get<Result[]>("/product/top-categories");
-    return data;
+    const { data } = await apiClient.get<Result[]>("/category/top-categories");
+    return data.map((c) => ({
+      id: c.topCategoryId,
+      name: c.topCategoryName,
+    }));
+  },
+
+  createTopCategory: async (name: string) => {
+    const { data } = await apiClient.post("/category/top-categories", {
+      name,
+    });
+
+    return { data };
+  },
+
+  createSubCategory: async (name: string, topCategoryId: string) => {
+    const { data } = await apiClient.post("/product/sub-categories", {
+      name,
+      topCategoryId,
+    });
+
+    return { data };
   },
 
   getSubCategories: async (categoryId: number) => {
-    // return mock data for now
-    return [
-      { id: 1, name: "Mobile Phones" },
-      { id: 2, name: "Laptops" },
-      { id: 3, name: "Tablets" },
-      { id: 4, name: "Cameras" },
-    ];
+    type Result = {
+      subCategoryId: number;
+      subCategoryName: string;
+      topCategoryId: number;
+    };
+    const { data } = await apiClient.get<Result[]>(
+      `/category/sub-categories/${categoryId}`,
+    );
+    return data.map((c) => ({
+      id: c.subCategoryId,
+      name: c.subCategoryName,
+    }));
   },
 
   getAttributeTypes: async () => {

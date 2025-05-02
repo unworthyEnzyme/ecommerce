@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,5 +19,6 @@ namespace ECommerceApp.Business.DTOs.Variant
             public int Id { get; set; }
             public string Value { get; set; }
         }
+        public required IEnumerable<CreateVariantImageDto> Images { get; set; }
     }
 }

@@ -1,23 +1,19 @@
 ﻿using ECommerceApp.Business.Abstract;
-using ECommerceApp.Business.DTOs.Product;
 using ECommerceApp.Business.DTOs.Variant;
 using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerceApp.Business.Concrete
 {
     public class VariantService : IVariantService
     {
         private readonly IVariantRepository _variantRepository;
+        private readonly IVariantImageRepository _variantImageRepository;
 
-        public VariantService(IVariantRepository variantRepository)
+        public VariantService(IVariantRepository variantRepository, IVariantImageRepository variantImageRepository)
         {
             _variantRepository = variantRepository;
+            _variantImageRepository = variantImageRepository;
         }
 
         public void Add(CreateVariantDto createVariantDto)
@@ -29,62 +25,73 @@ namespace ECommerceApp.Business.Concrete
                 ProductId = createVariantDto.ProductId,
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true,
+                VariantImages = createVariantDto.Images.Select(img => new VariantImage
+                {
+                    ImageUrl = img.ImageUrl,
+                    IsPrimary = img.IsPrimary,
+                    SortOrder = img.SortOrder,
+                    CreatedAt = DateTime.UtcNow,
+                    IsActive = true
+                }).ToList(),
                 VariantAttributeValues = createVariantDto.Attributes.Select(attr => new VariantAttributeValue
                 {
                     AttributeTypeId = attr.Id,
-                    AttributeValue = attr.Value
+                    AttributeValue = attr.Value,
+                    CreatedAt = DateTime.UtcNow,
+                    IsActive = true
                 }).ToList()
             };
             _variantRepository.Add(variant);
-
         }
 
         public IEnumerable<VariantDto> GetAll()
         {
             return _variantRepository.GetAll().Select(v => new VariantDto
             {
-                VariantId = v.VariantId,
+                Id = v.VariantId,
                 Price = v.Price,
-                StockQuantity = v.StockQuantity,
-                //ProductId = v.ProductId,
-                //CreatedAt = v.CreatedAt,
-                //IsActive = v.IsActive,
+                Stock = v.StockQuantity,
                 Attributes = v.VariantAttributeValues.Select(attr => new VariantAttributeDto
                 {
                     AttributeName = attr.AttributeType.AttributeName,
                     AttributeValue = attr.AttributeValue
-                }).ToList()
+                }).ToList(),
+                Images = _variantImageRepository.GetByVariantId(v.VariantId)
+                    .Select(vi => new VariantImageDto
+                    {
+                        ImageId = vi.ImageId,
+                        ImageUrl = vi.ImageUrl,
+                        IsPrimary = vi.IsPrimary,
+                        SortOrder = vi.SortOrder
+                    }).ToList()
             });
         }
 
-        public VariantDto GetById(int id) {
-            return _variantRepository
-                .GetAll()
-                .Where(v => v.VariantId == id)
-                .Select(v => new VariantDto {
-                    VariantId = v.VariantId,
-                    Price = v.Price,
-                    StockQuantity = v.StockQuantity,
-                    Product = new ProductDto {
-                        ProductId = v.Product.ProductId,
-                        Name = v.Product.Name,
-                        TopCategory = new TopCategoryDto {
-                            Id = v.Product.TopCategoryId,
-                            Name = v.Product.TopCategory.Name
-                        },
-                        SubCategory = new SubCategoryDto {
-                            Id = v.Product.SubCategoryId,
-                            Name = v.Product.SubCategory.Name,
-                        },
-                        ProductCode = v.Product.ProductCode,
-                        Description = v.Product.Description,
-                    },
-                    Attributes = v.VariantAttributeValues.Select(attr => new VariantAttributeDto {
-                        AttributeName = attr.AttributeType.AttributeName,
-                        AttributeValue = attr.AttributeValue
+        public VariantDto GetById(int id)
+        {
+            var variant = _variantRepository.GetById(id);
+            if (variant == null)
+                return null;
+
+            return new VariantDto
+            {
+                Id = variant.VariantId,
+                Price = variant.Price,
+                Stock = variant.StockQuantity,
+                Attributes = variant.VariantAttributeValues.Select(attr => new VariantAttributeDto
+                {
+                    AttributeName = attr.AttributeType.AttributeName,
+                    AttributeValue = attr.AttributeValue
+                }).ToList(),
+                Images = _variantImageRepository.GetByVariantId(variant.VariantId)
+                    .Select(vi => new VariantImageDto
+                    {
+                        ImageId = vi.ImageId,
+                        ImageUrl = vi.ImageUrl,
+                        IsPrimary = vi.IsPrimary,
+                        SortOrder = vi.SortOrder
                     }).ToList()
-                })
-                .FirstOrDefault();
+            };
         }
     }
 }

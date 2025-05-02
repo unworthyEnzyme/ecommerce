@@ -1,3 +1,5 @@
+using ECommerceApp.Business.DTOs.Variant;
+
 namespace ECommerceApp.Business.DTOs.Product
 {
     public class ProductAttributeDto
@@ -6,20 +8,6 @@ namespace ECommerceApp.Business.DTOs.Product
         public string AttributeValue { get; set; }
     }
 
-    public class VariantAttributeDto
-    {
-        public string AttributeName { get; set; }
-        public string AttributeValue { get; set; }
-    }
-
-    public class VariantDto
-    {
-        public int VariantId { get; set; }
-        public decimal Price { get; set; }
-        public int StockQuantity { get; set; }
-        public ProductDto Product { get; set; }
-        public List<VariantAttributeDto> Attributes { get; set; } = new();
-    }
 
     public class ProductDto
     {

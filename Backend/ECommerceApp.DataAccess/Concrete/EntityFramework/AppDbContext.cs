@@ -22,6 +22,7 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
         public DbSet<ShippingAddress> ShippingAddresses { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<PaymentStatus> PaymentStatuses { get; set; }
+        public DbSet<VariantImage> VariantImages { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -80,6 +81,9 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
 
             modelBuilder.Entity<PromotionCode>()
                 .HasKey(pc => pc.PromotionCodeId);
+
+            modelBuilder.Entity<VariantImage>()
+                .HasKey(vi => vi.ImageId);
 
             // Order relationships
             modelBuilder.Entity<Order>()
@@ -193,6 +197,12 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .WithMany(at => at.VariantAttributeValues)
                 .HasForeignKey(vav => vav.AttributeTypeId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<VariantImage>()
+                .HasOne(vi => vi.Variant)
+                .WithMany(v => v.VariantImages)
+                .HasForeignKey(vi => vi.VariantId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Seed data
             var defaultDate = new DateTime(2025, 4, 4);

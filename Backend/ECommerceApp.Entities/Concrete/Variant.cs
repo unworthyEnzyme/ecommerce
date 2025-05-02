@@ -15,5 +15,6 @@ namespace ECommerceApp.Entities.Concrete
 
         public virtual Product Product { get; set; }
         public virtual ICollection<VariantAttributeValue> VariantAttributeValues { get; set; }
+        public virtual ICollection<VariantImage> VariantImages { get; set; }
     }
 }

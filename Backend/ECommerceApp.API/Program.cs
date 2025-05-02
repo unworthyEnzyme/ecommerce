@@ -56,6 +56,7 @@ builder.Services.AddScoped<IVariantRepository, VariantRepository>();
 builder.Services.AddScoped<IVariantService, VariantService>();
 builder.Services.AddScoped<IAttributeTypeRepository, AttributeTypeRepository>();
 builder.Services.AddScoped<IAttributeTypeService, AttributeTypeService>();
+builder.Services.AddScoped<IVariantImageRepository, VariantImageRepository>();
 
 var app = builder.Build();
 

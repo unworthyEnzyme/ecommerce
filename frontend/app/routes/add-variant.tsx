@@ -16,6 +16,8 @@ export async function clientAction({ request, params }: Route.ActionArgs) {
   const price = form.get("price") as string;
   const stock = form.get("stock") as string;
   const attributes: Array<{ id: number; value: string }> = [];
+  const imageUrls: string[] = [];
+
   for (const [key, value] of form.entries()) {
     if (key.startsWith("attribute-")) {
       const idMatch = key.match(/^attribute-(\d+)$/);
@@ -23,9 +25,18 @@ export async function clientAction({ request, params }: Route.ActionArgs) {
         const id = parseInt(idMatch[1], 10);
         attributes.push({ id, value: value as string });
       }
+    } else if (key.startsWith("image-")) {
+      imageUrls.push(value as string);
     }
   }
-  const requestBody = { productId, price, stock, attributes };
+
+  const images = imageUrls.map((imageUrl, index) => ({
+    imageUrl,
+    isPrimary: index === 0, // First image is primary
+    sortOrder: index, // Use index as sort order
+  }));
+
+  const requestBody = { productId, price, stock, attributes, images };
   await api.variants.create(requestBody);
   return requestBody;
 }
@@ -46,9 +57,32 @@ export default function AddAttribute({ loaderData }: Route.ComponentProps) {
   const [attributes, setAttributes] = useState<Attribute[]>([]);
   const [currentAttributeType, setCurrentAttributeType] =
     useState<AttributeType>(attributeTypes[0]);
+  const [uploadedImages, setUploadedImages] = useState<
+    Array<{ url: string; name: string }>
+  >([]);
+  console.log(uploadedImages);
   const unusedAttributeTypes = attributeTypes.filter(
     (type) => !attributes.some((attr) => attr.id === type.id),
   );
+
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (!event.target.files || event.target.files.length === 0) return;
+
+    const filesToUpload = Array.from(event.target.files);
+    try {
+      const uploadedUrls = await api.assets.uploadFiles(filesToUpload);
+      const newImages = uploadedUrls.map((url, index) => ({
+        url,
+        name: filesToUpload[index].name,
+      }));
+      setUploadedImages((prev) => [...prev, ...newImages]);
+    } catch (error) {
+      console.error("Error uploading files:", error);
+    }
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="w-full max-w-2xl space-y-8 rounded-lg bg-white p-8 shadow-lg">
@@ -90,6 +124,40 @@ export default function AddAttribute({ loaderData }: Route.ComponentProps) {
                 className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
+
+            {/* Image Upload Section */}
+            <div className="mb-4">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Product Images
+              </label>
+              <input
+                type="file"
+                onChange={handleFileUpload}
+                multiple
+                accept="image/*"
+                className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100"
+              />
+              {uploadedImages.length > 0 && (
+                <div className="mt-2">
+                  <p className="text-sm text-gray-500">Uploaded files:</p>
+                  <ul className="mt-1 list-disc pl-5 text-sm">
+                    {uploadedImages.map((img, idx) => (
+                      <li key={idx}>{img.name}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {/* Hidden inputs for image URLs */}
+              {uploadedImages.map((img, idx) => (
+                <input
+                  key={idx}
+                  type="hidden"
+                  name={`image-${idx}`}
+                  value={img.url}
+                />
+              ))}
+            </div>
+
             {attributes.map((attribute) => (
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">

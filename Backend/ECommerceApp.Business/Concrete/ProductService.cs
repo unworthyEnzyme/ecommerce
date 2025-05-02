@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Product;
+using ECommerceApp.Business.DTOs.Variant;
 using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.Entities.Concrete;
 
@@ -64,9 +65,9 @@ namespace ECommerceApp.Business.Concrete
                     .Where(v => v.IsActive)
                     .Select(v => new VariantDto
                     {
-                        VariantId = v.VariantId,
+                        Id = v.VariantId,
                         Price = v.Price,
-                        StockQuantity = v.StockQuantity,
+                        Stock = v.StockQuantity,
                         Attributes = v.VariantAttributeValues
                             .Where(vav => vav.IsActive)
                             .Select(vav => new VariantAttributeDto

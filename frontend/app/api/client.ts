@@ -43,6 +43,11 @@ type CreateVariantBody = {
     id: number;
     value: string;
   }[];
+  images: {
+    imageUrl: string;
+    isPrimary: boolean;
+    sortOrder: number;
+  }[];
 };
 
 export const variants = {
@@ -317,6 +322,28 @@ export const products = {
       };
     });
     return products;
+  },
+};
+
+export const assets = {
+  uploadFiles: async (files: File[]) => {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    const token = localStorage.getItem("token");
+    const { data } = await apiClient.post<string[]>(
+      "/assets/upload",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
+      },
+    );
+    return data;
   },
 };
 

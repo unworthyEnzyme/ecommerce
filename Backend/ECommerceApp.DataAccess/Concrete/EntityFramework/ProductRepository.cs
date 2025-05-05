@@ -64,12 +64,13 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .ToList();
         }
 
-        public void Add(Product product)
+        public Product Add(Product product)
         {
             product.CreatedAt = DateTime.UtcNow;
             product.IsActive = true;
             _context.Products.Add(product);
             _context.SaveChanges();
+            return product;
         }
 
         public void Update(Product product)

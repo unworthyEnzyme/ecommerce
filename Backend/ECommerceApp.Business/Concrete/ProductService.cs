@@ -45,14 +45,16 @@ namespace ECommerceApp.Business.Concrete
                 ProductCode = product.ProductCode,
                 Name = product.Name,
                 Description = product.Description,
-                SubCategory = new SubCategoryDto { 
-                    Id = product.SubCategoryId, 
-                    Name = product.SubCategory.Name, 
-                    TopCategoryId = product.TopCategoryId 
+                SubCategory = new SubCategoryDto
+                {
+                    Id = product.SubCategoryId,
+                    Name = product.SubCategory.Name,
+                    TopCategoryId = product.TopCategoryId
                 },
-                TopCategory = new TopCategoryDto { 
-                    Id = product.TopCategoryId, 
-                    Name = product.TopCategory.Name 
+                TopCategory = new TopCategoryDto
+                {
+                    Id = product.TopCategoryId,
+                    Name = product.TopCategory.Name
                 },
                 Attributes = product.ProductAttributeValues
                     .Where(pav => pav.IsActive)
@@ -100,7 +102,7 @@ namespace ECommerceApp.Business.Concrete
             return _productRepository.GetBySubCategory(subCategoryId).Select(MapToDto);
         }
 
-        public void Add(CreateProductDto productDto, string token)
+        public int Add(CreateProductDto productDto, string token)
         {
             //TODO: Uncomment this line after you add an admin user to the database.
             //ValidateAdminAccess(token);
@@ -117,7 +119,8 @@ namespace ECommerceApp.Business.Concrete
                 TopCategoryId = productDto.TopCategoryId
             };
 
-            _productRepository.Add(product);
+            var addedProduct = _productRepository.Add(product);
+            return addedProduct.ProductId;
         }
 
         public void Update(int id, UpdateProductDto productDto, string token)

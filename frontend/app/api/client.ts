@@ -181,13 +181,16 @@ export const products = {
     return products;
   },
 
-  createProduct: async (product: CreateProductBody) => {
+  async createProduct(
+    product: CreateProductBody,
+  ): Promise<{ id: number; message: string }> {
     const token = localStorage.getItem("token");
-    await apiClient.post("/product", product, {
+    const { data } = await apiClient.post("/product", product, {
       headers: {
         Authorization: "Bearer " + token,
       },
     });
+    return data;
   },
   getTopCategories: async () => {
     type Result = {

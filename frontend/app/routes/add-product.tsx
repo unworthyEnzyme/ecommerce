@@ -17,14 +17,14 @@ export async function clientAction({ request }: Route.ActionArgs) {
   const topCategoryId = form.get("top-category-id") as string;
   const subCategoryId = form.get("sub-category-id") as string;
 
-  await products.createProduct({
+  const { id } = await products.createProduct({
     productCode,
     name,
     description,
     topCategoryId,
     subCategoryId,
   });
-  return redirect("/products/add");
+  return redirect(`/products/${id}/add-variant`);
 }
 
 interface Category {

@@ -58,6 +58,15 @@ namespace ECommerceApp.Business.Concrete
                     ProductId = v.Product.ProductId,
                     ProductCode = v.Product.ProductCode,
                     Description = v.Product.Description,
+                    TopCategory = new TopCategoryDto {
+                        Id = v.Product.TopCategoryId,
+                        Name = v.Product.TopCategory.Name
+                    },
+                    SubCategory = new SubCategoryDto {
+                        Id = v.Product.SubCategoryId,
+                        Name = v.Product.SubCategory.Name,
+                        TopCategoryId = v.Product.TopCategoryId
+                    },
                 },
                 Attributes = v.VariantAttributeValues.Select(attr => new VariantAttributeDto
                 {
@@ -92,6 +101,14 @@ namespace ECommerceApp.Business.Concrete
                     ProductId = variant.Product.ProductId,
                     ProductCode = variant.Product.ProductCode,
                     Description = variant.Product.Description,
+                    TopCategory = new TopCategoryDto {
+                        Id = variant.Product.TopCategoryId,
+                        Name = variant.Product.TopCategory.Name
+                    },
+                    SubCategory = new SubCategoryDto {
+                        Id = variant.Product.SubCategoryId,
+                        Name = variant.Product.SubCategory.Name
+                    },
                 },
                 Attributes = variant.VariantAttributeValues.Select(attr => new VariantAttributeDto
                 {

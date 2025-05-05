@@ -57,9 +57,10 @@ export const variants = {
 
   async getById(id: number) {
     type Variant = {
-      variantId: number;
+      id: number;
+      name: string;
       price: number;
-      stockQuantity: number;
+      stock: number;
       product: {
         productId: number;
         productCode: string;
@@ -78,6 +79,12 @@ export const variants = {
       attributes: {
         attributeName: string;
         attributeValue: string;
+      }[];
+      images: {
+        imageId: number;
+        imageUrl: string;
+        isPrimary: boolean;
+        sortOrder: number;
       }[];
     };
 
@@ -344,6 +351,15 @@ export const assets = {
       },
     );
     return data;
+  },
+
+  getFile(filename: string) {
+    const token = localStorage.getItem("token");
+    return apiClient.get<string>(`/assets/${filename}`, {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : undefined,
+      },
+    });
   },
 };
 

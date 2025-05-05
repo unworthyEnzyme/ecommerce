@@ -61,5 +61,22 @@ namespace ECommerceApp.API.Controllers
         return BadRequest(new { message = ex.Message });
       }
     }
+
+    [HttpGet("{fileName}")]
+    public IActionResult GetAsset(string fileName)
+    {
+      var filePath = Path.Combine(_uploadsPath, fileName);
+      var mimeFilePath = $"{filePath}.mime";
+
+      if (!System.IO.File.Exists(filePath) || !System.IO.File.Exists(mimeFilePath))
+      {
+        return NotFound();
+      }
+
+      var contentType = System.IO.File.ReadAllText(mimeFilePath);
+      var fileBytes = System.IO.File.ReadAllBytes(filePath);
+
+      return File(fileBytes, contentType);
+    }
   }
 }

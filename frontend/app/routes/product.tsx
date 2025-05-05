@@ -1,58 +1,29 @@
-import { Heart, Tag } from "lucide-react";
-import { useState } from "react";
+import { Heart } from "lucide-react";
 import { Link } from "react-router";
 import { useLocalStorage } from "usehooks-ts";
 import * as api from "~/api/client";
 import type { Route } from "./+types/product";
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
-  const product = await api.products.getProductById(params.id);
-  return { product };
+  const variant = await api.variants.getById(Number(params.id));
+  if (!variant) {
+    throw new Response("Product not found", { status: 404 });
+  }
+
+  return { variant };
 }
 
 export default function Product({ loaderData }: Route.ComponentProps) {
-  const { product } = loaderData;
-  const [selectedOptions, setSelectedOptions] = useState<
-    Record<string, string>
-  >({
-    Color:
-      product.attributes.find((attr) => attr.type.name === "Color")?.value ||
-      "",
-    Size:
-      product.attributes.find((attr) => attr.type.name === "Size")?.value || "",
-    Material:
-      product.attributes.find((attr) => attr.type.name === "Material")?.value ||
-      "",
-  });
-
-  const handleOptionSelect = (attributeName: string, value: string) => {
-    setSelectedOptions((prev) => ({
-      ...prev,
-      [attributeName]: value,
-    }));
-  };
-
-  type AttributeKey = "Color" | "Size" | "Material";
-
-  const attributeOptions: Record<AttributeKey, string[]> = {
-    Color: ["Red", "White", "Black"],
-    Size: ["S", "M", "L", "XL"],
-    Material: ["Cotton", "Polyester", "Wool"],
-  };
-
-  const hasAttributeOptions = (key: string): key is AttributeKey => {
-    return Object.keys(attributeOptions).includes(key);
-  };
+  const { variant } = loaderData;
 
   const [_cart, setCart] = useLocalStorage("cart", [] as Array<{ id: string }>);
 
   type FavoriteItem = {
-    id: string;
+    id: number;
     name: string;
     price: number;
-    image: string | null;
-    attributes: Record<string, string>;
-    code: string;
+    imageUrl: string | null;
+    attributes: Array<{ attributeName: string; attributeValue: string }>;
   };
 
   const [favorites, setFavorites] = useLocalStorage<FavoriteItem[]>(
@@ -64,10 +35,10 @@ export default function Product({ loaderData }: Route.ComponentProps) {
     setCart((prev) => [
       ...prev,
       {
-        id: product.id,
-        price: product.price,
-        name: product.name,
-        attributes: selectedOptions,
+        id: variant.id.toString(),
+        price: variant.price,
+        name: variant.name,
+        attributes: variant.attributes,
         amount: 1,
       },
     ]);
@@ -75,26 +46,25 @@ export default function Product({ loaderData }: Route.ComponentProps) {
 
   const toggleFavorite = () => {
     setFavorites((prev) => {
-      const existingIndex = prev.findIndex((item) => item.id === product.id);
+      const existingIndex = prev.findIndex((item) => item.id === variant.id);
       if (existingIndex >= 0) {
-        return prev.filter((item) => item.id !== product.id);
+        return prev.filter((item) => item.id !== variant.id);
       } else {
         return [
           ...prev,
           {
-            id: product.id,
-            name: product.name,
-            price: Number(product.price), // Convert to number explicitly
-            image: product.image,
-            code: product.code,
-            attributes: selectedOptions,
+            id: variant.id,
+            name: variant.name,
+            price: variant.price,
+            imageUrl: variant.images[0]?.imageUrl ?? null,
+            attributes: variant.attributes,
           },
         ];
       }
     });
   };
 
-  const isFavorite = favorites.some((item) => item.id === product.id);
+  const isFavorite = favorites.some((item) => item.id === variant.id);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -108,51 +78,51 @@ export default function Product({ loaderData }: Route.ComponentProps) {
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        {/* Product Image */}
-        <div className="flex h-96 items-center justify-center overflow-hidden rounded-lg bg-gray-100 shadow-md">
-          <img
-            src={
-              product.image ||
-              "https://via.placeholder.com/600x600?text=No+Image"
-            }
-            alt={product.name}
-            className="h-full w-full object-contain object-center"
-            onError={(e) => {
-              e.currentTarget.src =
-                "https://via.placeholder.com/600x600?text=No+Image";
-            }}
-          />
+        {/* Image Carousel */}
+        <div className="relative h-96 overflow-hidden rounded-lg bg-gray-100 shadow-md">
+          <div className="flex h-full snap-x snap-mandatory overflow-x-auto scroll-smooth">
+            {variant.images.length > 0 ? (
+              variant.images.map((image) => (
+                <div
+                  key={image.imageId}
+                  className="h-full w-full flex-none snap-center"
+                >
+                  <img
+                    src={`https://localhost:7215/api${image.imageUrl}`}
+                    alt={`${variant.name} - Image ${image.imageId}`}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+              ))
+            ) : (
+              <div className="flex h-full w-full flex-none snap-center items-center justify-center text-gray-400">
+                No images available
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Product Details */}
         <div className="flex flex-col">
           <div className="mb-4">
             <h1 className="mb-2 text-3xl font-bold text-gray-900">
-              {product.name}
+              {variant.name}
             </h1>
             <p className="mb-2 text-xl font-bold text-indigo-600">
-              ${product.price}
+              ${variant.price}
             </p>
-            <p className="text-sm text-gray-500">
-              Product Code: {product.code}
-            </p>
+            <p className="text-sm text-gray-500">Stock: {variant.stock}</p>
           </div>
 
-          <div className="mb-6">
-            <h2 className="mb-2 font-semibold text-gray-700">Description</h2>
-            <p className="text-gray-600">{product.description}</p>
-          </div>
-
-          {/* Categories */}
           <div className="mb-6">
             <h2 className="mb-2 font-semibold text-gray-700">Categories</h2>
             <div className="flex space-x-2">
               <span className="rounded-full bg-indigo-100 px-3 py-1 text-sm text-indigo-800">
-                {product.topCategory.name}
+                {variant.product.topCategory.name}
               </span>
-              {product.subCategory && (
+              {variant.product.subCategory && (
                 <span className="rounded-full bg-indigo-50 px-3 py-1 text-sm text-indigo-700">
-                  {product.subCategory.name}
+                  {variant.product.subCategory.name}
                 </span>
               )}
             </div>
@@ -161,57 +131,15 @@ export default function Product({ loaderData }: Route.ComponentProps) {
           {/* Attributes */}
           <div className="mb-6">
             <h2 className="mb-2 font-semibold text-gray-700">Specifications</h2>
-            <div className="space-y-4">
-              {product.attributes &&
-                product.attributes.map((attr) => (
-                  <div key={attr.id} className="flex flex-col">
-                    <div className="mb-2 flex items-center">
-                      <Tag size={16} className="mr-2 text-gray-400" />
-                      <span className="mr-2 font-medium text-gray-700">
-                        {attr.type.name}:
-                      </span>
-                      <span className="text-gray-600">{attr.value}</span>
-                    </div>
-
-                    {/* Add attribute options if they exist in our sample data */}
-                    {hasAttributeOptions(attr.type.name) && (
-                      <div className="mt-1">
-                        <div className="mb-1 text-sm text-gray-500">
-                          Select {attr.type.name}:
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {attributeOptions[attr.type.name].map(
-                            (option: string) => (
-                              <label key={option} className="cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name={`attr-${attr.type.name}`}
-                                  value={option}
-                                  checked={
-                                    selectedOptions[attr.type.name] === option
-                                  }
-                                  onChange={() =>
-                                    handleOptionSelect(attr.type.name, option)
-                                  }
-                                  className="sr-only" // Hide the actual radio button
-                                />
-                                <div
-                                  className={`rounded-md border px-4 py-2 text-sm transition-all ${
-                                    selectedOptions[attr.type.name] === option
-                                      ? "border-indigo-700 bg-indigo-600 text-white"
-                                      : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                                  }`}
-                                >
-                                  {option}
-                                </div>
-                              </label>
-                            ),
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+            <div className="space-y-2">
+              {variant.attributes.map((attr, index) => (
+                <div key={index} className="flex items-center">
+                  <span className="mr-2 font-medium text-gray-700">
+                    {attr.attributeName}:
+                  </span>
+                  <span className="text-gray-600">{attr.attributeValue}</span>
+                </div>
+              ))}
             </div>
           </div>
 

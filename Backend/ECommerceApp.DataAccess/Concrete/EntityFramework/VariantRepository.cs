@@ -40,6 +40,10 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
             return _context.Variants
                 .Include(v => v.VariantAttributeValues)
                 .ThenInclude(vav => vav.AttributeType)
+                .Include(v => v.Product)
+                .ThenInclude(p => p.TopCategory)
+                .Include(v => v.Product)
+                .ThenInclude(p => p.SubCategory)
                 .FirstOrDefault(v => v.VariantId == id);
         }
     }

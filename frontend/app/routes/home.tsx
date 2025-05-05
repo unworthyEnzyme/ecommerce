@@ -20,21 +20,21 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-  const products = await api.products.getProducts();
+  const variants = await api.variants.getAll();
   const topCategories = await api.products.getTopCategories();
   const filterOptions = await api.products.getFilterOptions();
 
-  return { products, topCategories, filterOptions };
+  return { variants, topCategories, filterOptions };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   const {
-    products: initialProducts,
+    variants: initialVariants,
     topCategories,
     filterOptions,
   } = loaderData;
 
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState(initialVariants);
   const [showFilters, setShowFilters] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
@@ -52,7 +52,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     }>
   >("cart", []);
 
-  // Apply filters when they change
+  // TODO: Implement variant filtering
+  /*
   useEffect(() => {
     async function applyFilters() {
       setIsLoading(true);
@@ -73,6 +74,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
     applyFilters();
   }, [filters]);
+  */
 
   const addToCart = (product: any) => {
     const existingItemIndex = cart.findIndex((item) => item.id === product.id);
@@ -100,45 +102,28 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   };
 
   const handlePriceRangeChange = (rangeId: number) => {
-    const range = filterOptions.priceRanges.find((r) => r.id === rangeId);
-    setFilters((prev) => ({
-      ...prev,
-      priceRange: range
-        ? { id: range.id, min: range.min, max: range.max }
-        : undefined,
-    }));
+    // TODO: Implement variant price filtering
+    console.log("Price range filtering not implemented yet:", rangeId);
   };
 
   const handleBrandChange = (brand: string, checked: boolean) => {
-    setFilters((prev) => ({
-      ...prev,
-      brands: checked
-        ? [...prev.brands, brand]
-        : prev.brands.filter((b) => b !== brand),
-    }));
+    // TODO: Implement variant brand filtering
+    console.log("Brand filtering not implemented yet:", brand, checked);
   };
 
   const handleColorChange = (color: string, checked: boolean) => {
-    setFilters((prev) => ({
-      ...prev,
-      colors: checked
-        ? [...prev.colors, color]
-        : prev.colors.filter((c) => c !== color),
-    }));
+    // TODO: Implement variant color filtering
+    console.log("Color filtering not implemented yet:", color, checked);
   };
 
   const handleCategoryChange = (categoryId: number) => {
-    setFilters((prev) => ({
-      ...prev,
-      categoryId: prev.categoryId === categoryId ? undefined : categoryId,
-    }));
+    // TODO: Implement variant category filtering
+    console.log("Category filtering not implemented yet:", categoryId);
   };
 
   const clearFilters = () => {
-    setFilters({
-      brands: [],
-      colors: [],
-    });
+    // TODO: Implement clear filters for variants
+    console.log("Clear filters not implemented yet");
   };
 
   return (
@@ -269,15 +254,15 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             </div>
           ) : products.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {products.map((product) => (
+              {products.map((variant) => (
                 <div
-                  key={product.id}
+                  key={variant.id}
                   className="overflow-hidden rounded-lg bg-white shadow-md transition hover:shadow-lg"
                 >
                   <div className="flex h-48 items-center justify-center overflow-hidden bg-gray-100">
                     <img
-                      src={product.image}
-                      alt={product.name}
+                      src={`https://localhost:7215/api${variant.images[0]?.imageUrl}`}
+                      alt={variant.name}
                       className="h-full w-full object-contain object-center"
                       onError={(e) => {
                         e.currentTarget.src =
@@ -288,25 +273,25 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                     />
                   </div>
                   <div className="p-4">
-                    <Link to={`/products/${product.id}`}>
+                    <Link to={`/products/${variant.id}`}>
                       <h3 className="mb-2 text-lg font-semibold text-gray-900 transition hover:text-indigo-600">
-                        {product.name}
+                        {variant.name}
                       </h3>
                     </Link>
                     <p className="mb-2 font-bold text-indigo-600">
-                      ${product.price}
+                      ${variant.price}
                     </p>
                     <p className="mb-3 line-clamp-2 text-sm text-gray-600">
-                      {product.description}
+                      {variant.product.description}
                     </p>
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-gray-500">
-                          {product.topCategory.name}
+                          {variant.product.topCategory.name}
                         </span>
                       </div>
                       <button
-                        onClick={() => addToCart(product)}
+                        onClick={() => addToCart(variant)}
                         className="mt-2 flex w-full items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
                       >
                         <ShoppingCart size={16} className="mr-2" /> Add to Cart

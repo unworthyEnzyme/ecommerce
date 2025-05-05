@@ -55,6 +55,43 @@ export const variants = {
     await apiClient.post("/variant", payload);
   },
 
+  async getAll() {
+    type Variant = {
+      id: number;
+      name: string;
+      price: number;
+      stock: number;
+      product: {
+        productId: number;
+        productCode: string;
+        name: string;
+        description: string;
+        topCategory: {
+          id: number;
+          name: string;
+        };
+        subCategory: {
+          id: number;
+          name: string;
+          topCategoryId: number;
+        };
+      };
+      attributes: {
+        attributeName: string;
+        attributeValue: string;
+      }[];
+      images: {
+        imageId: number;
+        imageUrl: string;
+        isPrimary: boolean;
+        sortOrder: number;
+      }[];
+    };
+
+    const { data } = await apiClient.get<Variant[]>("/variant");
+    return data;
+  },
+
   async getById(id: number) {
     type Variant = {
       id: number;

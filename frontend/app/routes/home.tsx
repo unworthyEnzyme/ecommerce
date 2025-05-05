@@ -95,6 +95,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           id: product.id,
           name: product.name,
           price: product.price,
+          attributes: product.attributes,
           amount: 1,
         },
       ]);

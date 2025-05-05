@@ -58,6 +58,10 @@ builder.Services.AddScoped<IAttributeTypeRepository, AttributeTypeRepository>();
 builder.Services.AddScoped<IAttributeTypeService, AttributeTypeService>();
 builder.Services.AddScoped<IVariantImageRepository, VariantImageRepository>();
 
+// Add shopping cart services
+builder.Services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
+builder.Services.AddScoped<IShoppingCartService, ShoppingCartService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

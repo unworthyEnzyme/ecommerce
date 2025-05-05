@@ -23,6 +23,8 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
         public DbSet<Payment> Payments { get; set; }
         public DbSet<PaymentStatus> PaymentStatuses { get; set; }
         public DbSet<VariantImage> VariantImages { get; set; }
+        public DbSet<ShoppingCart> ShoppingCarts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -85,6 +87,12 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
             modelBuilder.Entity<VariantImage>()
                 .HasKey(vi => vi.ImageId);
 
+            modelBuilder.Entity<ShoppingCart>()
+                .HasKey(sc => sc.CartId);
+
+            modelBuilder.Entity<CartItem>()
+                .HasKey(ci => ci.CartItemId);
+
             // Order relationships
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.User)
@@ -125,6 +133,22 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .HasOne(p => p.Status)
                 .WithMany()
                 .HasForeignKey(p => p.PaymentStatusId);
+
+            // Shopping Cart relationships
+            modelBuilder.Entity<ShoppingCart>()
+                .HasOne(sc => sc.User)
+                .WithMany()
+                .HasForeignKey(sc => sc.UserId);
+
+            modelBuilder.Entity<CartItem>()
+                .HasOne(ci => ci.Cart)
+                .WithMany(sc => sc.CartItems)
+                .HasForeignKey(ci => ci.CartId);
+
+            modelBuilder.Entity<CartItem>()
+                .HasOne(ci => ci.Variant)
+                .WithMany()
+                .HasForeignKey(ci => ci.VariantId);
 
             // Configure unique constraints
             modelBuilder.Entity<Product>()

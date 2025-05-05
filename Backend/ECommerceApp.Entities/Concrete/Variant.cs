@@ -1,5 +1,3 @@
-using System;
-
 namespace ECommerceApp.Entities.Concrete
 {
     public class Variant

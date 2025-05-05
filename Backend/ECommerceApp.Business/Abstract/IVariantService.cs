@@ -1,10 +1,4 @@
-﻿using ECommerceApp.Business.DTOs.Product;
-using ECommerceApp.Business.DTOs.Variant;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ECommerceApp.Business.DTOs.Variant;
 
 namespace ECommerceApp.Business.Abstract
 {

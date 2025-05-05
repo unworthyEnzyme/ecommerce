@@ -1,5 +1,4 @@
 using ECommerceApp.Entities.Concrete;
-using System.Collections.Generic;
 
 namespace ECommerceApp.Core.DataAccess.Abstract
 {

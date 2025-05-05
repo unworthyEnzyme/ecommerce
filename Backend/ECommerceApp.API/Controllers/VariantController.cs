@@ -1,5 +1,4 @@
 ﻿using ECommerceApp.Business.Abstract;
-using ECommerceApp.Business.DTOs.Product;
 using ECommerceApp.Business.DTOs.Variant;
 using Microsoft.AspNetCore.Mvc;
 

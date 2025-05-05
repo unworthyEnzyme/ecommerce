@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace ECommerceApp.Entities.Concrete
 {
   public class Order

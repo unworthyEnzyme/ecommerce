@@ -1,6 +1,3 @@
-using System;
-using System.ComponentModel.DataAnnotations;
-
 namespace ECommerceApp.Entities.Concrete
 {
   public class ShippingAddress

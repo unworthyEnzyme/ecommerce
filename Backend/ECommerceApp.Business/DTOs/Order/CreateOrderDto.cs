@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace ECommerceApp.Business.DTOs.Order
 {
   public class CreateOrderDto

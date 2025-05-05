@@ -36,7 +36,8 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .ToList();
         }
 
-        public Variant GetById(int id) {
+        public Variant GetById(int id)
+        {
             return _context.Variants
                 .Include(v => v.VariantAttributeValues)
                 .ThenInclude(vav => vav.AttributeType)
@@ -45,6 +46,16 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .Include(v => v.Product)
                 .ThenInclude(p => p.SubCategory)
                 .FirstOrDefault(v => v.VariantId == id);
+        }
+
+        public void Delete(int id)
+        {
+            var variant = _context.Variants.Find(id);
+            if (variant != null)
+            {
+                _context.Variants.Remove(variant);
+                _context.SaveChanges();
+            }
         }
     }
 }

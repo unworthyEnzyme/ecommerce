@@ -12,5 +12,6 @@ namespace ECommerceApp.Core.DataAccess.Abstract
         void Add(Variant variant);
         IEnumerable<Variant> GetAll();
         Variant GetById(int id);
+        void Delete(int id);
     }
 }

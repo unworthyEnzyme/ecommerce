@@ -43,6 +43,20 @@ namespace ECommerceApp.API.Controllers
             }
         }
 
+        [HttpDelete("{id}")]
+        public ActionResult Delete(int id)
+        {
+            try
+            {
+                _variantService.Delete(id);
+                return Ok(new { message = "Variant deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         //TODO: Get possible attribute types and values for a variant.
     }
 }

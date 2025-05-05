@@ -53,16 +53,19 @@ namespace ECommerceApp.Business.Concrete
                 Price = v.Price,
                 Stock = v.StockQuantity,
                 Name = v.Product.Name,
-                Product = new ProductDto {
+                Product = new ProductDto
+                {
                     Name = v.Product.Name,
                     ProductId = v.Product.ProductId,
                     ProductCode = v.Product.ProductCode,
                     Description = v.Product.Description,
-                    TopCategory = new TopCategoryDto {
+                    TopCategory = new TopCategoryDto
+                    {
                         Id = v.Product.TopCategoryId,
                         Name = v.Product.TopCategory.Name
                     },
-                    SubCategory = new SubCategoryDto {
+                    SubCategory = new SubCategoryDto
+                    {
                         Id = v.Product.SubCategoryId,
                         Name = v.Product.SubCategory.Name,
                         TopCategoryId = v.Product.TopCategoryId
@@ -96,16 +99,19 @@ namespace ECommerceApp.Business.Concrete
                 Price = variant.Price,
                 Stock = variant.StockQuantity,
                 Name = variant.Product.Name,
-                Product = new ProductDto {
+                Product = new ProductDto
+                {
                     Name = variant.Product.Name,
                     ProductId = variant.Product.ProductId,
                     ProductCode = variant.Product.ProductCode,
                     Description = variant.Product.Description,
-                    TopCategory = new TopCategoryDto {
+                    TopCategory = new TopCategoryDto
+                    {
                         Id = variant.Product.TopCategoryId,
                         Name = variant.Product.TopCategory.Name
                     },
-                    SubCategory = new SubCategoryDto {
+                    SubCategory = new SubCategoryDto
+                    {
                         Id = variant.Product.SubCategoryId,
                         Name = variant.Product.SubCategory.Name
                     },
@@ -124,6 +130,11 @@ namespace ECommerceApp.Business.Concrete
                         SortOrder = vi.SortOrder
                     }).ToList()
             };
+        }
+
+        public void Delete(int id)
+        {
+            _variantRepository.Delete(id);
         }
     }
 }

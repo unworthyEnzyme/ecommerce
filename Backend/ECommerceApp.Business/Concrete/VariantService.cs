@@ -17,7 +17,7 @@ namespace ECommerceApp.Business.Concrete
             _variantImageRepository = variantImageRepository;
         }
 
-        public void Add(CreateVariantDto createVariantDto)
+        public int Add(CreateVariantDto createVariantDto)
         {
             var variant = new Variant
             {
@@ -42,7 +42,7 @@ namespace ECommerceApp.Business.Concrete
                     IsActive = true
                 }).ToList()
             };
-            _variantRepository.Add(variant);
+            return _variantRepository.Add(variant);
         }
 
         public IEnumerable<VariantDto> GetAll()

@@ -1,4 +1,4 @@
-import { Form } from "react-router";
+import { Form, redirect } from "react-router";
 import type { Route } from "./+types/add-variant";
 import * as api from "~/api/client";
 import { useState } from "react";
@@ -37,8 +37,8 @@ export async function clientAction({ request, params }: Route.ActionArgs) {
   }));
 
   const requestBody = { productId, price, stock, attributes, images };
-  await api.variants.create(requestBody);
-  return requestBody;
+  const { id } = await api.variants.create(requestBody);
+  return redirect(`/products/${id}`);
 }
 
 type AttributeType = {

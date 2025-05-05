@@ -29,12 +29,12 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpPost]
-        public ActionResult Add(CreateVariantDto createVariantDto)
+        public ActionResult<int> Add(CreateVariantDto createVariantDto)
         {
             try
             {
-                _variantService.Add(createVariantDto);
-                return Ok(new { message = "Variant added successfully" });
+                var id = _variantService.Add(createVariantDto);
+                return Ok(new { id, message = "Variant added successfully" });
             }
             catch (Exception ex)
             {

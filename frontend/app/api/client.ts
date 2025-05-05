@@ -51,8 +51,11 @@ type CreateVariantBody = {
 };
 
 export const variants = {
-  async create(payload: CreateVariantBody) {
-    await apiClient.post("/variant", payload);
+  async create(
+    payload: CreateVariantBody,
+  ): Promise<{ id: number; message: string }> {
+    const { data } = await apiClient.post("/variant", payload);
+    return data;
   },
 
   async getAll() {

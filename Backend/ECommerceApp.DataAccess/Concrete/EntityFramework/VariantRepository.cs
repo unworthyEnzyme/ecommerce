@@ -13,10 +13,11 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
             _context = context;
         }
 
-        public void Add(Variant variant)
+        public int Add(Variant variant)
         {
             _context.Variants.Add(variant);
             _context.SaveChanges();
+            return variant.VariantId;
         }
 
         public IEnumerable<Variant> GetAll()

@@ -6,7 +6,7 @@ type CartItem = {
   id: string;
   price: number;
   name: string;
-  attributes?: Record<string, string>;
+  attributes?: Array<{ attributeName: string; attributeValue: string }>;
   amount: number;
 };
 
@@ -88,15 +88,16 @@ export default function Cart() {
                         >
                           {item.name}
                         </Link>
-                        {item.attributes &&
-                          Object.keys(item.attributes).length > 0 && (
-                            <span className="mt-1 text-xs text-gray-500">
-                              {Object.entries(item.attributes)
-                                .filter(([_, value]) => value)
-                                .map(([key, value]) => `${key}: ${value}`)
-                                .join(", ")}
-                            </span>
-                          )}
+                        {item.attributes && item.attributes.length > 0 && (
+                          <span className="mt-1 text-xs text-gray-500">
+                            {item.attributes
+                              .map(
+                                (attr) =>
+                                  `${attr.attributeName}: ${attr.attributeValue}`,
+                              )
+                              .join(", ")}
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="py-4">

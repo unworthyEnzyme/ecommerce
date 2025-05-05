@@ -16,7 +16,7 @@ type FavoriteItem = {
   id: string;
   name: string;
   price: number;
-  image: string;
+  imageUrl: string;
 };
 
 type Order = {
@@ -408,7 +408,7 @@ export default function Account() {
                     >
                       <div className="h-48 overflow-hidden bg-gray-200">
                         <img
-                          src={item.image}
+                          src={`https://localhost:7215/api${item.imageUrl}`}
                           alt={item.name}
                           className="h-full w-full object-cover"
                         />

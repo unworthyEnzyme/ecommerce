@@ -53,5 +53,19 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 _context.SaveChanges();
             }
         }
+
+        public IEnumerable<Variant> GetByCategories(int topCategoryId, int subCategoryId)
+        {
+            return _context.Variants
+                .Include(v => v.VariantAttributeValues)
+                .ThenInclude(vav => vav.AttributeType)
+                .Include(v => v.Product)
+                .ThenInclude(p => p.TopCategory)
+                .Include(v => v.Product)
+                .ThenInclude(p => p.SubCategory)
+                .Where(v => v.Product.TopCategoryId == topCategoryId &&
+                           v.Product.SubCategoryId == subCategoryId)
+                .ToList();
+        }
     }
 }

@@ -136,5 +136,48 @@ namespace ECommerceApp.Business.Concrete
         {
             _variantRepository.Delete(id);
         }
+
+        public IEnumerable<VariantDto> GetByCategories(int topCategoryId, int subCategoryId)
+        {
+            return _variantRepository.GetByCategories(topCategoryId, subCategoryId)
+                .Select(v => new VariantDto
+                {
+                    Id = v.VariantId,
+                    Price = v.Price,
+                    Stock = v.StockQuantity,
+                    Name = v.Product.Name,
+                    Product = new ProductDto
+                    {
+                        Name = v.Product.Name,
+                        ProductId = v.Product.ProductId,
+                        ProductCode = v.Product.ProductCode,
+                        Description = v.Product.Description,
+                        TopCategory = new TopCategoryDto
+                        {
+                            Id = v.Product.TopCategoryId,
+                            Name = v.Product.TopCategory.Name
+                        },
+                        SubCategory = new SubCategoryDto
+                        {
+                            Id = v.Product.SubCategoryId,
+                            Name = v.Product.SubCategory.Name,
+                            TopCategoryId = v.Product.TopCategoryId
+                        },
+                    },
+                    Attributes = v.VariantAttributeValues.Select(attr => new VariantAttributeDto
+                    {
+                        AttributeName = attr.AttributeType.AttributeName,
+                        AttributeValue = attr.AttributeValue
+                    }).ToList(),
+                    Images = _variantImageRepository.GetByVariantId(v.VariantId)
+                        .Select(vi => new VariantImageDto
+                        {
+                            ImageId = vi.ImageId,
+                            ImageUrl = vi.ImageUrl,
+                            IsPrimary = vi.IsPrimary,
+                            SortOrder = vi.SortOrder
+                        }).ToList()
+                });
+        }
     }
 }

@@ -131,6 +131,44 @@ export const variants = {
     const { data } = await apiClient.get<Variant>(`/variant/${id}`);
     return data;
   },
+
+  async getAllByCategories(topCategoryId: string, subCategoryId: string) {
+    type Variant = {
+      id: number;
+      name: string;
+      price: number;
+      stock: number;
+      product: {
+        productId: number;
+        productCode: string;
+        name: string;
+        description: string;
+        topCategory: {
+          id: number;
+          name: string;
+        };
+        subCategory: {
+          id: number;
+          name: string;
+          topCategoryId: number;
+        };
+      };
+      attributes: {
+        attributeName: string;
+        attributeValue: string;
+      }[];
+      images: {
+        imageId: number;
+        imageUrl: string;
+        isPrimary: boolean;
+        sortOrder: number;
+      }[];
+    };
+    const { data } = await apiClient.get<Variant[]>(
+      `/variant/category/${topCategoryId}/subcategory/${subCategoryId}`,
+    );
+    return data;
+  },
 };
 
 export const products = {

@@ -8,5 +8,6 @@ namespace ECommerceApp.Business.Abstract
         int Add(CreateVariantDto createVariantDto);
         VariantDto GetById(int id);
         void Delete(int id);
+        IEnumerable<VariantDto> GetByCategories(int topCategoryId, int subCategoryId);
     }
 }

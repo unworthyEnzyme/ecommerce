@@ -56,6 +56,19 @@ namespace ECommerceApp.API.Controllers
             }
         }
 
+        [HttpGet("category/{topCategoryId}/subcategory/{subCategoryId}")]
+        public ActionResult<IEnumerable<VariantDto>> GetByCategories(int topCategoryId, int subCategoryId)
+        {
+            try
+            {
+                return Ok(_variantService.GetByCategories(topCategoryId, subCategoryId));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         //TODO: Get possible attribute types and values for a variant.
     }
 }

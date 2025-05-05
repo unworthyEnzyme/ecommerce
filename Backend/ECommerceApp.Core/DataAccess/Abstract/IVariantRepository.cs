@@ -8,5 +8,6 @@ namespace ECommerceApp.Core.DataAccess.Abstract
         IEnumerable<Variant> GetAll();
         Variant GetById(int id);
         void Delete(int id);
+        IEnumerable<Variant> GetByCategories(int topCategoryId, int subCategoryId);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ECommerceApp.Business.Abstract;
+using ECommerceApp.Business.DTOs.Product;
 using ECommerceApp.Business.DTOs.Variant;
 using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.Entities.Concrete;
@@ -51,6 +52,13 @@ namespace ECommerceApp.Business.Concrete
                 Id = v.VariantId,
                 Price = v.Price,
                 Stock = v.StockQuantity,
+                Name = v.Product.Name,
+                Product = new ProductDto {
+                    Name = v.Product.Name,
+                    ProductId = v.Product.ProductId,
+                    ProductCode = v.Product.ProductCode,
+                    Description = v.Product.Description,
+                },
                 Attributes = v.VariantAttributeValues.Select(attr => new VariantAttributeDto
                 {
                     AttributeName = attr.AttributeType.AttributeName,
@@ -78,6 +86,13 @@ namespace ECommerceApp.Business.Concrete
                 Id = variant.VariantId,
                 Price = variant.Price,
                 Stock = variant.StockQuantity,
+                Name = variant.Product.Name,
+                Product = new ProductDto {
+                    Name = variant.Product.Name,
+                    ProductId = variant.Product.ProductId,
+                    ProductCode = variant.Product.ProductCode,
+                    Description = variant.Product.Description,
+                },
                 Attributes = variant.VariantAttributeValues.Select(attr => new VariantAttributeDto
                 {
                     AttributeName = attr.AttributeType.AttributeName,

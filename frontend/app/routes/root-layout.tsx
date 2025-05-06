@@ -1,6 +1,7 @@
 import {
   ChevronDown,
   Edit,
+  Globe,
   Home,
   LayoutDashboard,
   LogIn,
@@ -17,6 +18,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, Outlet } from "react-router";
 import { useLocalStorage, useOnClickOutside } from "usehooks-ts";
 import * as api from "~/api/client";
+import { LanguageProvider, useLanguage } from "../hooks/useLanguage";
 
 type CategoryDropdownProps = {
   category: { id: number; name: string };
@@ -85,15 +87,18 @@ function CategoryDropdown({
 }
 
 function Header() {
+  const { language, setLanguage, t } = useLanguage();
   const [topCategories, setTopCategories] = useState<
     Array<{ id: number; name: string }>
   >([]);
   const [dashboardOpen, setDashboardOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [languageOpen, setLanguageOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const cartDropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const languageDropdownRef = useRef<HTMLDivElement>(null);
 
   const [cart, setCart] = useLocalStorage<
     Array<{
@@ -137,11 +142,15 @@ function Header() {
   }, []);
 
   //@ts-ignore
-  useOnClickOutside([dropdownRef, cartDropdownRef, mobileMenuRef], () => {
-    setDashboardOpen(false);
-    setCartOpen(false);
-    setMobileMenuOpen(false);
-  });
+  useOnClickOutside(
+    [dropdownRef, cartDropdownRef, mobileMenuRef, languageDropdownRef],
+    () => {
+      setDashboardOpen(false);
+      setCartOpen(false);
+      setMobileMenuOpen(false);
+      setLanguageOpen(false);
+    },
+  );
 
   const cartTotal = cart.reduce(
     (sum, item) => sum + item.price * (item.amount || 1),
@@ -153,14 +162,56 @@ function Header() {
       {/* Mobile menu button */}
       <div className="flex items-center justify-between lg:hidden">
         <Link to="/" className="flex items-center font-medium text-indigo-600">
-          <Home size={20} className="mr-2" /> Home
+          <Home size={20} className="mr-2" /> {t("home")}
         </Link>
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 text-gray-600"
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        <div className="flex items-center gap-2">
+          <div className="relative" ref={languageDropdownRef}>
+            <button
+              onClick={() => setLanguageOpen(!languageOpen)}
+              className="flex items-center text-gray-600 hover:text-indigo-600"
+            >
+              <Globe size={20} />
+            </button>
+            {languageOpen && (
+              <div className="ring-opacity-5 absolute right-0 z-20 mt-2 w-32 rounded-md bg-white shadow-lg ring-1 ring-black">
+                <div className="py-1">
+                  <button
+                    onClick={() => {
+                      setLanguage("en");
+                      setLanguageOpen(false);
+                    }}
+                    className={`block w-full px-4 py-2 text-left text-sm ${
+                      language === "en"
+                        ? "bg-indigo-50 text-indigo-600"
+                        : "text-gray-700"
+                    } hover:bg-indigo-50 hover:text-indigo-600`}
+                  >
+                    English
+                  </button>
+                  <button
+                    onClick={() => {
+                      setLanguage("tr");
+                      setLanguageOpen(false);
+                    }}
+                    className={`block w-full px-4 py-2 text-left text-sm ${
+                      language === "tr"
+                        ? "bg-indigo-50 text-indigo-600"
+                        : "text-gray-700"
+                    } hover:bg-indigo-50 hover:text-indigo-600`}
+                  >
+                    Türkçe
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 text-gray-600"
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}
@@ -184,21 +235,21 @@ function Header() {
                 className="flex items-center py-2 text-gray-700"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <LogIn size={16} className="mr-2" /> Login
+                <LogIn size={16} className="mr-2" /> {t("login")}
               </Link>
               <Link
                 to="/signup"
                 className="flex items-center py-2 text-gray-700"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <UserPlus size={16} className="mr-2" /> Sign Up
+                <UserPlus size={16} className="mr-2" /> {t("signup")}
               </Link>
               <Link
                 to="/account"
                 className="flex items-center py-2 text-gray-700"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <User size={16} className="mr-2" /> Account
+                <User size={16} className="mr-2" /> {t("account")}
               </Link>
             </div>
           </div>
@@ -213,7 +264,7 @@ function Header() {
             to="/"
             className="mr-4 flex items-center font-medium text-indigo-600 hover:text-indigo-800"
           >
-            <Home size={18} className="mr-2" /> Home
+            <Home size={18} className="mr-2" /> {t("home")}
           </Link>
           {topCategories.map((category) => (
             <CategoryDropdown
@@ -225,26 +276,80 @@ function Header() {
           ))}
         </div>
 
-        {/* Login, Signup, Dashboard and Cart */}
+        {/* Login, Signup, Dashboard, Cart and Language Selector */}
         <div className="flex items-center space-x-6">
           <Link
             to="/login"
             className="flex items-center text-gray-700 hover:text-indigo-600 hover:underline"
           >
-            <LogIn size={16} className="mr-2" /> Login
+            <LogIn size={16} className="mr-2" /> {t("login")}
           </Link>
           <Link
             to="/signup"
             className="flex items-center text-gray-700 hover:text-indigo-600 hover:underline"
           >
-            <UserPlus size={16} className="mr-2" /> Sign Up
+            <UserPlus size={16} className="mr-2" /> {t("signup")}
           </Link>
           <Link
             to="/account"
             className="flex items-center text-gray-700 hover:text-indigo-600 hover:underline"
           >
-            <User size={16} className="mr-2" /> Account
+            <User size={16} className="mr-2" /> {t("account")}
           </Link>
+
+          {/* Language Selector */}
+          <div className="relative" ref={languageDropdownRef}>
+            <button
+              onClick={() => setLanguageOpen(!languageOpen)}
+              className={`flex items-center gap-1 rounded-md px-3 py-2 transition-all duration-200 ${
+                languageOpen
+                  ? "bg-indigo-600 text-white shadow-md"
+                  : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
+              }`}
+            >
+              <Globe size={16} />
+              <span className="ml-1">{language.toUpperCase()}</span>
+              <ChevronDown
+                size={16}
+                className={`ml-1 transition-transform duration-200 ${
+                  languageOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {languageOpen && (
+              <div className="ring-opacity-5 absolute right-0 z-10 mt-2 w-32 rounded-md bg-white shadow-lg ring-1 ring-black">
+                <div className="py-1">
+                  <button
+                    onClick={() => {
+                      setLanguage("en");
+                      setLanguageOpen(false);
+                    }}
+                    className={`block w-full px-4 py-2 text-left text-sm ${
+                      language === "en"
+                        ? "bg-indigo-50 text-indigo-600"
+                        : "text-gray-700"
+                    } hover:bg-indigo-50 hover:text-indigo-600`}
+                  >
+                    English
+                  </button>
+                  <button
+                    onClick={() => {
+                      setLanguage("tr");
+                      setLanguageOpen(false);
+                    }}
+                    className={`block w-full px-4 py-2 text-left text-sm ${
+                      language === "tr"
+                        ? "bg-indigo-50 text-indigo-600"
+                        : "text-gray-700"
+                    } hover:bg-indigo-50 hover:text-indigo-600`}
+                  >
+                    Türkçe
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Cart Dropdown */}
           <div className="relative" ref={cartDropdownRef}>
@@ -264,7 +369,7 @@ function Header() {
                   </span>
                 )}
               </div>
-              <span className="ml-1">Cart</span>
+              <span className="ml-1">{t("cart")}</span>
             </button>
 
             {cartOpen && (
@@ -276,8 +381,8 @@ function Header() {
               >
                 <div className="border-b border-gray-100 px-4 py-2">
                   <h3 className="text-sm font-medium text-gray-500">
-                    Your Cart ({cart.length}{" "}
-                    {cart.length === 1 ? "item" : "items"})
+                    {t("yourCart")} ({cart.length}{" "}
+                    {cart.length === 1 ? t("item") : t("items")})
                   </h3>
                 </div>
 
@@ -309,14 +414,14 @@ function Header() {
                             ${item.price}
                           </p>
                           <p className="text-xs text-gray-500">
-                            Qty: {item.amount || 1}
+                            {t("qty")}: {item.amount || 1}
                           </p>
                         </div>
                       </Link>
                     ))
                   ) : (
                     <div className="px-4 py-6 text-center text-sm text-gray-500">
-                      Your cart is empty
+                      {t("cartEmpty")}
                     </div>
                   )}
                 </div>
@@ -325,7 +430,7 @@ function Header() {
                   <>
                     <div className="border-t border-gray-100 px-4 py-3">
                       <div className="flex justify-between font-medium">
-                        <span>Total:</span>
+                        <span>{t("total")}:</span>
                         <span>${cartTotal.toFixed(2)}</span>
                       </div>
                     </div>
@@ -335,7 +440,7 @@ function Header() {
                         className="block rounded-md bg-indigo-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-indigo-700"
                         onClick={() => setCartOpen(false)}
                       >
-                        View Cart
+                        {t("viewCart")}
                       </Link>
                     </div>
                   </>
@@ -355,7 +460,7 @@ function Header() {
               }`}
             >
               <LayoutDashboard size={16} className="mr-1" />
-              Dashboard
+              {t("dashboard")}
               <ChevronDown
                 size={16}
                 className={`ml-1 transition-transform duration-200 ${dashboardOpen ? "rotate-180" : ""}`}
@@ -371,7 +476,7 @@ function Header() {
               >
                 <div className="border-b border-gray-100 px-4 py-2">
                   <h3 className="text-sm font-medium text-gray-500">
-                    Admin Dashboard
+                    {t("adminDashboard")}
                   </h3>
                 </div>
 
@@ -386,7 +491,7 @@ function Header() {
                       className="mr-3 text-gray-400 group-hover:text-indigo-500"
                     />
                     <span className="group-hover:text-indigo-600">
-                      Add Product
+                      {t("addProduct")}
                     </span>
                   </Link>
 
@@ -400,7 +505,7 @@ function Header() {
                       className="mr-3 text-gray-400 group-hover:text-indigo-500"
                     />
                     <span className="group-hover:text-indigo-600">
-                      Create Attribute
+                      {t("createAttribute")}
                     </span>
                   </Link>
 
@@ -416,7 +521,7 @@ function Header() {
                       className="mr-3 text-gray-400 group-hover:text-indigo-500"
                     />
                     <span className="group-hover:text-indigo-600">
-                      Add Variant
+                      {t("addVariant")}
                     </span>
                   </Link>
 
@@ -430,7 +535,7 @@ function Header() {
                       className="mr-3 text-gray-400 group-hover:text-indigo-500"
                     />
                     <span className="group-hover:text-indigo-600">
-                      Edit Product
+                      {t("editProduct")}
                     </span>
                   </Link>
                 </div>
@@ -445,9 +550,11 @@ function Header() {
 
 export default function RootLayout() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Header />
-      <Outlet />
-    </div>
+    <LanguageProvider>
+      <div className="container mx-auto px-4 py-8">
+        <Header />
+        <Outlet />
+      </div>
+    </LanguageProvider>
   );
 }

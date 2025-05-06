@@ -67,5 +67,31 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                            v.Product.SubCategoryId == subCategoryId)
                 .ToList();
         }
+
+        public IEnumerable<Variant> GetByCategoriesAndPriceRange(int? topCategoryId, int? subCategoryId, decimal? minPrice, decimal? maxPrice)
+        {
+            var query = _context.Variants
+                .Include(v => v.VariantAttributeValues)
+                .ThenInclude(vav => vav.AttributeType)
+                .Include(v => v.Product)
+                .ThenInclude(p => p.TopCategory)
+                .Include(v => v.Product)
+                .ThenInclude(p => p.SubCategory)
+                .AsQueryable();
+
+            if (topCategoryId.HasValue)
+                query = query.Where(v => v.Product.TopCategoryId == topCategoryId);
+
+            if (subCategoryId.HasValue)
+                query = query.Where(v => v.Product.SubCategoryId == subCategoryId);
+
+            if (minPrice.HasValue)
+                query = query.Where(v => v.Price >= minPrice);
+
+            if (maxPrice.HasValue)
+                query = query.Where(v => v.Price <= maxPrice);
+
+            return query.ToList();
+        }
     }
 }

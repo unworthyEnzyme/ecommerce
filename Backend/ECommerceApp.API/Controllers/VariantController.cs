@@ -69,6 +69,23 @@ namespace ECommerceApp.API.Controllers
             }
         }
 
+        [HttpGet("filter")]
+        public ActionResult<IEnumerable<VariantDto>> GetByCategoriesAndPriceRange(
+            [FromQuery] int? topCategoryId,
+            [FromQuery] int? subCategoryId,
+            [FromQuery] decimal? minPrice,
+            [FromQuery] decimal? maxPrice)
+        {
+            try
+            {
+                return Ok(_variantService.GetByCategoriesAndPriceRange(topCategoryId, subCategoryId, minPrice, maxPrice));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         //TODO: Get possible attribute types and values for a variant.
     }
 }

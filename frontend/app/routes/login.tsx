@@ -1,6 +1,6 @@
 import { Form, redirect, Link } from "react-router";
 import type { Route } from "./+types/login";
-import { auth } from "../api/client";
+import { auth, cart } from "../api/client";
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();
@@ -10,6 +10,18 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   try {
     const response = await auth.login(email, password);
     localStorage.setItem("token", response.token);
+
+    // Get local cart and merge with server cart
+    const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
+    if (localCart.length > 0) {
+      const cartItems = localCart.map((item: any) => ({
+        variantId: parseInt(item.id),
+        quantity: item.amount,
+      }));
+      await cart.mergeLocalCart(cartItems);
+      localStorage.removeItem("cart"); // Clear local cart after merging
+    }
+
     return redirect("/");
   } catch (error) {
     return { error: "Invalid email or password" };

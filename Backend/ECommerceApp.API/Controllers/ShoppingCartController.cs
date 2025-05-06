@@ -53,6 +53,28 @@ namespace ECommerceApp.API.Controllers
       }
     }
 
+    [HttpPost("merge")]
+    public ActionResult MergeCart([FromBody] List<AddToCartDto> items)
+    {
+      try
+      {
+        string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        foreach (var item in items)
+        {
+          _shoppingCartService.AddToCart(item, token);
+        }
+        return Ok(new { message = "Cart merged successfully" });
+      }
+      catch (UnauthorizedAccessException ex)
+      {
+        return Unauthorized(new { message = ex.Message });
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(new { message = ex.Message });
+      }
+    }
+
     [HttpPut("items/{cartItemId}")]
     public ActionResult UpdateQuantity(int cartItemId, [FromBody] int quantity)
     {

@@ -444,4 +444,24 @@ export const assets = {
   },
 };
 
+export const cart = {
+  mergeLocalCart: async (
+    items: Array<{
+      variantId: number;
+      quantity: number;
+    }>,
+  ) => {
+    const token = localStorage.getItem("token");
+    return await apiClient.post(
+      "/ShoppingCart/merge",
+      { items },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+  },
+};
+
 export default apiClient;

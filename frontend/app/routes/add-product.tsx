@@ -11,14 +11,12 @@ export async function clientLoader({ request }: Route.LoaderArgs) {
 
 export async function clientAction({ request }: Route.ActionArgs) {
   const form = await request.formData();
-  const productCode = form.get("product-code") as string;
   const name = form.get("name") as string;
   const description = form.get("description") as string;
   const topCategoryId = form.get("top-category-id") as string;
   const subCategoryId = form.get("sub-category-id") as string;
 
   const { id } = await products.createProduct({
-    productCode,
     name,
     description,
     topCategoryId,
@@ -49,14 +47,6 @@ export default function AddProduct({ loaderData }: Route.ComponentProps) {
             <legend className="px-2 text-lg font-medium text-gray-900">
               Product Level Attributes
             </legend>
-            <div>
-              <input
-                type="text"
-                name="product-code"
-                placeholder="Product Code"
-                className="mb-3 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
-              />
-            </div>
             <div>
               <input
                 type="text"

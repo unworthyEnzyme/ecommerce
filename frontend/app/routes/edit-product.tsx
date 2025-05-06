@@ -15,7 +15,6 @@ export async function clientAction({ request, params }: Route.ActionArgs) {
   const form = await request.formData();
 
   const productData = {
-    productCode: form.get("product-code") as string,
     name: form.get("name") as string,
     description: form.get("description") as string,
     topCategoryId: form.get("top-category-id") as string,
@@ -51,15 +50,6 @@ export default function EditProduct({ loaderData }: Route.ComponentProps) {
             <legend className="px-2 text-lg font-medium text-gray-900">
               Product Level Attributes
             </legend>
-            <div>
-              <input
-                type="text"
-                name="product-code"
-                placeholder="Product Code"
-                defaultValue={product.code}
-                className="mb-3 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
-              />
-            </div>
             <div>
               <input
                 type="text"

@@ -9,7 +9,6 @@ const apiClient = axios.create({
 });
 
 type CreateProductBody = {
-  productCode: string;
   name: string;
   description: string;
   topCategoryId: string;
@@ -233,7 +232,6 @@ export const products = {
   async updateProduct(
     id: string,
     product: {
-      productCode: string;
       name: string;
       description: string;
       topCategoryId: string;

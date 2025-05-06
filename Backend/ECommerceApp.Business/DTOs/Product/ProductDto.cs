@@ -23,7 +23,6 @@ namespace ECommerceApp.Business.DTOs.Product
 
     public class CreateProductDto
     {
-        public string ProductCode { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public int SubCategoryId { get; set; }

@@ -102,17 +102,21 @@ namespace ECommerceApp.Business.Concrete
             return _productRepository.GetBySubCategory(subCategoryId).Select(MapToDto);
         }
 
+        private string GenerateProductCode()
+        {
+            var timestamp = DateTime.UtcNow.Ticks;
+            return $"P{timestamp.ToString().Substring(Math.Max(0, timestamp.ToString().Length - 8))}";
+        }
+
         public int Add(CreateProductDto productDto, string token)
         {
             //TODO: Uncomment this line after you add an admin user to the database.
             //ValidateAdminAccess(token);
 
-            if (_productRepository.Exists(productDto.ProductCode))
-                throw new Exception("Product with this code already exists");
-
+            var productCode = GenerateProductCode();
             var product = new Product
             {
-                ProductCode = productDto.ProductCode,
+                ProductCode = productCode,
                 Name = productDto.Name,
                 Description = productDto.Description,
                 SubCategoryId = productDto.SubCategoryId,

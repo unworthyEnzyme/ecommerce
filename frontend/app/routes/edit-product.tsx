@@ -10,6 +10,23 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
   return { product, topCategories };
 }
 
+export async function clientAction({ request, params }: Route.ActionArgs) {
+  const id = params.id;
+  const form = await request.formData();
+
+  const productData = {
+    productCode: form.get("product-code") as string,
+    name: form.get("name") as string,
+    description: form.get("description") as string,
+    topCategoryId: form.get("top-category-id") as string,
+    subCategoryId: form.get("sub-category-id") as string,
+  };
+
+  await products.updateProduct(id, productData);
+
+  return { success: true };
+}
+
 interface Category {
   id: number;
   name: string;
@@ -29,7 +46,7 @@ export default function EditProduct({ loaderData }: Route.ComponentProps) {
             Edit Product
           </h2>
         </div>
-        <Form method="post" className="mt-8 space-y-6">
+        <Form method="put" className="mt-8 space-y-6">
           <fieldset className="space-y-4 rounded-md border border-gray-200 p-4">
             <legend className="px-2 text-lg font-medium text-gray-900">
               Product Level Attributes

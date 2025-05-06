@@ -230,6 +230,24 @@ export const products = {
     });
     return data;
   },
+  async updateProduct(
+    id: string,
+    product: {
+      productCode: string;
+      name: string;
+      description: string;
+      topCategoryId: string;
+      subCategoryId: string;
+    },
+  ): Promise<{ message: string }> {
+    const token = localStorage.getItem("token");
+    const { data } = await apiClient.put(`/product/${id}`, product, {
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    return data;
+  },
   getTopCategories: async () => {
     type Result = {
       id: number;

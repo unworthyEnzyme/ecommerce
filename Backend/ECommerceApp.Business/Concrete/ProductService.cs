@@ -69,7 +69,7 @@ namespace ECommerceApp.Business.Concrete
                     {
                         Id = v.VariantId,
                         Price = v.Price,
-                        Stock = v.StockQuantity,
+                        Stock = v.StockMovements.Sum(m => m.MovementType == "IN" ? m.Quantity : -m.Quantity),
                         Attributes = v.VariantAttributeValues
                             .Where(vav => vav.IsActive)
                             .Select(vav => new VariantAttributeDto
@@ -89,7 +89,9 @@ namespace ECommerceApp.Business.Concrete
         public ProductDto GetById(int id)
         {
             var product = _productRepository.GetById(id);
-            return product != null ? MapToDto(product) : null;
+            if (product == null)
+                return null!;
+            return MapToDto(product);
         }
 
         public IEnumerable<ProductDto> GetByTopCategory(int topCategoryId)

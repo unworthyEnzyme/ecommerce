@@ -119,7 +119,7 @@ namespace ECommerceApp.Business.Concrete
           Id = ci.Variant.VariantId,
           Name = ci.Variant.Product.Name,
           Price = ci.Variant.Price,
-          Stock = ci.Variant.StockQuantity,
+          Stock = ci.Variant.StockMovements.Sum(m => m.MovementType == "IN" ? m.Quantity : -m.Quantity),
         },
         SubTotal = ci.Quantity * ci.Variant.Price
       }).ToList();

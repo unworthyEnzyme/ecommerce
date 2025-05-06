@@ -13,6 +13,13 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
             _context = context;
         }
 
+        private int CalculateStock(int variantId)
+        {
+            return _context.StockMovements
+                .Where(sm => sm.VariantId == variantId && sm.IsActive)
+                .Sum(sm => sm.MovementType == "IN" ? sm.Quantity : -sm.Quantity);
+        }
+
         public int Add(Variant variant)
         {
             _context.Variants.Add(variant);
@@ -20,16 +27,25 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
             return variant.VariantId;
         }
 
+        public void AddStockMovement(StockMovement movement)
+        {
+            _context.StockMovements.Add(movement);
+            _context.SaveChanges();
+        }
+
         public IEnumerable<Variant> GetAll()
         {
-            return _context.Variants
+            var variants = _context.Variants
                 .Include(v => v.VariantAttributeValues)
                 .ThenInclude(vav => vav.AttributeType)
                 .Include(v => v.Product)
                 .ThenInclude(p => p.TopCategory)
                 .Include(v => v.Product)
                 .ThenInclude(p => p.SubCategory)
+                .Include(v => v.StockMovements.Where(sm => sm.IsActive))
                 .ToList();
+
+            return variants;
         }
 
         public Variant GetById(int id)
@@ -41,7 +57,13 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .ThenInclude(p => p.TopCategory)
                 .Include(v => v.Product)
                 .ThenInclude(p => p.SubCategory)
+                .Include(v => v.StockMovements.Where(sm => sm.IsActive))
                 .FirstOrDefault(v => v.VariantId == id);
+        }
+
+        public bool HasSufficientStock(int variantId, int requestedQuantity)
+        {
+            return CalculateStock(variantId) >= requestedQuantity;
         }
 
         public void Delete(int id)
@@ -49,7 +71,8 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
             var variant = _context.Variants.Find(id);
             if (variant != null)
             {
-                _context.Variants.Remove(variant);
+                variant.IsActive = false;
+                variant.DeletedAt = DateTime.UtcNow;
                 _context.SaveChanges();
             }
         }

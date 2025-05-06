@@ -22,7 +22,6 @@ namespace ECommerceApp.Business.Concrete
             var variant = new Variant
             {
                 Price = createVariantDto.Price,
-                StockQuantity = createVariantDto.Stock,
                 ProductId = createVariantDto.ProductId,
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true,
@@ -42,7 +41,31 @@ namespace ECommerceApp.Business.Concrete
                     IsActive = true
                 }).ToList()
             };
-            return _variantRepository.Add(variant);
+
+            var variantId = _variantRepository.Add(variant);
+
+            // Create initial stock movement if initial stock is provided
+            if (createVariantDto.Stock > 0)
+            {
+                var stockMovement = new StockMovement
+                {
+                    VariantId = variantId,
+                    Quantity = createVariantDto.Stock,
+                    MovementType = "IN",
+                    Reference = "Initial Stock",
+                    Notes = "Initial stock entry",
+                    CreatedAt = DateTime.UtcNow,
+                    IsActive = true
+                };
+                _variantRepository.AddStockMovement(stockMovement);
+            }
+
+            return variantId;
+        }
+
+        private int CalculateCurrentStock(IEnumerable<StockMovement> movements)
+        {
+            return movements.Sum(m => m.MovementType == "IN" ? m.Quantity : -m.Quantity);
         }
 
         public IEnumerable<VariantDto> GetAll()
@@ -51,7 +74,7 @@ namespace ECommerceApp.Business.Concrete
             {
                 Id = v.VariantId,
                 Price = v.Price,
-                Stock = v.StockQuantity,
+                Stock = CalculateCurrentStock(v.StockMovements),
                 Name = v.Product.Name,
                 Product = new ProductDto
                 {
@@ -97,7 +120,7 @@ namespace ECommerceApp.Business.Concrete
             {
                 Id = variant.VariantId,
                 Price = variant.Price,
-                Stock = variant.StockQuantity,
+                Stock = CalculateCurrentStock(variant.StockMovements),
                 Name = variant.Product.Name,
                 Product = new ProductDto
                 {
@@ -144,7 +167,7 @@ namespace ECommerceApp.Business.Concrete
                 {
                     Id = v.VariantId,
                     Price = v.Price,
-                    Stock = v.StockQuantity,
+                    Stock = CalculateCurrentStock(v.StockMovements),
                     Name = v.Product.Name,
                     Product = new ProductDto
                     {
@@ -187,7 +210,7 @@ namespace ECommerceApp.Business.Concrete
                 {
                     Id = v.VariantId,
                     Price = v.Price,
-                    Stock = v.StockQuantity,
+                    Stock = CalculateCurrentStock(v.StockMovements),
                     Name = v.Product.Name,
                     Product = new ProductDto
                     {

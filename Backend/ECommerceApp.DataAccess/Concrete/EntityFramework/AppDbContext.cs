@@ -25,6 +25,7 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
         public DbSet<VariantImage> VariantImages { get; set; }
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<StockMovement> StockMovements { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -93,6 +94,9 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
             modelBuilder.Entity<CartItem>()
                 .HasKey(ci => ci.CartItemId);
 
+            modelBuilder.Entity<StockMovement>()
+                .HasKey(sm => sm.StockMovementId);
+
             // Order relationships
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.User)
@@ -149,6 +153,18 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .HasOne(ci => ci.Variant)
                 .WithMany()
                 .HasForeignKey(ci => ci.VariantId);
+
+            modelBuilder.Entity<StockMovement>()
+                .HasOne(sm => sm.Variant)
+                .WithMany(v => v.StockMovements)
+                .HasForeignKey(sm => sm.VariantId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Ensure MovementType is either 'IN' or 'OUT'
+            modelBuilder.Entity<StockMovement>()
+                .Property(sm => sm.MovementType)
+                .HasMaxLength(3)
+                .IsRequired();
 
             // Configure unique constraints
             modelBuilder.Entity<Product>()

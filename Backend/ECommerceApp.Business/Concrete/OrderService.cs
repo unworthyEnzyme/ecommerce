@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Order;
+using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.DataAccess.Concrete.EntityFramework;
 using ECommerceApp.Entities.Concrete;
 
@@ -10,10 +11,12 @@ namespace ECommerceApp.Business.Concrete
   public class OrderService : IOrderService
   {
     private readonly AppDbContext _context;
+    private readonly IVariantRepository _variantRepository;
 
-    public OrderService(AppDbContext context)
+    public OrderService(AppDbContext context, IVariantRepository variantRepository)
     {
       _context = context;
+      _variantRepository = variantRepository;
     }
 
     private int GetUserIdFromToken(string token)
@@ -65,11 +68,23 @@ namespace ECommerceApp.Business.Concrete
             if (variant == null || !variant.IsActive)
               throw new InvalidOperationException($"Variant {item.VariantId} not found or inactive");
 
-            if (variant.StockQuantity < item.Quantity)
+            if (!_variantRepository.HasSufficientStock(item.VariantId, item.Quantity))
               throw new InvalidOperationException($"Insufficient stock for variant {item.VariantId}");
 
             totalAmount += variant.Price * item.Quantity;
-            variant.StockQuantity -= item.Quantity;
+
+            // Create stock movement for the order
+            var stockMovement = new StockMovement
+            {
+              VariantId = item.VariantId,
+              Quantity = item.Quantity,
+              MovementType = "OUT",
+              Reference = "Order",
+              Notes = "Stock reduction from order",
+              CreatedAt = DateTime.Now,
+              IsActive = true
+            };
+            _variantRepository.AddStockMovement(stockMovement);
 
             return (Item: item, Variant: variant);
           }).ToList();

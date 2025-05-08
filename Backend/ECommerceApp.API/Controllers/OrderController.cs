@@ -24,7 +24,7 @@ namespace ECommerceApp.API.Controllers
       {
         string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
         var orderId = _orderService.CreateOrder(orderDto, token);
-        return Ok(new { OrderId = orderId });
+        return Ok(new { OrderId = orderId, message = "Success" });
       }
       catch (UnauthorizedAccessException ex)
       {

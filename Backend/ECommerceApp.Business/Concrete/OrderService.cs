@@ -158,6 +158,9 @@ namespace ECommerceApp.Business.Concrete
             Items = o.OrderItems.Select(oi => new OrderItemDetailsDto
             {
               VariantId = oi.VariantId,
+              ProductId = oi.Variant.ProductId,
+              ProductName = oi.Variant.Product.Name,
+              ProductDescription = oi.Variant.Product.Description,
               Quantity = oi.Quantity,
               UnitPrice = oi.UnitPrice,
               Attributes = oi.Variant.VariantAttributeValues.Select(vav => new OrderVariantAttributeDto

@@ -50,7 +50,6 @@ namespace ECommerceApp.Business.Concrete
           {
             AddressLine1 = orderDto.Address,
             City = orderDto.City,
-            State = orderDto.State,
             Country = orderDto.Country,
             PostalCode = orderDto.PostalCode,
             PhoneNumber = orderDto.PhoneNumber,

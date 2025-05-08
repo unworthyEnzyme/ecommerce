@@ -480,4 +480,28 @@ export const cart = {
   },
 };
 
+export const orders = {
+  async createOrder(orderData: {
+    fullName: string;
+    email: string;
+    address: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    phoneNumber: string;
+    items: Array<{
+      variantId: number;
+      quantity: number;
+    }>;
+  }): Promise<{ orderId: number; message: string }> {
+    const token = localStorage.getItem("token");
+    const { data } = await apiClient.post("/order", orderData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return data;
+  },
+};
+
 export default apiClient;

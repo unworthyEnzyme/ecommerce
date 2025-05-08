@@ -23,5 +23,6 @@ export default [
     route("cart", "routes/cart.tsx"),
     route("payment", "routes/payment.tsx"),
     route("account", "routes/account.tsx"),
+    route("order-confirmation", "routes/order-confirmation.tsx"),
   ]),
 ] satisfies RouteConfig;

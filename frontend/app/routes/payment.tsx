@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { useLocalStorage } from "usehooks-ts";
 import { ChevronLeft, CreditCard, MapPin, ShieldCheck } from "lucide-react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { useLocalStorage } from "usehooks-ts";
+import * as api from "~/api/client";
 
 type CartItem = {
   id: string;
@@ -22,6 +23,7 @@ type FormState = {
   cardNumber: string;
   expiryDate: string;
   cvv: string;
+  phoneNumber: string;
 };
 
 export default function Payment() {
@@ -38,6 +40,7 @@ export default function Payment() {
     cardNumber: "",
     expiryDate: "",
     cvv: "",
+    phoneNumber: "",
   });
   const [errors, setErrors] = useState<Partial<FormState>>({});
   const [isProcessing, setIsProcessing] = useState(false);
@@ -96,12 +99,29 @@ export default function Payment() {
     setIsProcessing(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Create order first
+      const orderData = {
+        fullName: formState.fullName,
+        email: formState.email,
+        address: formState.address,
+        city: formState.city,
+        postalCode: formState.postalCode,
+        country: formState.country,
+        phoneNumber: formState.phoneNumber,
+        items: cart.map((item) => ({
+          variantId: parseInt(item.id),
+          quantity: item.amount,
+        })),
+      };
 
+      const { orderId } = await api.orders.createOrder(orderData);
+
+      // Clear cart and redirect
       setCart([]);
-      navigate("/order-confirmation");
+      navigate(`/order-confirmation?orderId=${orderId}`);
     } catch (error) {
-      console.error("Payment failed", error);
+      console.error("Order creation failed", error);
+      // Handle error appropriately
     } finally {
       setIsProcessing(false);
     }
@@ -282,6 +302,30 @@ export default function Payment() {
                   {errors.country && (
                     <p className="mt-1 text-xs text-red-500">
                       {errors.country}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="phoneNumber"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    id="phoneNumber"
+                    name="phoneNumber"
+                    value={formState.phoneNumber}
+                    onChange={handleChange}
+                    className={`mt-1 w-full rounded-md border p-2 ${
+                      errors.phoneNumber ? "border-red-500" : "border-gray-300"
+                    }`}
+                  />
+                  {errors.phoneNumber && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors.phoneNumber}
                     </p>
                   )}
                 </div>

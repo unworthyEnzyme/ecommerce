@@ -144,5 +144,35 @@ namespace ECommerceApp.Business.Concrete
         }
       }
     }
+
+    public OrderDetailsDto GetOrderDetails(int orderId)
+    {
+      var order = _context.Orders
+          .Where(o => o.OrderId == orderId && o.IsActive)
+          .Select(o => new OrderDetailsDto
+          {
+            OrderId = o.OrderId,
+            OrderDate = o.OrderDate,
+            TotalAmount = o.TotalAmount,
+            Status = o.Status.Name,
+            Items = o.OrderItems.Select(oi => new OrderItemDetailsDto
+            {
+              VariantId = oi.VariantId,
+              Quantity = oi.Quantity,
+              UnitPrice = oi.UnitPrice,
+              Attributes = oi.Variant.VariantAttributeValues.Select(vav => new OrderVariantAttributeDto
+              {
+                AttributeName = vav.AttributeType.AttributeName,
+                AttributeValue = vav.AttributeValue
+              }).ToList()
+            }).ToList()
+          })
+          .FirstOrDefault();
+
+      if (order == null)
+        throw new KeyNotFoundException($"Order with ID {orderId} not found.");
+
+      return order;
+    }
   }
 }

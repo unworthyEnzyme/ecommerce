@@ -63,18 +63,13 @@ namespace ECommerceApp.Business.Concrete
             return variantId;
         }
 
-        private int CalculateCurrentStock(IEnumerable<StockMovement> movements)
-        {
-            return movements.Sum(m => m.MovementType == "IN" ? m.Quantity : -m.Quantity);
-        }
-
         public IEnumerable<VariantDto> GetAll()
         {
             return _variantRepository.GetAll().Select(v => new VariantDto
             {
                 Id = v.VariantId,
                 Price = v.Price,
-                Stock = CalculateCurrentStock(v.StockMovements),
+                Stock = v.Stock.Quantity,
                 Name = v.Product.Name,
                 Product = new ProductDto
                 {
@@ -120,7 +115,7 @@ namespace ECommerceApp.Business.Concrete
             {
                 Id = variant.VariantId,
                 Price = variant.Price,
-                Stock = CalculateCurrentStock(variant.StockMovements),
+                Stock = variant.Stock.Quantity,
                 Name = variant.Product.Name,
                 Product = new ProductDto
                 {
@@ -167,7 +162,7 @@ namespace ECommerceApp.Business.Concrete
                 {
                     Id = v.VariantId,
                     Price = v.Price,
-                    Stock = CalculateCurrentStock(v.StockMovements),
+                    Stock = v.Stock.Quantity,
                     Name = v.Product.Name,
                     Product = new ProductDto
                     {
@@ -210,7 +205,7 @@ namespace ECommerceApp.Business.Concrete
                 {
                     Id = v.VariantId,
                     Price = v.Price,
-                    Stock = CalculateCurrentStock(v.StockMovements),
+                    Stock = v.Stock.Quantity,
                     Name = v.Product.Name,
                     Product = new ProductDto
                     {

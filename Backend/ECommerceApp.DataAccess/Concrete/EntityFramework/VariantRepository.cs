@@ -20,6 +20,24 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .Sum(sm => sm.MovementType == "IN" ? sm.Quantity : -sm.Quantity);
         }
 
+        private Stock GetOrCreateStock(int variantId)
+        {
+            var stock = _context.Stocks.FirstOrDefault(s => s.VariantId == variantId);
+            if (stock == null)
+            {
+                stock = new Stock
+                {
+                    VariantId = variantId,
+                    Quantity = 0,
+                    CreatedAt = DateTime.UtcNow,
+                    LastUpdated = DateTime.UtcNow,
+                    IsActive = true
+                };
+                _context.Stocks.Add(stock);
+            }
+            return stock;
+        }
+
         public int Add(Variant variant)
         {
             _context.Variants.Add(variant);
@@ -29,8 +47,23 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
 
         public void AddStockMovement(StockMovement movement)
         {
-            _context.StockMovements.Add(movement);
-            _context.SaveChanges();
+            using var transaction = _context.Database.BeginTransaction();
+            try
+            {
+                _context.StockMovements.Add(movement);
+
+                var stock = GetOrCreateStock(movement.VariantId);
+                stock.Quantity += movement.MovementType == "IN" ? movement.Quantity : -movement.Quantity;
+                stock.LastUpdated = DateTime.UtcNow;
+
+                _context.SaveChanges();
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
         }
 
         public IEnumerable<Variant> GetAll()
@@ -43,6 +76,7 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .Include(v => v.Product)
                 .ThenInclude(p => p.SubCategory)
                 .Include(v => v.StockMovements.Where(sm => sm.IsActive))
+                .Include(v => v.Stock)
                 .ToList();
 
             return variants;
@@ -58,6 +92,7 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .Include(v => v.Product)
                 .ThenInclude(p => p.SubCategory)
                 .Include(v => v.StockMovements.Where(sm => sm.IsActive))
+                .Include(v => v.Stock)
                 .FirstOrDefault(v => v.VariantId == id);
         }
 

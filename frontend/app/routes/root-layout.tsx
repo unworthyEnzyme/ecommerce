@@ -141,8 +141,8 @@ function Header() {
     loadTopCategories();
   }, []);
 
-  //@ts-ignore
   useOnClickOutside(
+    //@ts-ignore
     [dropdownRef, cartDropdownRef, mobileMenuRef, languageDropdownRef],
     () => {
       setDashboardOpen(false);

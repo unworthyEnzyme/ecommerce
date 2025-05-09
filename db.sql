@@ -204,14 +204,14 @@ GO
 CREATE TABLE FavoriteProducts
 (
   UserId INT NOT NULL,
-  ProductId INT NOT NULL,
+  VariantId INT NOT NULL,
   CreatedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME NULL,
   DeletedAt DATETIME NULL,
   IsActive BIT DEFAULT 1,
-  PRIMARY KEY (UserId, ProductId),
+  PRIMARY KEY (UserId, VariantId),
   FOREIGN KEY (UserId) REFERENCES Users(UserId),
-  FOREIGN KEY (ProductId) REFERENCES Products(ProductId)
+  FOREIGN KEY (VariantId) REFERENCES Variants(VariantID)
 );
 GO
 

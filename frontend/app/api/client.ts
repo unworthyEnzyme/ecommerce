@@ -504,4 +504,47 @@ export const orders = {
   },
 };
 
+export const favorites = {
+  async getAll() {
+    const token = localStorage.getItem("token");
+    const { data } = await apiClient.get<
+      Array<{
+        favoriteId: number;
+        variantId: number;
+        price: number;
+        productName: string;
+        createdAt: string;
+      }>
+    >("/favorite", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return data;
+  },
+
+  async add(variantId: number) {
+    const token = localStorage.getItem("token");
+    const { data } = await apiClient.post<{ id: number; message: string }>(
+      "/favorite",
+      { variantId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return data;
+  },
+
+  async remove(id: number) {
+    const token = localStorage.getItem("token");
+    await apiClient.delete(`/favorite/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+};
+
 export default apiClient;

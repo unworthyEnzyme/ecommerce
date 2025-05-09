@@ -1,8 +1,10 @@
 import { Heart } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useLocalStorage } from "usehooks-ts";
 import * as api from "~/api/client";
 import type { Route } from "./+types/product";
+import { useEffect, useState } from "react";
+import { AxiosError } from "axios";
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
   const variant = await api.variants.getById(Number(params.id));
@@ -15,21 +17,26 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 
 export default function Product({ loaderData }: Route.ComponentProps) {
   const { variant } = loaderData;
-
+  const navigate = useNavigate();
   const [_cart, setCart] = useLocalStorage("cart", [] as Array<{ id: string }>);
+  const [favorites, setFavorites] = useState<
+    Array<{
+      favoriteId: number;
+      variantId: number;
+    }>
+  >([]);
 
-  type FavoriteItem = {
-    id: number;
-    name: string;
-    price: number;
-    imageUrl: string | null;
-    attributes: Array<{ attributeName: string; attributeValue: string }>;
-  };
-
-  const [favorites, setFavorites] = useLocalStorage<FavoriteItem[]>(
-    "favorites",
-    [],
-  );
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const data = await api.favorites.getAll();
+        setFavorites(data);
+      } catch (error) {
+        console.error("Failed to fetch favorites:", error);
+      }
+    };
+    fetchFavorites();
+  }, []);
 
   const addToCart = () => {
     setCart((prev) => [
@@ -44,27 +51,34 @@ export default function Product({ loaderData }: Route.ComponentProps) {
     ]);
   };
 
-  const toggleFavorite = () => {
-    setFavorites((prev) => {
-      const existingIndex = prev.findIndex((item) => item.id === variant.id);
-      if (existingIndex >= 0) {
-        return prev.filter((item) => item.id !== variant.id);
+  const toggleFavorite = async () => {
+    try {
+      const existingFavorite = favorites.find(
+        (f) => f.variantId === variant.id,
+      );
+      if (existingFavorite) {
+        await api.favorites.remove(existingFavorite.favoriteId);
+        setFavorites(favorites.filter((f) => f.variantId !== variant.id));
       } else {
-        return [
-          ...prev,
-          {
-            id: variant.id,
-            name: variant.name,
-            price: variant.price,
-            imageUrl: variant.images[0]?.imageUrl ?? null,
-            attributes: variant.attributes,
-          },
-        ];
+        const result = await api.favorites.add(variant.id);
+        setFavorites([
+          ...favorites,
+          { favoriteId: result.id, variantId: variant.id },
+        ]);
       }
-    });
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) {
+          navigate("/login");
+        } else {
+          console.error("Failed to toggle favorite:", error);
+        }
+      }
+      throw error;
+    }
   };
 
-  const isFavorite = favorites.some((item) => item.id === variant.id);
+  const isFavorite = favorites.some((item) => item.variantId === variant.id);
 
   return (
     <div className="container mx-auto px-4 py-8">

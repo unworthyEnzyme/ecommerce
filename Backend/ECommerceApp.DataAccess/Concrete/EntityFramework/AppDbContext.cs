@@ -27,6 +27,7 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<StockMovement> StockMovements { get; set; }
         public DbSet<Favorite> Favorites { get; set; }
+        public DbSet<Stock> Stocks { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -98,6 +99,9 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
             modelBuilder.Entity<StockMovement>()
                 .HasKey(sm => sm.StockMovementId);
 
+            modelBuilder.Entity<Stock>()
+                .HasKey(s => s.StockId);
+
             // Order relationships
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.User)
@@ -159,6 +163,12 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .HasOne(sm => sm.Variant)
                 .WithMany(v => v.StockMovements)
                 .HasForeignKey(sm => sm.VariantId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Stock>()
+                .HasOne(s => s.Variant)
+                .WithOne(v => v.Stock)
+                .HasForeignKey<Stock>(s => s.VariantId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Ensure MovementType is either 'IN' or 'OUT'

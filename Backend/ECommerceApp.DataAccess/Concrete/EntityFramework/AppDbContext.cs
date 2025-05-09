@@ -28,6 +28,7 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
         public DbSet<StockMovement> StockMovements { get; set; }
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<Stock> Stocks { get; set; }
+        public DbSet<UserAddress> UserAddresses { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -267,6 +268,16 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .WithMany()
                 .HasForeignKey(f => f.VariantId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // UserAddress relationships
+            modelBuilder.Entity<UserAddress>()
+                .HasOne(ua => ua.User)
+                .WithMany(u => u.UserAddresses)
+                .HasForeignKey(ua => ua.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserAddress>()
+                .HasKey(ua => ua.UserAddressId);
 
             // Seed data
             var defaultDate = new DateTime(2025, 4, 4);

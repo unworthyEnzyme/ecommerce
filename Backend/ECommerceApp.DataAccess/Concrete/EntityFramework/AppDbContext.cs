@@ -26,6 +26,7 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<StockMovement> StockMovements { get; set; }
+        public DbSet<Favorite> Favorites { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -242,6 +243,19 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .HasOne(vi => vi.Variant)
                 .WithMany(v => v.VariantImages)
                 .HasForeignKey(vi => vi.VariantId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Favorite relationships
+            modelBuilder.Entity<Favorite>()
+                .HasOne(f => f.User)
+                .WithMany()
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Favorite>()
+                .HasOne(f => f.Variant)
+                .WithMany()
+                .HasForeignKey(f => f.VariantId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Seed data

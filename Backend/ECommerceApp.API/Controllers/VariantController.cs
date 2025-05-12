@@ -25,7 +25,14 @@ namespace ECommerceApp.API.Controllers
         [HttpGet("{id}")]
         public ActionResult<VariantDto> GetById(int id)
         {
-            return Ok(_variantService.GetById(id));
+            var variant = _variantService.GetById(id);
+            var attributeOptions = _variantService.GetAttributeOptionsForVariant(id);
+
+            return Ok(new
+            {
+                variant,
+                attributeOptions
+            });
         }
 
         [HttpPost]
@@ -86,6 +93,17 @@ namespace ECommerceApp.API.Controllers
             }
         }
 
-        //TODO: Get possible attribute types and values for a variant.
+        [HttpGet("{id}/attribute-options")]
+        public ActionResult<IEnumerable<AttributeOptionDto>> GetAttributeOptionsForVariant(int id)
+        {
+            try
+            {
+                return Ok(_variantService.GetAttributeOptionsForVariant(id));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

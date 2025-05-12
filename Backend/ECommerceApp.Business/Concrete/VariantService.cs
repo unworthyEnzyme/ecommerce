@@ -155,6 +155,12 @@ namespace ECommerceApp.Business.Concrete
             _variantRepository.Delete(id);
         }
 
+        public record VariantAttributeOptions(int Id, string Name, IEnumerable<string> Values);
+        public IEnumerable<VariantAttributeOptions> GetAttributeOptions(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         public IEnumerable<VariantDto> GetByCategories(int topCategoryId, int subCategoryId)
         {
             return _variantRepository.GetByCategories(topCategoryId, subCategoryId)
@@ -239,6 +245,37 @@ namespace ECommerceApp.Business.Concrete
                             SortOrder = vi.SortOrder
                         }).ToList()
                 });
+        }
+
+        public IEnumerable<AttributeOptionDto> GetAttributeOptionsForVariant(int variantId)
+        {
+            // Get the variant with its product
+            var variant = _variantRepository.GetById(variantId);
+            if (variant == null)
+                return Enumerable.Empty<AttributeOptionDto>();
+
+            // Get the product ID to find all variants of the same product
+            int productId = variant.ProductId;
+
+            // Get all variants of the same product
+            var allProductVariants = _variantRepository.GetAll()
+                .Where(v => v.ProductId == productId && v.IsActive)
+                .ToList();
+
+            // Group all variant attribute values by attribute type
+            var attributeOptions = allProductVariants
+                .SelectMany(v => v.VariantAttributeValues)
+                .Where(a => a.IsActive)
+                .GroupBy(a => new { a.AttributeTypeId, a.AttributeType.AttributeName })
+                .Select(g => new AttributeOptionDto
+                {
+                    Id = g.Key.AttributeTypeId,
+                    Name = g.Key.AttributeName,
+                    Values = g.Select(a => a.AttributeValue).Distinct().ToList()
+                })
+                .ToList();
+
+            return attributeOptions;
         }
     }
 }

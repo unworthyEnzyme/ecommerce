@@ -95,7 +95,15 @@ export const variants = {
   },
 
   async getById(id: number) {
-    const { data } = await apiClient.get<Variant>(`/variant/${id}`);
+    type AttributeOption = {
+      id: number;
+      name: string;
+      values: string[];
+    };
+    const { data } = await apiClient.get<{
+      variant: Variant;
+      attributeOptions: AttributeOption[];
+    }>(`/variant/${id}`);
     return data;
   },
 

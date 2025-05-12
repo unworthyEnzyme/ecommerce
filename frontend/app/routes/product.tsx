@@ -7,16 +7,16 @@ import { useEffect, useState } from "react";
 import { AxiosError } from "axios";
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
-  const variant = await api.variants.getById(Number(params.id));
-  if (!variant) {
+  const data = await api.variants.getById(Number(params.id));
+  if (!data) {
     throw new Response("Product not found", { status: 404 });
   }
 
-  return { variant };
+  return data;
 }
 
 export default function Product({ loaderData }: Route.ComponentProps) {
-  const { variant } = loaderData;
+  const { variant, attributeOptions } = loaderData;
   const navigate = useNavigate();
   const [_cart, setCart] = useLocalStorage("cart", [] as Array<{ id: string }>);
   const [favorites, setFavorites] = useState<

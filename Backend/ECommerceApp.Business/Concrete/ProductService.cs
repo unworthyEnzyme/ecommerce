@@ -56,28 +56,28 @@ namespace ECommerceApp.Business.Concrete
                     Id = product.TopCategoryId,
                     Name = product.TopCategory.Name
                 },
-                Attributes = product.ProductAttributeValues
-                    .Where(pav => pav.IsActive)
-                    .Select(pav => new ProductAttributeDto
-                    {
-                        AttributeName = pav.AttributeType.AttributeName,
-                        AttributeValue = pav.AttributeValue
-                    }).ToList(),
-                Variants = product.Variants
-                    .Where(v => v.IsActive)
-                    .Select(v => new VariantDto
-                    {
-                        Id = v.VariantId,
-                        Price = v.Price,
-                        Stock = v.StockMovements.Sum(m => m.MovementType == "IN" ? m.Quantity : -m.Quantity),
-                        Attributes = v.VariantAttributeValues
-                            .Where(vav => vav.IsActive)
-                            .Select(vav => new VariantAttributeDto
-                            {
-                                AttributeName = vav.AttributeType.AttributeName,
-                                AttributeValue = vav.AttributeValue
-                            }).ToList()
-                    }).ToList()
+                //Attributes = product.ProductAttributeValues
+                //    .Where(pav => pav.IsActive)
+                //    .Select(pav => new ProductAttributeDto
+                //    {
+                //        AttributeName = pav.AttributeType.AttributeName,
+                //        AttributeValue = pav.AttributeValue
+                //    }).ToList(),
+                //Variants = product.Variants
+                //    .Where(v => v.IsActive)
+                //    .Select(v => new VariantDto
+                //    {
+                //        Id = v.VariantId,
+                //        Price = v.Price,
+                //        Stock = v.Stock.Quantity,
+                //        Attributes = v.VariantAttributeValues
+                //            .Where(vav => vav.IsActive)
+                //            .Select(vav => new VariantAttributeDto
+                //            {
+                //                AttributeName = vav.AttributeType.AttributeName,
+                //                AttributeValue = vav.AttributeValue
+                //            }).ToList()
+                //    }).ToList()
             };
         }
 

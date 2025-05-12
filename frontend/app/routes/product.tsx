@@ -25,8 +25,30 @@ export default function Product({ loaderData }: Route.ComponentProps) {
       variantId: number;
     }>
   >([]);
+  const [selectedAttributes, setSelectedAttributes] = useState<
+    Record<number, string>
+  >({});
 
   useEffect(() => {
+    // Initialize selected attributes with current variant's values
+    if (attributeOptions && variant.attributes) {
+      const initialSelections: Record<number, string> = {};
+
+      // Map variant attributes to attribute options
+      variant.attributes.forEach(({ attributeName, attributeValue }) => {
+        // Find the corresponding attribute option by name
+        const matchingOption = attributeOptions.find(
+          (option) => option.name === attributeName,
+        );
+        if (matchingOption && matchingOption.values.includes(attributeValue)) {
+          initialSelections[matchingOption.id] = attributeValue;
+        }
+      });
+
+      setSelectedAttributes(initialSelections);
+    }
+
+    // Fetch favorites
     const fetchFavorites = async () => {
       try {
         const data = await api.favorites.getAll();
@@ -36,7 +58,7 @@ export default function Product({ loaderData }: Route.ComponentProps) {
       }
     };
     fetchFavorites();
-  }, []);
+  }, [variant, attributeOptions]);
 
   const addToCart = () => {
     setCart((prev) => [
@@ -141,6 +163,42 @@ export default function Product({ loaderData }: Route.ComponentProps) {
               )}
             </div>
           </div>
+
+          {/* Attribute Options */}
+          {attributeOptions && attributeOptions.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-3 font-semibold text-gray-700">Options</h2>
+              <div className="space-y-4">
+                {attributeOptions.map((option) => (
+                  <div key={option.id}>
+                    <label className="mb-2 block font-medium text-gray-700">
+                      {option.name}
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {option.values.map((value) => (
+                        <button
+                          key={`${option.id}-${value}`}
+                          className={`rounded-md border px-4 py-2 text-sm ${
+                            selectedAttributes[option.id] === value
+                              ? "border-indigo-600 bg-indigo-600 text-white"
+                              : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                          }`}
+                          onClick={() => {
+                            setSelectedAttributes((prev) => ({
+                              ...prev,
+                              [option.id]: value,
+                            }));
+                          }}
+                        >
+                          {value}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Attributes */}
           <div className="mb-6">

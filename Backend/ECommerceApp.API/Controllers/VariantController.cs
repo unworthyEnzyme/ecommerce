@@ -94,12 +94,32 @@ namespace ECommerceApp.API.Controllers
             [FromQuery] int? topCategoryId,
             [FromQuery] int? subCategoryId,
             [FromQuery] decimal? minPrice,
-            [FromQuery] decimal? maxPrice)
+            [FromQuery] decimal? maxPrice,
+            [FromQuery] Dictionary<string, string> attributes)
         {
             try
             {
-                // If no filters are provided, return all variants instead
-                var variants = _variantService.GetByCategoriesAndPriceRange(topCategoryId, subCategoryId, minPrice, maxPrice);
+                // Convert string attribute keys to int
+                Dictionary<int, string> attributeFilters = null;
+
+                if (attributes != null && attributes.Count > 0)
+                {
+                    attributeFilters = new Dictionary<int, string>();
+                    foreach (var attr in attributes)
+                    {
+                        if (int.TryParse(attr.Key, out int attributeTypeId))
+                        {
+                            attributeFilters.Add(attributeTypeId, attr.Value);
+                        }
+                    }
+                }
+
+                var variants = _variantService.GetByCategoriesPriceRangeAndAttributes(
+                    topCategoryId,
+                    subCategoryId,
+                    minPrice,
+                    maxPrice,
+                    attributeFilters);
 
                 var attributeOptions = _variantService.GetAttributeOptionsForList(variants.Select(v => v.Id).ToList());
 

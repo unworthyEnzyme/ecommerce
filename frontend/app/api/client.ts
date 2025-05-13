@@ -124,6 +124,7 @@ export const variants = {
     subCategoryId?: string;
     minPrice?: number;
     maxPrice?: number;
+    attributeFilters?: Record<number, string[]>;
   }) {
     const queryParams = new URLSearchParams();
     if (params.topCategoryId)
@@ -134,6 +135,15 @@ export const variants = {
       queryParams.append("minPrice", params.minPrice.toString());
     if (params.maxPrice !== undefined)
       queryParams.append("maxPrice", params.maxPrice.toString());
+
+    // Add attribute filters to query params using attribute IDs
+    if (params.attributeFilters) {
+      Object.entries(params.attributeFilters).forEach(([id, values]) => {
+        values.forEach((value) => {
+          queryParams.append(`attributes[${id}]`, value);
+        });
+      });
+    }
 
     const { data } = await apiClient.get<{
       variants: Variant[];

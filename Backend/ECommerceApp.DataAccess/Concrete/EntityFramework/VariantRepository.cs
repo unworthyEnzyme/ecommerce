@@ -156,5 +156,54 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
 
             return query.ToList();
         }
+
+        public IEnumerable<Variant> GetByCategoriesPriceRangeAndAttributes(
+            int? topCategoryId,
+            int? subCategoryId,
+            decimal? minPrice,
+            decimal? maxPrice,
+            Dictionary<int, string> attributeFilters)
+        {
+            var query = _context.Variants
+                .Include(v => v.VariantAttributeValues)
+                    .ThenInclude(vav => vav.AttributeType)
+                .Include(v => v.Product)
+                    .ThenInclude(p => p.TopCategory)
+                .Include(v => v.Product)
+                    .ThenInclude(p => p.SubCategory)
+                .Include(v => v.Stock)
+                .Where(v => v.IsActive)
+                .AsQueryable();
+
+            if (topCategoryId.HasValue)
+                query = query.Where(v => v.Product.TopCategoryId == topCategoryId);
+
+            if (subCategoryId.HasValue)
+                query = query.Where(v => v.Product.SubCategoryId == subCategoryId);
+
+            if (minPrice.HasValue)
+                query = query.Where(v => v.Price >= minPrice);
+
+            if (maxPrice.HasValue)
+                query = query.Where(v => v.Price <= maxPrice);
+
+            // Apply attribute filters
+            if (attributeFilters != null && attributeFilters.Count > 0)
+            {
+                foreach (var filter in attributeFilters)
+                {
+                    int attributeTypeId = filter.Key;
+                    string attributeValue = filter.Value;
+
+                    query = query.Where(v =>
+                        v.VariantAttributeValues.Any(vav =>
+                            vav.AttributeTypeId == attributeTypeId &&
+                            vav.AttributeValue == attributeValue &&
+                            vav.IsActive));
+                }
+            }
+
+            return query.ToList();
+        }
     }
 }

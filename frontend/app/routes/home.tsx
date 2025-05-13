@@ -13,7 +13,7 @@ type AttributeOption = {
 
 type FilterState = {
   priceRange?: { min: number; max: number };
-  attributeFilters: Record<string, string[]>; // attributeName -> selected values
+  attributeFilters: Record<number, string[]>; // attributeId -> selected values
   categoryId?: number;
   subCategoryId?: number;
 };
@@ -67,7 +67,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     async function applyFilters() {
       setIsLoading(true);
       try {
-        // Construct filter parameters
         const params: any = {};
 
         if (filters.categoryId) {
@@ -83,7 +82,11 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           params.maxPrice = filters.priceRange.max;
         }
 
-        // Get filtered variants
+        // Add attribute filters if they exist
+        if (Object.keys(filters.attributeFilters).length > 0) {
+          params.attributeFilters = filters.attributeFilters;
+        }
+
         const result = await api.variants.filterVariants(params);
         setVariants(result.variants);
         setAttributeOptions(result.attributeOptions);
@@ -137,12 +140,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   };
 
   const handleAttributeChange = (
-    attributeName: string,
+    attributeId: number,
     value: string,
     checked: boolean,
   ) => {
     setFilters((prev) => {
-      const currentValues = prev.attributeFilters[attributeName] || [];
+      const currentValues = prev.attributeFilters[attributeId] || [];
 
       const updatedValues = checked
         ? [...currentValues, value]
@@ -152,7 +155,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         ...prev,
         attributeFilters: {
           ...prev.attributeFilters,
-          [attributeName]: updatedValues,
+          [attributeId]: updatedValues,
         },
       };
     });
@@ -276,11 +279,11 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                         type="checkbox"
                         className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                         checked={(
-                          filters.attributeFilters[option.name] || []
+                          filters.attributeFilters[option.id] || []
                         ).includes(value)}
                         onChange={(e) =>
                           handleAttributeChange(
-                            option.name,
+                            option.id,
                             value,
                             e.target.checked,
                           )

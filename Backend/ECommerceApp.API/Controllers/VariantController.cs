@@ -99,10 +99,7 @@ namespace ECommerceApp.API.Controllers
             try
             {
                 // If no filters are provided, return all variants instead
-                var variants = !topCategoryId.HasValue && !subCategoryId.HasValue &&
-                                !minPrice.HasValue && !maxPrice.HasValue
-                    ? _variantService.GetAll()
-                    : _variantService.GetByCategoriesAndPriceRange(topCategoryId, subCategoryId, minPrice, maxPrice);
+                var variants = _variantService.GetByCategoriesAndPriceRange(topCategoryId, subCategoryId, minPrice, maxPrice);
 
                 var attributeOptions = _variantService.GetAttributeOptionsForList(variants.Select(v => v.Id).ToList());
 

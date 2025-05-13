@@ -13,5 +13,6 @@ namespace ECommerceApp.Entities.Concrete
         public virtual Role Role { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
         public virtual ICollection<UserAddress> UserAddresses { get; set; }
+        public virtual ICollection<Supplier> Suppliers { get; set; }
     }
 }

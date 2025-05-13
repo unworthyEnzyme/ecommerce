@@ -29,6 +29,7 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<UserAddress> UserAddresses { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -278,6 +279,11 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
 
             modelBuilder.Entity<UserAddress>()
                 .HasKey(ua => ua.UserAddressId);
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Suppliers)
+                .WithMany(s => s.Users)
+                .UsingEntity(j => j.ToTable("UserSuppliers"));
 
             // Seed data
             var defaultDate = new DateTime(2025, 4, 4);

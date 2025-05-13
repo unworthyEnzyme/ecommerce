@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerceApp.API.Controllers
 {
-
     [ApiController]
     [Route("api/[controller]")]
     public class VariantController : ControllerBase
@@ -17,9 +16,16 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<VariantDto>> GetAll()
+        public ActionResult GetAll()
         {
-            return Ok(_variantService.GetAll());
+            var variants = _variantService.GetAll();
+            var attributeOptions = _variantService.GetAttributeOptionsForList(variants.Select(v => v.Id).ToList());
+
+            return Ok(new
+            {
+                variants,
+                attributeOptions
+            });
         }
 
         [HttpGet("{id}")]
@@ -68,7 +74,14 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                return Ok(_variantService.GetByCategories(topCategoryId, subCategoryId));
+                var variants = _variantService.GetByCategories(topCategoryId, subCategoryId);
+                var attributeOptions = _variantService.GetAttributeOptionsForList(variants.Select(v => v.Id).ToList());
+
+                return Ok(new
+                {
+                    variants,
+                    attributeOptions
+                });
             }
             catch (Exception ex)
             {
@@ -85,7 +98,19 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                return Ok(_variantService.GetByCategoriesAndPriceRange(topCategoryId, subCategoryId, minPrice, maxPrice));
+                // If no filters are provided, return all variants instead
+                var variants = !topCategoryId.HasValue && !subCategoryId.HasValue &&
+                                !minPrice.HasValue && !maxPrice.HasValue
+                    ? _variantService.GetAll()
+                    : _variantService.GetByCategoriesAndPriceRange(topCategoryId, subCategoryId, minPrice, maxPrice);
+
+                var attributeOptions = _variantService.GetAttributeOptionsForList(variants.Select(v => v.Id).ToList());
+
+                return Ok(new
+                {
+                    variants,
+                    attributeOptions
+                });
             }
             catch (Exception ex)
             {

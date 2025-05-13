@@ -5,11 +5,17 @@ import { useState, useEffect } from "react";
 import * as api from "~/api/client";
 import type { Route } from "./+types/home";
 
+type AttributeOption = {
+  id: number;
+  name: string;
+  values: string[];
+};
+
 type FilterState = {
-  priceRange?: { id: number; min: number; max: number };
-  brands: string[];
-  colors: string[];
+  priceRange?: { min: number; max: number };
+  attributeFilters: Record<string, string[]>; // attributeName -> selected values
   categoryId?: number;
+  subCategoryId?: number;
 };
 
 export function meta({}: Route.MetaArgs) {
@@ -20,26 +26,31 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-  const variants = await api.variants.getAll();
+  const variantData = await api.variants.getAll();
   const topCategories = await api.products.getTopCategories();
-  const filterOptions = await api.products.getFilterOptions();
 
-  return { variants, topCategories, filterOptions };
+  return {
+    variants: variantData.variants,
+    attributeOptions: variantData.attributeOptions,
+    topCategories,
+  };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   const {
     variants: initialVariants,
+    attributeOptions: initialAttributeOptions,
     topCategories,
-    filterOptions,
   } = loaderData;
 
-  const [products, setProducts] = useState(initialVariants);
+  const [variants, setVariants] = useState(initialVariants);
+  const [attributeOptions, setAttributeOptions] = useState<AttributeOption[]>(
+    initialAttributeOptions,
+  );
   const [showFilters, setShowFilters] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
-    brands: [],
-    colors: [],
+    attributeFilters: {},
   });
 
   const [cart, setCart] = useLocalStorage<
@@ -52,21 +63,32 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     }>
   >("cart", []);
 
-  // TODO: Implement variant filtering
-  /*
   useEffect(() => {
     async function applyFilters() {
       setIsLoading(true);
       try {
-        const filteredProducts = await api.products.filterProducts({
-          priceRange: filters.priceRange,
-          brands: filters.brands.length > 0 ? filters.brands : undefined,
-          colors: filters.colors.length > 0 ? filters.colors : undefined,
-          categoryId: filters.categoryId,
-        });
-        setProducts(filteredProducts);
+        // Construct filter parameters
+        const params: any = {};
+
+        if (filters.categoryId) {
+          params.topCategoryId = filters.categoryId.toString();
+        }
+
+        if (filters.subCategoryId) {
+          params.subCategoryId = filters.subCategoryId.toString();
+        }
+
+        if (filters.priceRange) {
+          params.minPrice = filters.priceRange.min;
+          params.maxPrice = filters.priceRange.max;
+        }
+
+        // Get filtered variants
+        const result = await api.variants.filterVariants(params);
+        setVariants(result.variants);
+        setAttributeOptions(result.attributeOptions);
       } catch (error) {
-        console.error("Error filtering products:", error);
+        console.error("Error filtering variants:", error);
       } finally {
         setIsLoading(false);
       }
@@ -74,10 +96,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
     applyFilters();
   }, [filters]);
-  */
 
-  const addToCart = (product: any) => {
-    const existingItemIndex = cart.findIndex((item) => item.id === product.id);
+  const addToCart = (variant: any) => {
+    const existingItemIndex = cart.findIndex((item) => item.id === variant.id);
 
     if (existingItemIndex !== -1) {
       // Product already in cart, increase amount
@@ -92,40 +113,70 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       setCart([
         ...cart,
         {
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          attributes: product.attributes,
+          id: variant.id,
+          name: variant.name,
+          price: variant.price,
+          attributes: variant.attributes.reduce(
+            (acc: Record<string, string>, attr: any) => {
+              acc[attr.attributeName] = attr.attributeValue;
+              return acc;
+            },
+            {},
+          ),
           amount: 1,
         },
       ]);
     }
   };
 
-  const handlePriceRangeChange = (rangeId: number) => {
-    // TODO: Implement variant price filtering
-    console.log("Price range filtering not implemented yet:", rangeId);
+  const handlePriceRangeChange = (min: number, max: number) => {
+    setFilters((prev) => ({
+      ...prev,
+      priceRange: { min, max },
+    }));
   };
 
-  const handleBrandChange = (brand: string, checked: boolean) => {
-    // TODO: Implement variant brand filtering
-    console.log("Brand filtering not implemented yet:", brand, checked);
-  };
+  const handleAttributeChange = (
+    attributeName: string,
+    value: string,
+    checked: boolean,
+  ) => {
+    setFilters((prev) => {
+      const currentValues = prev.attributeFilters[attributeName] || [];
 
-  const handleColorChange = (color: string, checked: boolean) => {
-    // TODO: Implement variant color filtering
-    console.log("Color filtering not implemented yet:", color, checked);
+      const updatedValues = checked
+        ? [...currentValues, value]
+        : currentValues.filter((v) => v !== value);
+
+      return {
+        ...prev,
+        attributeFilters: {
+          ...prev.attributeFilters,
+          [attributeName]: updatedValues,
+        },
+      };
+    });
   };
 
   const handleCategoryChange = (categoryId: number) => {
-    // TODO: Implement variant category filtering
-    console.log("Category filtering not implemented yet:", categoryId);
+    setFilters((prev) => ({
+      ...prev,
+      categoryId: prev.categoryId === categoryId ? undefined : categoryId,
+    }));
   };
 
   const clearFilters = () => {
-    // TODO: Implement clear filters for variants
-    console.log("Clear filters not implemented yet");
+    setFilters({
+      attributeFilters: {},
+    });
   };
+
+  const priceRanges = [
+    { id: 1, name: "Under $50", min: 0, max: 50 },
+    { id: 2, name: "$50 - $100", min: 50, max: 100 },
+    { id: 3, name: "$100 - $200", min: 100, max: 200 },
+    { id: 4, name: "Over $200", min: 200, max: 10000 },
+  ];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -184,14 +235,19 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <div className="mb-4 border-b border-gray-200 pb-4">
               <h3 className="mb-2 font-medium text-gray-800">Price</h3>
               <div className="space-y-2">
-                {filterOptions.priceRanges.map((range) => (
+                {priceRanges.map((range) => (
                   <label key={range.id} className="flex items-center">
                     <input
                       type="radio"
                       name="priceRange"
                       className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      checked={filters.priceRange?.id === range.id}
-                      onChange={() => handlePriceRangeChange(range.id)}
+                      checked={
+                        filters.priceRange?.min === range.min &&
+                        filters.priceRange?.max === range.max
+                      }
+                      onChange={() =>
+                        handlePriceRangeChange(range.min, range.max)
+                      }
                     />
                     <span className="ml-2 text-sm text-gray-600">
                       {range.name}
@@ -201,49 +257,43 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               </div>
             </div>
 
-            {/* Brand Filter */}
-            <div className="mb-4 border-b border-gray-200 pb-4">
-              <h3 className="mb-2 font-medium text-gray-800">Brand</h3>
-              <div className="space-y-2">
-                {filterOptions.brands.map((brand) => (
-                  <label key={brand.id} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      checked={filters.brands.includes(brand.name)}
-                      onChange={(e) =>
-                        handleBrandChange(brand.name, e.target.checked)
-                      }
-                    />
-                    <span className="ml-2 text-sm text-gray-600">
-                      {brand.name}
-                    </span>
-                  </label>
-                ))}
+            {/* Dynamic Attribute Filters */}
+            {attributeOptions.map((option) => (
+              <div
+                key={option.id}
+                className="mb-4 border-b border-gray-200 pb-4"
+              >
+                <h3 className="mb-2 font-medium text-gray-800">
+                  {option.name}
+                </h3>
+                <div className="space-y-2">
+                  {option.values.map((value) => (
+                    <label
+                      key={`${option.id}-${value}`}
+                      className="flex items-center"
+                    >
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        checked={(
+                          filters.attributeFilters[option.name] || []
+                        ).includes(value)}
+                        onChange={(e) =>
+                          handleAttributeChange(
+                            option.name,
+                            value,
+                            e.target.checked,
+                          )
+                        }
+                      />
+                      <span className="ml-2 text-sm text-gray-600">
+                        {value}
+                      </span>
+                    </label>
+                  ))}
+                </div>
               </div>
-            </div>
-
-            {/* Color Filter */}
-            <div>
-              <h3 className="mb-2 font-medium text-gray-800">Color</h3>
-              <div className="space-y-2">
-                {filterOptions.colors.map((color) => (
-                  <label key={color.id} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      checked={filters.colors.includes(color.name)}
-                      onChange={(e) =>
-                        handleColorChange(color.name, e.target.checked)
-                      }
-                    />
-                    <span className="ml-2 text-sm text-gray-600">
-                      {color.name}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         </aside>
 
@@ -253,9 +303,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <div className="flex h-48 items-center justify-center">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent"></div>
             </div>
-          ) : products.length > 0 ? (
+          ) : variants.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {products.map((variant) => (
+              {variants.map((variant) => (
                 <div
                   key={variant.id}
                   className="overflow-hidden rounded-lg bg-white shadow-md transition hover:shadow-lg"
@@ -285,6 +335,19 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                     <p className="mb-3 line-clamp-2 text-sm text-gray-600">
                       {variant.product.description}
                     </p>
+
+                    {/* Display variant attributes */}
+                    <div className="mb-3">
+                      {variant.attributes.map((attr, idx) => (
+                        <span
+                          key={idx}
+                          className="mr-2 rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600"
+                        >
+                          {attr.attributeName}: {attr.attributeValue}
+                        </span>
+                      ))}
+                    </div>
+
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-gray-500">

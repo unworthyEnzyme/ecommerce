@@ -77,6 +77,7 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .ThenInclude(p => p.SubCategory)
                 .Include(v => v.StockMovements.Where(sm => sm.IsActive))
                 .Include(v => v.Stock)
+                .Where(v => v.IsActive)
                 .ToList();
 
             return variants;
@@ -121,8 +122,10 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .ThenInclude(p => p.TopCategory)
                 .Include(v => v.Product)
                 .ThenInclude(p => p.SubCategory)
+                .Include(v => v.Stock)
                 .Where(v => v.Product.TopCategoryId == topCategoryId &&
-                           v.Product.SubCategoryId == subCategoryId)
+                           v.Product.SubCategoryId == subCategoryId &&
+                           v.IsActive)
                 .ToList();
         }
 
@@ -130,11 +133,13 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
         {
             var query = _context.Variants
                 .Include(v => v.VariantAttributeValues)
-                .ThenInclude(vav => vav.AttributeType)
+                    .ThenInclude(vav => vav.AttributeType)
                 .Include(v => v.Product)
-                .ThenInclude(p => p.TopCategory)
+                    .ThenInclude(p => p.TopCategory)
                 .Include(v => v.Product)
-                .ThenInclude(p => p.SubCategory)
+                    .ThenInclude(p => p.SubCategory)
+                .Include(v => v.Stock)
+                .Where(v => v.IsActive)
                 .AsQueryable();
 
             if (topCategoryId.HasValue)

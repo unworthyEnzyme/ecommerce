@@ -11,7 +11,9 @@ namespace ECommerceApp.Business.Concrete
         private readonly IVariantRepository _variantRepository;
         private readonly IVariantImageRepository _variantImageRepository;
 
-        public VariantService(IVariantRepository variantRepository, IVariantImageRepository variantImageRepository)
+        public VariantService(
+            IVariantRepository variantRepository,
+            IVariantImageRepository variantImageRepository)
         {
             _variantRepository = variantRepository;
             _variantImageRepository = variantImageRepository;
@@ -102,7 +104,7 @@ namespace ECommerceApp.Business.Concrete
                         IsPrimary = vi.IsPrimary,
                         SortOrder = vi.SortOrder
                     }).ToList()
-            });
+            }).ToList();
         }
 
         public VariantDto GetById(int id)
@@ -201,50 +203,51 @@ namespace ECommerceApp.Business.Concrete
                             IsPrimary = vi.IsPrimary,
                             SortOrder = vi.SortOrder
                         }).ToList()
-                });
+                }).ToList();
         }
 
         public IEnumerable<VariantDto> GetByCategoriesAndPriceRange(int? topCategoryId, int? subCategoryId, decimal? minPrice, decimal? maxPrice)
         {
-            return _variantRepository.GetByCategoriesAndPriceRange(topCategoryId, subCategoryId, minPrice, maxPrice)
-                .Select(v => new VariantDto
+            var variants = _variantRepository.GetByCategoriesAndPriceRange(topCategoryId, subCategoryId, minPrice, maxPrice);
+
+            return variants.Select(v => new VariantDto
+            {
+                Id = v.VariantId,
+                Price = v.Price,
+                Stock = v.Stock?.Quantity ?? 0,
+                Name = v.Product.Name,
+                Product = new ProductDto
                 {
-                    Id = v.VariantId,
-                    Price = v.Price,
-                    Stock = v.Stock.Quantity,
                     Name = v.Product.Name,
-                    Product = new ProductDto
+                    ProductId = v.Product.ProductId,
+                    ProductCode = v.Product.ProductCode,
+                    Description = v.Product.Description,
+                    TopCategory = new TopCategoryDto
                     {
-                        Name = v.Product.Name,
-                        ProductId = v.Product.ProductId,
-                        ProductCode = v.Product.ProductCode,
-                        Description = v.Product.Description,
-                        TopCategory = new TopCategoryDto
-                        {
-                            Id = v.Product.TopCategoryId,
-                            Name = v.Product.TopCategory.Name
-                        },
-                        SubCategory = new SubCategoryDto
-                        {
-                            Id = v.Product.SubCategoryId,
-                            Name = v.Product.SubCategory.Name,
-                            TopCategoryId = v.Product.TopCategoryId
-                        },
+                        Id = v.Product.TopCategoryId,
+                        Name = v.Product.TopCategory.Name
                     },
-                    Attributes = v.VariantAttributeValues.Select(attr => new VariantAttributeDto
+                    SubCategory = new SubCategoryDto
                     {
-                        AttributeName = attr.AttributeType.AttributeName,
-                        AttributeValue = attr.AttributeValue
-                    }).ToList(),
-                    Images = _variantImageRepository.GetByVariantId(v.VariantId)
-                        .Select(vi => new VariantImageDto
-                        {
-                            ImageId = vi.ImageId,
-                            ImageUrl = vi.ImageUrl,
-                            IsPrimary = vi.IsPrimary,
-                            SortOrder = vi.SortOrder
-                        }).ToList()
-                });
+                        Id = v.Product.SubCategoryId,
+                        Name = v.Product.SubCategory.Name,
+                        TopCategoryId = v.Product.TopCategoryId
+                    },
+                },
+                Attributes = v.VariantAttributeValues.Select(attr => new VariantAttributeDto
+                {
+                    AttributeName = attr.AttributeType.AttributeName,
+                    AttributeValue = attr.AttributeValue
+                }).ToList(),
+                Images = _variantImageRepository.GetByVariantId(v.VariantId)
+                    .Select(vi => new VariantImageDto
+                    {
+                        ImageId = vi.ImageId,
+                        ImageUrl = vi.ImageUrl,
+                        IsPrimary = vi.IsPrimary,
+                        SortOrder = vi.SortOrder
+                    }).ToList()
+            }).ToList();
         }
 
         public IEnumerable<AttributeOptionDto> GetAttributeOptionsForVariant(int variantId)
@@ -264,6 +267,38 @@ namespace ECommerceApp.Business.Concrete
 
             // Group all variant attribute values by attribute type
             var attributeOptions = allProductVariants
+                .SelectMany(v => v.VariantAttributeValues)
+                .Where(a => a.IsActive)
+                .GroupBy(a => new { a.AttributeTypeId, a.AttributeType.AttributeName })
+                .Select(g => new AttributeOptionDto
+                {
+                    Id = g.Key.AttributeTypeId,
+                    Name = g.Key.AttributeName,
+                    Values = g.Select(a => a.AttributeValue).Distinct().ToList()
+                })
+                .ToList();
+
+            return attributeOptions;
+        }
+
+        public IEnumerable<AttributeOptionDto> GetAttributeOptionsForList(IEnumerable<int> variantIds)
+        {
+            if (!variantIds.Any())
+                return Enumerable.Empty<AttributeOptionDto>();
+
+            var variants = _variantRepository.GetAll()
+                .Where(v => variantIds.Contains(v.VariantId) && v.IsActive)
+                .ToList();
+
+            return GetAttributeOptionsFromVariants(variants);
+        }
+
+        // Helper method to extract attribute options from a list of variants
+        private IEnumerable<AttributeOptionDto> GetAttributeOptionsFromVariants(IEnumerable<Variant> variants)
+        {
+            // Get all variant attribute values for these variants
+            var attributeOptions = variants
+                .Where(v => v.IsActive)
                 .SelectMany(v => v.VariantAttributeValues)
                 .Where(a => a.IsActive)
                 .GroupBy(a => new { a.AttributeTypeId, a.AttributeType.AttributeName })

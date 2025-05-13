@@ -81,6 +81,12 @@ type Variant = {
   }[];
 };
 
+type AttributeOption = {
+  id: number;
+  name: string;
+  values: string[];
+};
+
 export const variants = {
   async create(
     payload: CreateVariantBody,
@@ -90,16 +96,14 @@ export const variants = {
   },
 
   async getAll() {
-    const { data } = await apiClient.get<Variant[]>("/variant");
+    const { data } = await apiClient.get<{
+      variants: Variant[];
+      attributeOptions: AttributeOption[];
+    }>("/variant");
     return data;
   },
 
   async getById(id: number) {
-    type AttributeOption = {
-      id: number;
-      name: string;
-      values: string[];
-    };
     const { data } = await apiClient.get<{
       variant: Variant;
       attributeOptions: AttributeOption[];
@@ -108,9 +112,33 @@ export const variants = {
   },
 
   async getAllByCategories(topCategoryId: string, subCategoryId: string) {
-    const { data } = await apiClient.get<Variant[]>(
-      `/variant/category/${topCategoryId}/subcategory/${subCategoryId}`,
-    );
+    const { data } = await apiClient.get<{
+      variants: Variant[];
+      attributeOptions: AttributeOption[];
+    }>(`/variant/category/${topCategoryId}/subcategory/${subCategoryId}`);
+    return data;
+  },
+
+  async filterVariants(params: {
+    topCategoryId?: string;
+    subCategoryId?: string;
+    minPrice?: number;
+    maxPrice?: number;
+  }) {
+    const queryParams = new URLSearchParams();
+    if (params.topCategoryId)
+      queryParams.append("topCategoryId", params.topCategoryId);
+    if (params.subCategoryId)
+      queryParams.append("subCategoryId", params.subCategoryId);
+    if (params.minPrice !== undefined)
+      queryParams.append("minPrice", params.minPrice.toString());
+    if (params.maxPrice !== undefined)
+      queryParams.append("maxPrice", params.maxPrice.toString());
+
+    const { data } = await apiClient.get<{
+      variants: Variant[];
+      attributeOptions: AttributeOption[];
+    }>(`/variant/filter?${queryParams}`);
     return data;
   },
 };

@@ -121,7 +121,7 @@ namespace ECommerceApp.API.Controllers
                     maxPrice,
                     attributeFilters);
 
-                var attributeOptions = _variantService.GetAttributeOptionsForList(variants.Select(v => v.Id).ToList());
+                var attributeOptions = _variantService.GetAttributeOptionsForList(_variantService.GetAll().Select(v => v.Id).ToList());
 
                 return Ok(new
                 {

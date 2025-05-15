@@ -8,7 +8,7 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
   const subCategoryId = params.subcategoryId;
   const topCategoryId = params.topCategoryId;
 
-  const variants = await api.variants.getAllByCategories(
+  const { variants } = await api.variants.getAllByCategories(
     topCategoryId,
     subCategoryId,
   );

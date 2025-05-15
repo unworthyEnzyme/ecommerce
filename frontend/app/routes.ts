@@ -27,5 +27,9 @@ export default [
     route("order-details/:id", "routes/order-details.tsx"),
     route("base-products", "routes/base-products.tsx"),
     route("base-product/:id", "routes/base-product.tsx"),
+    route("create-supplier", "routes/create-supplier.tsx"),
+    route("update-supplier/:id", "routes/update-supplier.tsx"),
+    route("supplier/:id", "routes/supplier.tsx"),
+    route("suppliers", "routes/suppliers.tsx"),
   ]),
 ] satisfies RouteConfig;

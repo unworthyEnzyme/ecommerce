@@ -530,4 +530,61 @@ export const favorites = {
   },
 };
 
+export const suppliers = {
+  getSupplierById: async (id: string) => {
+    // For now, return mock data
+    return {
+      id: parseInt(id),
+      name: faker.company.name(),
+      contactName: faker.person.fullName(),
+      contactEmail: faker.internet.email(),
+      phoneNumber: faker.phone.number(),
+      address: faker.location.streetAddress({ useFullAddress: true }),
+      createdAt: faker.date.past().toISOString(),
+    };
+  },
+
+  getSupplierStatistics: async (id: string) => {
+    // Mock statistics data
+    return {
+      totalOrders: faker.number.int({ min: 100, max: 5000 }),
+      revenue: faker.number.float({
+        min: 10000,
+        max: 1000000,
+        fractionDigits: 2,
+      }),
+      averageOrderValue: faker.number.float({
+        min: 50,
+        max: 500,
+        fractionDigits: 2,
+      }),
+      monthlySales: Array.from({ length: 12 }, () =>
+        faker.number.int({ min: 5000, max: 50000 }),
+      ),
+      monthlyRevenue: Array.from({ length: 12 }, () =>
+        faker.number.float({ min: 10000, max: 100000, fractionDigits: 2 }),
+      ),
+      categoryDistribution: [
+        { name: "Electronics", value: faker.number.int({ min: 20, max: 50 }) },
+        { name: "Clothing", value: faker.number.int({ min: 10, max: 40 }) },
+        { name: "Home Goods", value: faker.number.int({ min: 5, max: 30 }) },
+        { name: "Books", value: faker.number.int({ min: 5, max: 20 }) },
+        { name: "Other", value: faker.number.int({ min: 5, max: 15 }) },
+      ],
+    };
+  },
+
+  getTopProducts: async (id: string) => {
+    // For demonstration, we'll fetch real variants but associate them with this supplier
+    const response = await variants.getAll();
+    // Take just a few variants and add sales metrics
+    return response.variants.slice(0, 6).map((variant) => ({
+      ...variant,
+      totalSold: faker.number.int({ min: 50, max: 500 }),
+      revenue: faker.number.float({ min: 1000, max: 50000, fractionDigits: 2 }),
+      lastOrderDate: faker.date.recent().toISOString(),
+    }));
+  },
+};
+
 export default apiClient;

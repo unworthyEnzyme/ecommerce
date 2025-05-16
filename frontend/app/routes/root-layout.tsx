@@ -105,7 +105,7 @@ function Header() {
       id: string;
       price: number;
       name: string;
-      attributes?: Array<{ attributeName: string; attributeValue: string }>;
+      attributes: Record<string, string>;
       amount: number;
     }>
   >("cart", []);
@@ -401,11 +401,8 @@ function Header() {
                           </p>
                           <p className="text-xs text-gray-500">
                             {item.attributes &&
-                              item.attributes
-                                .map(
-                                  (attr) =>
-                                    `${attr.attributeName}: ${attr.attributeValue}`,
-                                )
+                              Object.entries(item.attributes)
+                                .map(([key, value]) => `${key}: ${value}`)
                                 .join(", ")}
                           </p>
                         </div>

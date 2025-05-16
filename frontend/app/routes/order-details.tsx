@@ -1,6 +1,30 @@
-import { useLocalStorage } from "usehooks-ts";
-import type { Route } from "./+types/order-details";
+import apiClient from "~/api/client";
 import { cn } from "../lib/utils";
+import type { Route } from "./+types/order-details";
+
+// Backend DTO interfaces that match the C# models
+interface OrderVariantAttribute {
+  attributeName: string;
+  attributeValue: string;
+}
+
+interface OrderItem {
+  variantId: number;
+  productId: number;
+  productName: string;
+  productDescription: string;
+  quantity: number;
+  unitPrice: number;
+  attributes: OrderVariantAttribute[];
+}
+
+interface Order {
+  orderId: number;
+  orderDate: string;
+  totalAmount: number;
+  status: OrderStatus;
+  items: OrderItem[];
+}
 
 type CartItem = {
   id: string;
@@ -26,15 +50,41 @@ const statusConfig: Record<OrderStatus, { label: string; className: string }> =
     cancelled: { label: "Cancelled", className: "bg-red-100 text-red-800" },
   };
 
-export default function OrderDetails({ params }: Route.ComponentProps) {
-  const [cart] = useLocalStorage<CartItem[]>("cart", []);
-  // Mock status - in real app this would come from API
-  const status: OrderStatus = "processing";
-  const cartTotal = cart.reduce(
-    (sum, item) => sum + item.price * item.amount,
+export async function clientLoader({ params: { id } }: Route.ClientLoaderArgs) {
+  try {
+    const response = await apiClient.get<Order>(`/order/${id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return { order: response.data };
+  } catch (error) {
+    console.error("Failed to fetch order details:", error);
+    return { order: null, error: "Failed to load order details" };
+  }
+}
+
+export default function OrderDetails({
+  loaderData: { order },
+}: Route.ComponentProps) {
+  if (!order) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold text-gray-800">Order not found</h1>
+      </div>
+    );
+  }
+
+  const status = order.status.toLowerCase() as OrderStatus;
+  const itemCount = order.items.reduce(
+    (total, item) => total + item.quantity,
     0,
   );
-  const itemCount = cart.reduce((sum, item) => sum + item.amount, 0);
+  const subtotal = order.items.reduce(
+    (total, item) => total + item.unitPrice * item.quantity,
+    0,
+  );
+  const taxAmount = order.totalAmount - subtotal; // Assuming totalAmount includes tax
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -64,15 +114,15 @@ export default function OrderDetails({ params }: Route.ComponentProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {cart.map((item) => (
+                {order.items.map((item) => (
                   <tr
-                    key={`${item.id}-${JSON.stringify(item.attributes)}`}
+                    key={`${item.variantId}-${item.productId}`}
                     className="py-4"
                   >
                     <td className="py-4">
                       <div className="flex flex-col">
                         <span className="font-medium text-gray-800">
-                          {item.name}
+                          {item.productName}
                         </span>
                         {item.attributes && item.attributes.length > 0 && (
                           <span className="mt-1 text-xs text-gray-500">
@@ -86,14 +136,14 @@ export default function OrderDetails({ params }: Route.ComponentProps) {
                         )}
                       </div>
                     </td>
-                    <td className="py-4">{item.amount}</td>
+                    <td className="py-4">{item.quantity}</td>
                     <td className="py-4 text-right">
                       <div className="flex flex-col">
                         <span className="font-medium">
-                          ${(item.price * item.amount).toFixed(2)}
+                          ${(item.unitPrice * item.quantity).toFixed(2)}
                         </span>
                         <span className="text-xs text-gray-500">
-                          ${item.price} each
+                          ${item.unitPrice.toFixed(2)} each
                         </span>
                       </div>
                     </td>
@@ -112,7 +162,7 @@ export default function OrderDetails({ params }: Route.ComponentProps) {
 
             <div className="mb-2 flex justify-between">
               <span className="text-gray-600">Subtotal</span>
-              <span className="font-medium">${cartTotal.toFixed(2)}</span>
+              <span className="font-medium">${subtotal.toFixed(2)}</span>
             </div>
 
             <div className="mb-2 flex justify-between">
@@ -122,16 +172,14 @@ export default function OrderDetails({ params }: Route.ComponentProps) {
 
             <div className="mb-4 flex justify-between">
               <span className="text-gray-600">Tax</span>
-              <span className="font-medium">
-                ${(cartTotal * 0.1).toFixed(2)}
-              </span>
+              <span className="font-medium">${taxAmount.toFixed(2)}</span>
             </div>
 
             <div className="mb-6 border-t border-gray-200 pt-4">
               <div className="flex justify-between">
                 <span className="text-lg font-semibold">Total</span>
                 <span className="text-lg font-semibold">
-                  ${(cartTotal * 1.1).toFixed(2)}
+                  ${order.totalAmount.toFixed(2)}
                 </span>
               </div>
             </div>

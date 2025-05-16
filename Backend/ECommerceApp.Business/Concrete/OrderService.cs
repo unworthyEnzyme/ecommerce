@@ -48,11 +48,13 @@ namespace ECommerceApp.Business.Concrete
           var shippingAddress = new ShippingAddress
           {
             AddressLine1 = orderDto.Address,
+            AddressLine2 = orderDto.Address,
             City = orderDto.City,
             Country = orderDto.Country,
             PostalCode = orderDto.PostalCode,
             PhoneNumber = orderDto.PhoneNumber,
             CreatedAt = DateTime.Now,
+            State = orderDto.City,
             IsActive = true
           };
           _context.ShippingAddresses.Add(shippingAddress);
@@ -118,7 +120,6 @@ namespace ECommerceApp.Business.Concrete
             };
             _context.OrderItems.Add(orderItem);
           }
-          _context.SaveChanges();
 
           // Create initial payment record
           var payment = new Payment
@@ -131,6 +132,7 @@ namespace ECommerceApp.Business.Concrete
             IsActive = true
           };
           _context.Payments.Add(payment);
+
           _context.SaveChanges();
 
           transaction.Commit();

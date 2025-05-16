@@ -10,6 +10,7 @@ import {
   Settings,
   ShoppingCart,
   Tag,
+  Truck,
   User,
   UserPlus,
   X,
@@ -523,16 +524,16 @@ function Header() {
                   <div className="my-1 border-t border-gray-100"></div>
 
                   <Link
-                    to="/products/1/add-variant"
+                    to="/suppliers"
                     className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50"
                     onClick={() => setDashboardOpen(false)}
                   >
-                    <Settings
+                    <Truck
                       size={18}
                       className="mr-3 text-gray-400 group-hover:text-indigo-500"
                     />
                     <span className="group-hover:text-indigo-600">
-                      {t("addVariant")}
+                      {t("suppliers")}
                     </span>
                   </Link>
 

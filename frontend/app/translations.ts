@@ -54,6 +54,8 @@ export const translations = {
       emptyCart: "Sepetiniz boş",
       total: "Toplam",
       quantity: "Adet",
+      suppliers: "Tedarikçiler",
+      supplier: "Tedarikçi",
     },
     product: {
       noProducts: "Ürün bulunamadı",

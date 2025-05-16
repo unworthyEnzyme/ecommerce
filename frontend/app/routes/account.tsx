@@ -8,9 +8,10 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { useLocalStorage } from "usehooks-ts";
+import apiClient from "~/api/client";
 
 type FavoriteItem = {
   id: string;
@@ -19,12 +20,18 @@ type FavoriteItem = {
   imageUrl: string;
 };
 
+type OrderItem = {
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+};
+
 type Order = {
-  id: string;
-  date: string;
-  status: "processing" | "shipped" | "delivered";
-  total: number;
-  items: { name: string; quantity: number; price: number }[];
+  orderId: number;
+  orderDate: string;
+  status: string;
+  totalAmount: number;
+  items: OrderItem[];
 };
 
 type UserProfile = {
@@ -167,10 +174,33 @@ const ProfileForm = ({
   </div>
 );
 
-const OrdersList = ({ orders }: { orders: Order[] }) => (
+const OrdersList = ({
+  orders,
+  isLoading,
+  error,
+}: {
+  orders: Order[];
+  isLoading: boolean;
+  error: string | null;
+}) => (
   <div className="rounded-lg bg-white p-6 shadow-md">
     <h2 className="mb-6 text-xl font-semibold text-gray-800">Order History</h2>
-    {orders.length === 0 ? (
+
+    {isLoading ? (
+      <div className="flex justify-center py-8">
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-indigo-600"></div>
+      </div>
+    ) : error ? (
+      <div className="py-8 text-center">
+        <p className="text-red-500">{error}</p>
+        <button
+          className="mt-4 rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
+          onClick={() => window.location.reload()}
+        >
+          Try Again
+        </button>
+      </div>
+    ) : orders.length === 0 ? (
       <EmptyState
         icon={Package}
         message="You haven't placed any orders yet."
@@ -179,23 +209,28 @@ const OrdersList = ({ orders }: { orders: Order[] }) => (
     ) : (
       <div className="space-y-6">
         {orders.map((order) => (
-          <div key={order.id} className="rounded-md border border-gray-200 p-4">
+          <div
+            key={order.orderId}
+            className="rounded-md border border-gray-200 p-4"
+          >
             <div className="mb-2 flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Order #{order.id}</p>
-                <p className="text-sm text-gray-500">{order.date}</p>
+                <p className="text-sm text-gray-500">Order #{order.orderId}</p>
+                <p className="text-sm text-gray-500">
+                  {new Date(order.orderDate).toLocaleDateString()}
+                </p>
               </div>
               <div>
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-medium ${
-                    order.status === "delivered"
+                    order.status.toLowerCase() === "delivered"
                       ? "bg-green-100 text-green-800"
-                      : order.status === "shipped"
+                      : order.status.toLowerCase() === "shipped"
                         ? "bg-blue-100 text-blue-800"
                         : "bg-yellow-100 text-yellow-800"
                   }`}
                 >
-                  {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                  {order.status}
                 </span>
               </div>
             </div>
@@ -204,15 +239,17 @@ const OrdersList = ({ orders }: { orders: Order[] }) => (
               {order.items.map((item, index) => (
                 <div key={index} className="flex justify-between text-sm">
                   <span>
-                    {item.name} (x{item.quantity})
+                    {item.productName} (x{item.quantity})
                   </span>
-                  <span>${item.price.toFixed(2)}</span>
+                  <span>${item.unitPrice.toFixed(2)}</span>
                 </div>
               ))}
             </div>
             <div className="mt-3 flex justify-between border-t border-gray-100 pt-3">
               <span className="font-medium">Total</span>
-              <span className="font-medium">${order.total.toFixed(2)}</span>
+              <span className="font-medium">
+                ${order.totalAmount.toFixed(2)}
+              </span>
             </div>
           </div>
         ))}
@@ -290,7 +327,9 @@ export default function Account() {
     "profile" | "orders" | "favorites"
   >("profile");
   const [favorites] = useLocalStorage<FavoriteItem[]>("favorites", []);
-  const [orders] = useLocalStorage<Order[]>("orders", []);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useLocalStorage<UserProfile>("userProfile", {
     name: "John Doe",
@@ -302,6 +341,31 @@ export default function Account() {
     country: "Turkey",
   });
   const [editableProfile, setEditableProfile] = useState<UserProfile>(profile);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (activeTab === "orders" && token) {
+      const fetchOrders = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const response = await apiClient.get("/order", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setOrders(response.data);
+        } catch (err) {
+          console.error("Failed to fetch orders:", err);
+          setError("Failed to load your orders. Please try again later.");
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchOrders();
+    }
+  }, [activeTab]);
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -341,7 +405,9 @@ export default function Account() {
               cancelEditing={cancelEditing}
             />
           )}
-          {activeTab === "orders" && <OrdersList orders={orders} />}
+          {activeTab === "orders" && (
+            <OrdersList orders={orders} isLoading={isLoading} error={error} />
+          )}
           {activeTab === "favorites" && <FavoritesList favorites={favorites} />}
         </div>
       </div>

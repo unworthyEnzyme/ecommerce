@@ -17,6 +17,25 @@ namespace ECommerceApp.API.Controllers
       _orderService = orderService;
     }
 
+    [HttpGet]
+    public ActionResult<IEnumerable<OrderDetailsDto>> GetOrders()
+    {
+      try
+      {
+        string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        var orders = _orderService.GetOrders(token);
+        return Ok(orders);
+      }
+      catch (UnauthorizedAccessException ex)
+      {
+        return Unauthorized(new ErrorResponseDto { Message = ex.Message });
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(new ErrorResponseDto { Message = ex.Message });
+      }
+    }
+
     [HttpPost]
     public ActionResult<CreateOrderResponseDto> CreateOrder(CreateOrderDto orderDto)
     {

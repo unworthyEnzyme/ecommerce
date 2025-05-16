@@ -6,5 +6,6 @@ namespace ECommerceApp.Business.Abstract
   {
     int CreateOrder(CreateOrderDto orderDto, string token);
     OrderDetailsDto GetOrderDetails(int orderId);
+    IEnumerable<OrderDetailsDto> GetOrders(string token);
   }
 }

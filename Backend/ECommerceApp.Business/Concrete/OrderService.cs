@@ -181,13 +181,13 @@ namespace ECommerceApp.Business.Concrete
 
     public void AddStockMovement(StockMovement movement)
     {
-        _context.StockMovements.Add(movement);
+      _context.StockMovements.Add(movement);
 
-        var stock = GetOrCreateStock(movement.VariantId);
-        stock.Quantity += movement.MovementType == "IN" ? movement.Quantity : -movement.Quantity;
-        stock.LastUpdated = DateTime.UtcNow;
+      var stock = GetOrCreateStock(movement.VariantId);
+      stock.Quantity += movement.MovementType == "IN" ? movement.Quantity : -movement.Quantity;
+      stock.LastUpdated = DateTime.UtcNow;
 
-        _context.SaveChanges();
+      _context.SaveChanges();
     }
 
 
@@ -207,6 +207,40 @@ namespace ECommerceApp.Business.Concrete
         _context.Stocks.Add(stock);
       }
       return stock;
+    }
+
+    public IEnumerable<OrderDetailsDto> GetOrders(string token)
+    {
+      int userId = GetUserIdFromToken(token);
+      var orders = _context.Orders
+          .Where(o => o.UserId == userId && o.IsActive)
+          .Select(o => new OrderDetailsDto
+          {
+            OrderId = o.OrderId,
+            OrderDate = o.OrderDate,
+            TotalAmount = o.TotalAmount,
+            Status = o.Status.Name,
+            Items = o.OrderItems.Select(oi => new OrderItemDetailsDto
+            {
+              VariantId = oi.VariantId,
+              ProductId = oi.Variant.ProductId,
+              ProductName = oi.Variant.Product.Name,
+              ProductDescription = oi.Variant.Product.Description,
+              Quantity = oi.Quantity,
+              UnitPrice = oi.UnitPrice,
+              Attributes = oi.Variant.VariantAttributeValues.Select(vav => new OrderVariantAttributeDto
+              {
+                AttributeName = vav.AttributeType.AttributeName,
+                AttributeValue = vav.AttributeValue
+              }).ToList()
+            }).ToList()
+          })
+          .ToList();
+      if (orders == null || !orders.Any())
+      {
+        throw new KeyNotFoundException($"No orders found for user with ID {userId}.");
+      }
+      return orders;
     }
   }
 }

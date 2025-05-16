@@ -95,10 +95,16 @@ function Header() {
   const [cartOpen, setCartOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const cartDropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const languageDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    setToken(storedToken);
+  }, []);
 
   const [cart, setCart] = useLocalStorage<
     Array<{
@@ -230,20 +236,24 @@ function Header() {
               />
             ))}
             <div className="mt-2 border-t border-gray-200 pt-4">
-              <Link
-                to="/login"
-                className="flex items-center py-2 text-gray-700"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <LogIn size={16} className="mr-2" /> {t("login")}
-              </Link>
-              <Link
-                to="/signup"
-                className="flex items-center py-2 text-gray-700"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <UserPlus size={16} className="mr-2" /> {t("signup")}
-              </Link>
+              {!token && (
+                <>
+                  <Link
+                    to="/login"
+                    className="flex items-center py-2 text-gray-700"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <LogIn size={16} className="mr-2" /> {t("login")}
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="flex items-center py-2 text-gray-700"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <UserPlus size={16} className="mr-2" /> {t("signup")}
+                  </Link>
+                </>
+              )}
               <Link
                 to="/account"
                 className="flex items-center py-2 text-gray-700"
@@ -278,18 +288,22 @@ function Header() {
 
         {/* Login, Signup, Dashboard, Cart and Language Selector */}
         <div className="flex items-center space-x-6">
-          <Link
-            to="/login"
-            className="flex items-center text-gray-700 hover:text-indigo-600 hover:underline"
-          >
-            <LogIn size={16} className="mr-2" /> {t("login")}
-          </Link>
-          <Link
-            to="/signup"
-            className="flex items-center text-gray-700 hover:text-indigo-600 hover:underline"
-          >
-            <UserPlus size={16} className="mr-2" /> {t("signup")}
-          </Link>
+          {!token && (
+            <>
+              <Link
+                to="/login"
+                className="flex items-center text-gray-700 hover:text-indigo-600 hover:underline"
+              >
+                <LogIn size={16} className="mr-2" /> {t("login")}
+              </Link>
+              <Link
+                to="/signup"
+                className="flex items-center text-gray-700 hover:text-indigo-600 hover:underline"
+              >
+                <UserPlus size={16} className="mr-2" /> {t("signup")}
+              </Link>
+            </>
+          )}
           <Link
             to="/account"
             className="flex items-center text-gray-700 hover:text-indigo-600 hover:underline"

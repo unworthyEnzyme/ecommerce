@@ -1,5 +1,4 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Order;
 using ECommerceApp.Core.DataAccess.Abstract;
@@ -30,7 +29,7 @@ namespace ECommerceApp.Business.Concrete
       if (jsonToken == null)
         throw new UnauthorizedAccessException("Invalid token");
 
-      var userIdClaim = jsonToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+      var userIdClaim = jsonToken.Claims.FirstOrDefault(c => c.Type == "nameid");
       if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
         throw new UnauthorizedAccessException("Invalid user ID in token");
 

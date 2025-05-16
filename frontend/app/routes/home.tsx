@@ -53,6 +53,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     attributeFilters: {},
   });
 
+  const [minPriceInput, setMinPriceInput] = useState<string>("");
+  const [maxPriceInput, setMaxPriceInput] = useState<string>("");
+
   const [cart, setCart] = useLocalStorage<
     Array<{
       id: string;
@@ -139,6 +142,13 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     }));
   };
 
+  const applyPriceRange = () => {
+    const min = minPriceInput ? Number(minPriceInput) : 0;
+    const max = maxPriceInput ? Number(maxPriceInput) : Number.MAX_SAFE_INTEGER;
+
+    handlePriceRangeChange(min, max);
+  };
+
   const handleAttributeChange = (
     attributeId: number,
     value: string,
@@ -172,14 +182,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     setFilters({
       attributeFilters: {},
     });
+    setMinPriceInput("");
+    setMaxPriceInput("");
   };
-
-  const priceRanges = [
-    { id: 1, name: "Under $50", min: 0, max: 50 },
-    { id: 2, name: "$50 - $100", min: 50, max: 100 },
-    { id: 3, name: "$100 - $200", min: 100, max: 200 },
-    { id: 4, name: "Over $200", min: 200, max: 10000 },
-  ];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -237,26 +242,39 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             {/* Price Filter */}
             <div className="mb-4 border-b border-gray-200 pb-4">
               <h3 className="mb-2 font-medium text-gray-800">Price</h3>
-              <div className="space-y-2">
-                {priceRanges.map((range) => (
-                  <label key={range.id} className="flex items-center">
-                    <input
-                      type="radio"
-                      name="priceRange"
-                      className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      checked={
-                        filters.priceRange?.min === range.min &&
-                        filters.priceRange?.max === range.max
-                      }
-                      onChange={() =>
-                        handlePriceRangeChange(range.min, range.max)
-                      }
-                    />
-                    <span className="ml-2 text-sm text-gray-600">
-                      {range.name}
-                    </span>
-                  </label>
-                ))}
+              <div className="space-y-3">
+                <div className="flex items-center">
+                  <span className="mr-2 text-sm text-gray-600">$</span>
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                    value={minPriceInput}
+                    onChange={(e) => setMinPriceInput(e.target.value)}
+                  />
+                </div>
+                <div className="flex items-center">
+                  <span className="mr-2 text-sm text-gray-600">$</span>
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                    value={maxPriceInput}
+                    onChange={(e) => setMaxPriceInput(e.target.value)}
+                  />
+                </div>
+                <button
+                  onClick={applyPriceRange}
+                  className="w-full rounded bg-indigo-600 px-3 py-1 text-sm text-white hover:bg-indigo-700"
+                >
+                  Apply
+                </button>
+                {filters.priceRange && (
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>Current: ${filters.priceRange.min}</span>
+                    <span>to ${filters.priceRange.max}</span>
+                  </div>
+                )}
               </div>
             </div>
 

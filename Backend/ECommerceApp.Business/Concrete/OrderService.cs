@@ -84,7 +84,7 @@ namespace ECommerceApp.Business.Concrete
               CreatedAt = DateTime.Now,
               IsActive = true
             };
-            _variantRepository.AddStockMovement(stockMovement);
+            AddStockMovement(stockMovement);
 
             return (Item: item, Variant: variant);
           }).ToList();
@@ -177,6 +177,36 @@ namespace ECommerceApp.Business.Concrete
         throw new KeyNotFoundException($"Order with ID {orderId} not found.");
 
       return order;
+    }
+
+    public void AddStockMovement(StockMovement movement)
+    {
+        _context.StockMovements.Add(movement);
+
+        var stock = GetOrCreateStock(movement.VariantId);
+        stock.Quantity += movement.MovementType == "IN" ? movement.Quantity : -movement.Quantity;
+        stock.LastUpdated = DateTime.UtcNow;
+
+        _context.SaveChanges();
+    }
+
+
+    private Stock GetOrCreateStock(int variantId)
+    {
+      var stock = _context.Stocks.FirstOrDefault(s => s.VariantId == variantId);
+      if (stock == null)
+      {
+        stock = new Stock
+        {
+          VariantId = variantId,
+          Quantity = 0,
+          CreatedAt = DateTime.UtcNow,
+          LastUpdated = DateTime.UtcNow,
+          IsActive = true
+        };
+        _context.Stocks.Add(stock);
+      }
+      return stock;
     }
   }
 }

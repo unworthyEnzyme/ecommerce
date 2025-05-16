@@ -302,6 +302,16 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                     CreatedAt = defaultDate,
                     IsActive = true,
                 });
+            modelBuilder.Entity<User>().HasData(
+                new User
+                {
+                    UserId = 2,
+                    Email = "admin@gmail.com",
+                    Password = "$2y$10$dcgED.SZWILlsRjKxArc.OpzCcmqhh40NraravIPfGXB8k5QV6UNe", // "secret"
+                    RoleId = 1,
+                    IsActive = true,
+                    CreatedAt = defaultDate,
+                });
 
             // Seed OrderStatus
             modelBuilder.Entity<OrderStatus>().HasData(

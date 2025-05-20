@@ -70,7 +70,8 @@ namespace ECommerceApp.Business.Concrete
                 ContactName = supplier.ContactName,
                 ContactEmail = supplier.ContactEmail,
                 PhoneNumber = supplier.PhoneNumber,
-                Address = supplier.Address
+                Address = supplier.Address,
+                CreatedAt = supplier.CreatedAt
             };
         }
 

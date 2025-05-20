@@ -563,10 +563,6 @@ export const suppliers = {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
-    if (!data) {
-      return null;
-    }
-    data.createdAt = faker.date.past().toISOString();
     return data;
   },
 

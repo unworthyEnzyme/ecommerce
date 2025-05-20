@@ -6,7 +6,7 @@ namespace ECommerceApp.Core.DataAccess.Abstract
     {
         Supplier GetById(int id);
         List<Supplier> GetAll();
-        void Add(Supplier supplier);
+        int Add(Supplier supplier);
         void Update(Supplier supplier);
         void Delete(int id);
         List<Supplier> GetSuppliersByUserId(int userId);

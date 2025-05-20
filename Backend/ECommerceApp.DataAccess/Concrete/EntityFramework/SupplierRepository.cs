@@ -13,10 +13,11 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
             _context = context;
         }
 
-        public void Add(Supplier supplier)
+        public int Add(Supplier supplier)
         {
             _context.Suppliers.Add(supplier);
             _context.SaveChanges();
+            return supplier.SupplierId;
         }
 
         public void Delete(int id)

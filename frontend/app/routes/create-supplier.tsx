@@ -1,4 +1,4 @@
-import { Form } from "react-router";
+import { Form, redirect } from "react-router";
 import type { Route } from "./+types/create-supplier";
 import apiClient from "~/api/client";
 
@@ -11,7 +11,9 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   const address = form.get("address");
 
   try {
-    await apiClient.post(
+    const {
+      data: { id },
+    } = await apiClient.post(
       "/supplier",
       {
         name,
@@ -26,6 +28,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
         },
       },
     );
+    return redirect(`/supplier/${id}`);
   } catch (error) {
     console.error("Error creating supplier:", error);
     throw new Error("Failed to create supplier");

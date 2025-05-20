@@ -42,8 +42,8 @@ namespace ECommerceApp.API.Controllers
             string token = Request.Headers[key: "Authorization"].ToString().Replace("Bearer ", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized();
-            _supplierService.Create(token, supplierDto);
-            return Ok();
+            int id = _supplierService.Create(token, supplierDto);
+            return Ok(new { Id = id });
         }
 
         [HttpPut]

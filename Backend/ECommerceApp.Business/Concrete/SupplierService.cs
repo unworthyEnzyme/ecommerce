@@ -18,7 +18,7 @@ namespace ECommerceApp.Business.Concrete
             _context = context;
         }
 
-        public void Create(string token, CreateSupplierDto supplierDto)
+        public int Create(string token, CreateSupplierDto supplierDto)
         {
             var supplier = new Supplier
             {
@@ -36,7 +36,7 @@ namespace ECommerceApp.Business.Concrete
                 supplier.Users = [owner];
             }
 
-            _supplierRepository.Add(supplier);
+            return _supplierRepository.Add(supplier);
         }
 
         public void Delete(int id)

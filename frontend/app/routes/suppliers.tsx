@@ -1,20 +1,11 @@
-import { faker } from "@faker-js/faker";
 import { Plus, Search } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
+import * as api from "~/api/client";
 import type { Route } from "./+types/suppliers";
 
 export async function clientLoader() {
-  const suppliers = Array.from({ length: 20 }, (_, index) => ({
-    id: index + 1,
-    name: faker.company.name(),
-    contactName: faker.person.fullName(),
-    contactEmail: faker.internet.email(),
-    phoneNumber: faker.phone.number(),
-    address: faker.location.streetAddress(),
-    createdAt: faker.date.past().toISOString(),
-  }));
-
+  const suppliers = await api.suppliers.getSuppliers();
   return { suppliers };
 }
 

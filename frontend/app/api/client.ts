@@ -540,6 +540,7 @@ export const suppliers = {
       contactEmail: string;
       phoneNumber: string;
       address: string;
+      createdAt: string;
     }
     const { data } = await apiClient.get<Supplier[]>("/supplier", {
       headers: {

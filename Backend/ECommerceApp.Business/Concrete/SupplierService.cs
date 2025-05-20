@@ -53,7 +53,8 @@ namespace ECommerceApp.Business.Concrete
                 ContactName = s.ContactName,
                 ContactEmail = s.ContactEmail,
                 PhoneNumber = s.PhoneNumber,
-                Address = s.Address
+                Address = s.Address,
+                CreatedAt = s.CreatedAt
             }).ToList();
         }
 

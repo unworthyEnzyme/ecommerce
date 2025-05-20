@@ -549,16 +549,25 @@ export const suppliers = {
     return data;
   },
   getSupplierById: async (id: string) => {
-    // For now, return mock data
-    return {
-      id: parseInt(id),
-      name: faker.company.name(),
-      contactName: faker.person.fullName(),
-      contactEmail: faker.internet.email(),
-      phoneNumber: faker.phone.number(),
-      address: faker.location.streetAddress({ useFullAddress: true }),
-      createdAt: faker.date.past().toISOString(),
-    };
+    interface Supplier {
+      id: number;
+      name: string;
+      contactName: string;
+      contactEmail: string;
+      phoneNumber: string;
+      address: string;
+      createdAt: string;
+    }
+    const { data } = await apiClient.get<Supplier>(`/supplier/${id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    if (!data) {
+      return null;
+    }
+    data.createdAt = faker.date.past().toISOString();
+    return data;
   },
 
   getSupplierStatistics: async (id: string) => {

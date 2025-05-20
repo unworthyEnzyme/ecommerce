@@ -1,3 +1,4 @@
+using ECommerceApp.Business.DTOs.Supplier;
 using ECommerceApp.Business.DTOs.Variant;
 
 namespace ECommerceApp.Business.DTOs.Product
@@ -17,6 +18,7 @@ namespace ECommerceApp.Business.DTOs.Product
         public string Description { get; set; }
         public TopCategoryDto TopCategory { get; set; }
         public SubCategoryDto SubCategory { get; set; }
+        public SupplierDto Supplier { get; set; }
         public List<ProductAttributeDto> Attributes { get; set; } = new();
         public List<VariantDto> Variants { get; set; } = new();
     }
@@ -27,6 +29,7 @@ namespace ECommerceApp.Business.DTOs.Product
         public string Description { get; set; }
         public int SubCategoryId { get; set; }
         public int TopCategoryId { get; set; }
+        public int SupplierId { get; set; }
     }
 
     public class UpdateProductDto

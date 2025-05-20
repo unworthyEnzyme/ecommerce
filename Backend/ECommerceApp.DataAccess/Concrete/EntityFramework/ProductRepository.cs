@@ -22,6 +22,7 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .Include(p => p.Variants)
                     .ThenInclude(v => v.VariantAttributeValues)
                         .ThenInclude(vav => vav.AttributeType)
+                .Include(p => p.Supplier)
                 .Where(p => p.IsActive)
                 .ToList();
         }
@@ -35,6 +36,7 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .Include(p => p.Variants)
                     .ThenInclude(v => v.VariantAttributeValues)
                         .ThenInclude(vav => vav.AttributeType)
+                .Include(p => p.Supplier)
                 .FirstOrDefault(p => p.ProductId == id && p.IsActive);
         }
         public IEnumerable<Product> GetByTopCategory(int topCategoryId)

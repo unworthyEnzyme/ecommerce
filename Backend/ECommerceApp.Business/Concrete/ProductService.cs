@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Product;
-using ECommerceApp.Business.DTOs.Variant;
+using ECommerceApp.Business.DTOs.Supplier;
 using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.Entities.Concrete;
 
@@ -56,6 +56,14 @@ namespace ECommerceApp.Business.Concrete
                     Id = product.TopCategoryId,
                     Name = product.TopCategory.Name
                 },
+                Supplier = new SupplierDto {
+                    Id = product.SupplierId,
+                    Name = product.Supplier.Name,
+                    Address = product.Supplier.Address,
+                    PhoneNumber = product.Supplier.PhoneNumber,
+                    ContactEmail = product.Supplier.ContactEmail,
+                    ContactName = product.Supplier.ContactName
+                }
                 //Attributes = product.ProductAttributeValues
                 //    .Where(pav => pav.IsActive)
                 //    .Select(pav => new ProductAttributeDto
@@ -122,7 +130,8 @@ namespace ECommerceApp.Business.Concrete
                 Name = productDto.Name,
                 Description = productDto.Description,
                 SubCategoryId = productDto.SubCategoryId,
-                TopCategoryId = productDto.TopCategoryId
+                TopCategoryId = productDto.TopCategoryId,
+                SupplierId = productDto.SupplierId,
             };
 
             var addedProduct = _productRepository.Add(product);

@@ -1,4 +1,5 @@
-﻿using ECommerceApp.Business.Abstract;
+﻿using System.IdentityModel.Tokens.Jwt;
+using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Supplier;
 using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.DataAccess.Concrete.EntityFramework;
@@ -17,7 +18,7 @@ namespace ECommerceApp.Business.Concrete
             _context = context;
         }
 
-        public void Create(CreateSupplierDto supplierDto)
+        public void Create(string token, CreateSupplierDto supplierDto)
         {
             var supplier = new Supplier
             {
@@ -28,10 +29,11 @@ namespace ECommerceApp.Business.Concrete
                 Address = supplierDto.Address
             };
 
-            var owner = _context.Users.Find(supplierDto.OwnerId);
+            var ownerId = GetUserIdFromToken(token);
+            var owner = _context.Users.FirstOrDefault(u => u.UserId == ownerId);
             if (owner != null)
             {
-                supplier.Users = new List<User> { owner };
+                supplier.Users = [owner];
             }
 
             _supplierRepository.Add(supplier);
@@ -102,6 +104,24 @@ namespace ECommerceApp.Business.Concrete
                 supplier.Address = supplierDto.Address;
                 _supplierRepository.Update(supplier);
             }
+        }
+
+        private int GetUserIdFromToken(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+                throw new UnauthorizedAccessException("No token provided");
+
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
+
+            if (jsonToken == null)
+                throw new UnauthorizedAccessException("Invalid token");
+
+            var userIdClaim = jsonToken.Claims.FirstOrDefault(c => c.Type == "nameid");
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                throw new UnauthorizedAccessException("Invalid user ID in token");
+
+            return userId;
         }
     }
 }

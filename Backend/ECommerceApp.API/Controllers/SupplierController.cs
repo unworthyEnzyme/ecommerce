@@ -39,7 +39,10 @@ namespace ECommerceApp.API.Controllers
         [HttpPost]
         public IActionResult Create(CreateSupplierDto supplierDto)
         {
-            _supplierService.Create(supplierDto);
+            string token = Request.Headers[key: "Authorization"].ToString().Replace("Bearer ", "");
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized();
+            _supplierService.Create(token, supplierDto);
             return Ok();
         }
 

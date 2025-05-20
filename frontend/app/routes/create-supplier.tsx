@@ -1,4 +1,36 @@
 import { Form } from "react-router";
+import type { Route } from "./+types/create-supplier";
+import apiClient from "~/api/client";
+
+export async function clientAction({ request }: Route.ClientActionArgs) {
+  const form = await request.formData();
+  const name = form.get("name");
+  const contactName = form.get("contactName");
+  const contactEmail = form.get("contactEmail");
+  const phoneNumber = form.get("phoneNumber");
+  const address = form.get("address");
+
+  try {
+    await apiClient.post(
+      "/supplier",
+      {
+        name,
+        contactName,
+        contactEmail,
+        phoneNumber,
+        address,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    );
+  } catch (error) {
+    console.error("Error creating supplier:", error);
+    throw new Error("Failed to create supplier");
+  }
+}
 
 export default function CreateSupplier() {
   return (

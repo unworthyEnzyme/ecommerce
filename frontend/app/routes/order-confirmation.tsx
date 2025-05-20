@@ -17,7 +17,7 @@ export default function OrderConfirmation() {
           Thank you for your purchase. Your order number is: {orderId}
         </p>
         <Link
-          to={`/order/${orderId}`}
+          to={`/order-details/${orderId}`}
           className="mb-8 inline-flex items-center rounded-md bg-white px-4 py-2 text-indigo-600 ring-1 ring-indigo-600 transition-all ring-inset hover:bg-indigo-600 hover:text-white"
         >
           View Order Details

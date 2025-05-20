@@ -4,6 +4,9 @@ using ECommerceApp.Business.DTOs.Supplier;
 using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.DataAccess.Concrete.EntityFramework;
 using ECommerceApp.Entities.Concrete;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ECommerceApp.Business.Concrete
 {
@@ -91,7 +94,114 @@ namespace ECommerceApp.Business.Concrete
 
         public SupplierStatistics GetSupplierStatistics(int supplierId)
         {
-            throw new NotImplementedException();
+            // Get all products for this supplier
+            var products = _context.Products
+                .Where(p => p.SupplierId == supplierId && p.IsActive)
+                .ToList();
+
+            if (!products.Any())
+            {
+                return new SupplierStatistics
+                {
+                    TotalOrders = 0,
+                    Revenue = 0,
+                    AverageOrderValue = 0,
+                    MonthlySales = Enumerable.Repeat(0, 6),
+                    MonthlyRevenue = Enumerable.Repeat(0f, 6),
+                    CategoryDistribution = new KeyValuePair<string, int>("None", 0)
+                };
+            }
+
+            // Get all product IDs
+            var productIds = products.Select(p => p.ProductId).ToList();
+
+            // Get all variants for these products
+            var variants = _context.Variants
+                .Where(v => productIds.Contains(v.ProductId) && v.IsActive)
+                .ToList();
+
+            if (!variants.Any())
+            {
+                return new SupplierStatistics
+                {
+                    TotalOrders = 0,
+                    Revenue = 0,
+                    AverageOrderValue = 0,
+                    MonthlySales = Enumerable.Repeat(0, 6),
+                    MonthlyRevenue = Enumerable.Repeat(0f, 6),
+                    CategoryDistribution = new KeyValuePair<string, int>("None", 0)
+                };
+            }
+
+            // Get all variant IDs
+            var variantIds = variants.Select(v => v.VariantId).ToList();
+
+            // Get all order items for these variants
+            var orderItems = _context.OrderItems
+                .Where(oi => variantIds.Contains(oi.VariantId) && oi.IsActive)
+                .Include(oi => oi.Order)
+                .Where(oi => oi.Order.IsActive)
+                .ToList();
+
+            // Get unique order IDs
+            var orderIds = orderItems.Select(oi => oi.OrderId).Distinct().ToList();
+
+            // Calculate total revenue
+            var totalRevenue = orderItems.Sum(oi => oi.Quantity * oi.UnitPrice);
+
+            // Calculate average order value
+            var avgOrderValue = orderIds.Count > 0 ? (int)(totalRevenue / orderIds.Count) : 0;
+
+            // Get monthly sales for the last 6 months
+            var now = DateTime.UtcNow;
+            var monthlySales = new List<int>();
+            var monthlyRevenue = new List<float>();
+
+            for (int i = 5; i >= 0; i--)
+            {
+                var targetMonth = now.AddMonths(-i);
+                var monthStart = new DateTime(targetMonth.Year, targetMonth.Month, 1);
+                var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+
+                var monthlyOrders = orderItems
+                    .Where(oi => oi.Order.OrderDate >= monthStart && oi.Order.OrderDate <= monthEnd)
+                    .ToList();
+
+                var monthOrderIds = monthlyOrders.Select(mo => mo.OrderId).Distinct().Count();
+                var monthRev = monthlyOrders.Sum(mo => mo.Quantity * mo.UnitPrice);
+
+                monthlySales.Add(monthOrderIds);
+                monthlyRevenue.Add((float)monthRev);
+            }
+
+            // Calculate top category
+            var topCategoryData = products
+                .GroupBy(p => p.TopCategoryId)
+                .Select(g => new { CategoryId = g.Key, Count = g.Count() })
+                .OrderByDescending(g => g.Count)
+                .FirstOrDefault();
+
+            string topCategoryName = "None";
+            int topCategoryCount = 0;
+
+            if (topCategoryData != null)
+            {
+                var topCategory = _context.TopCategories
+                    .FirstOrDefault(tc => tc.TopCategoryId == topCategoryData.CategoryId);
+
+                topCategoryName = topCategory?.Name ?? "Unknown";
+                topCategoryCount = topCategoryData.Count;
+            }
+
+            return new SupplierStatistics
+            {
+                TotalOrders = orderIds.Count,
+                Revenue = (int)totalRevenue,
+                AverageOrderValue = avgOrderValue,
+                MonthlySales = monthlySales,
+                MonthlyRevenue = monthlyRevenue,
+                CategoryDistribution = new KeyValuePair<string, int>(topCategoryName, topCategoryCount)
+            };
         }
 
         public void Update(UpdateSupplierDto supplierDto)

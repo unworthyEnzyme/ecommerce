@@ -59,5 +59,10 @@ namespace ECommerceApp.API.Controllers
             _supplierService.Delete(id);
             return Ok();
         }
+
+        [HttpGet("{id}/statistics")]
+        public ActionResult<SupplierStatistics> GetSupplierStatistics(int id) {
+            return _supplierService.GetSupplierStatistics(id);
+        }
     }
 }

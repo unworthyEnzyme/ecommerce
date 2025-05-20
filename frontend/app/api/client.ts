@@ -587,13 +587,13 @@ export const suppliers = {
     //   monthlyRevenue: Array.from({ length: 12 }, () =>
     //     faker.number.float({ min: 10000, max: 100000, fractionDigits: 2 }),
     //   ),
-    //   categoryDistribution: [
-    //     { name: "Electronics", value: faker.number.int({ min: 20, max: 50 }) },
-    //     { name: "Clothing", value: faker.number.int({ min: 10, max: 40 }) },
-    //     { name: "Home Goods", value: faker.number.int({ min: 5, max: 30 }) },
-    //     { name: "Books", value: faker.number.int({ min: 5, max: 20 }) },
-    //     { name: "Other", value: faker.number.int({ min: 5, max: 15 }) },
-    //   ],
+    // categoryDistribution: [
+    //   { name: "Electronics", value: faker.number.int({ min: 20, max: 50 }) },
+    //   { name: "Clothing", value: faker.number.int({ min: 10, max: 40 }) },
+    //   { name: "Home Goods", value: faker.number.int({ min: 5, max: 30 }) },
+    //   { name: "Books", value: faker.number.int({ min: 5, max: 20 }) },
+    //   { name: "Other", value: faker.number.int({ min: 5, max: 15 }) },
+    // ],
     // };
     interface Statistics {
       totalOrders: number;
@@ -601,10 +601,10 @@ export const suppliers = {
       averageOrderValue: number;
       monthlySales: number[];
       monthlyRevenue: number[];
-      categoryDistribution: {
+      categoryDistribution: Array<{
         name: string;
         value: number;
-      }[];
+      }>;
     }
     const { data } = await apiClient.get<Statistics>(
       `/supplier/${id}/statistics`,
@@ -614,6 +614,13 @@ export const suppliers = {
         },
       },
     );
+    data.categoryDistribution = [
+      { name: "Electronics", value: faker.number.int({ min: 20, max: 50 }) },
+      { name: "Clothing", value: faker.number.int({ min: 10, max: 40 }) },
+      { name: "Home Goods", value: faker.number.int({ min: 5, max: 30 }) },
+      { name: "Books", value: faker.number.int({ min: 5, max: 20 }) },
+      { name: "Other", value: faker.number.int({ min: 5, max: 15 }) },
+    ];
     return data;
   },
 

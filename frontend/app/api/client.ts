@@ -13,6 +13,7 @@ type CreateProductBody = {
   description: string;
   topCategoryId: string;
   subCategoryId: string;
+  supplierId: string;
 };
 
 export const auth = {
@@ -531,6 +532,22 @@ export const favorites = {
 };
 
 export const suppliers = {
+  getSuppliers: async () => {
+    interface Supplier {
+      id: number;
+      name: string;
+      contactName: string;
+      contactEmail: string;
+      phoneNumber: string;
+      address: string;
+    }
+    const { data } = await apiClient.get<Supplier[]>("/supplier", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return data;
+  },
   getSupplierById: async (id: string) => {
     // For now, return mock data
     return {

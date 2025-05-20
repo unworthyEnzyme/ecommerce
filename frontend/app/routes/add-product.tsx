@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Form, redirect } from "react-router";
 import { products } from "~/api/client";
+import * as api from "~/api/client";
 import type { Route } from "./+types/add-product";
 
 export async function clientLoader({ request }: Route.LoaderArgs) {
   const topCategories = await products.getTopCategories();
+  const suppliers = await api.suppliers.getSuppliers();
 
-  return { topCategories };
+  return { topCategories, suppliers };
 }
 
 export async function clientAction({ request }: Route.ActionArgs) {
@@ -15,12 +17,14 @@ export async function clientAction({ request }: Route.ActionArgs) {
   const description = form.get("description") as string;
   const topCategoryId = form.get("top-category-id") as string;
   const subCategoryId = form.get("sub-category-id") as string;
+  const supplierId = form.get("supplier-id") as string;
 
   const { id } = await products.createProduct({
     name,
     description,
     topCategoryId,
     subCategoryId,
+    supplierId,
   });
   return redirect(`/products/${id}/add-variant`);
 }
@@ -31,7 +35,7 @@ interface Category {
 }
 
 export default function AddProduct({ loaderData }: Route.ComponentProps) {
-  const { topCategories } = loaderData;
+  const { topCategories, suppliers } = loaderData;
   const [subCategories, setSubCategories] = useState<Category[]>([]);
 
   return (
@@ -61,6 +65,19 @@ export default function AddProduct({ loaderData }: Route.ComponentProps) {
                 placeholder="Description"
                 className="mb-3 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
               />
+            </div>
+            <div>
+              <select
+                name="supplier-id"
+                className="mb-3 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
+              >
+                <option value="">Select Supplier</option>
+                {suppliers.map((supplier) => (
+                  <option key={supplier.id} value={supplier.id}>
+                    {supplier.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <select

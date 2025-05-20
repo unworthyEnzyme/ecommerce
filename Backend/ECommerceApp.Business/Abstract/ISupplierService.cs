@@ -5,11 +5,12 @@ namespace ECommerceApp.Business.Abstract
 {
     public interface ISupplierService
     {
-        Supplier GetById(int id);
-        List<Supplier> GetAll();
+        SupplierDto GetById(int id);
+        List<SupplierDto> GetAll();
         void Create(CreateSupplierDto supplierDto);
         void Update(UpdateSupplierDto supplierDto);
         void Delete(int id);
-        List<Supplier> GetSuppliersByUserId(int userId);
+        List<SupplierDto> GetSuppliersByUserId(int userId);
+        SupplierStatistics GetSupplierStatistics(int supplierId);
     }
 }

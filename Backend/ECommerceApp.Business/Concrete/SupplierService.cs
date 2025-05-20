@@ -42,19 +42,52 @@ namespace ECommerceApp.Business.Concrete
             _supplierRepository.Delete(id);
         }
 
-        public List<Supplier> GetAll()
+        public List<SupplierDto> GetAll()
         {
-            return _supplierRepository.GetAll();
+            return _supplierRepository.GetAll().Select(s => new SupplierDto
+            {
+                Id = s.SupplierId,
+                Name = s.Name,
+                ContactName = s.ContactName,
+                ContactEmail = s.ContactEmail,
+                PhoneNumber = s.PhoneNumber,
+                Address = s.Address
+            }).ToList();
         }
 
-        public Supplier GetById(int id)
+        public SupplierDto GetById(int id)
         {
-            return _supplierRepository.GetById(id);
+            var supplier = _supplierRepository.GetById(id);
+            if (supplier == null)
+                return null;
+
+            return new SupplierDto
+            {
+                Id = supplier.SupplierId,
+                Name = supplier.Name,
+                ContactName = supplier.ContactName,
+                ContactEmail = supplier.ContactEmail,
+                PhoneNumber = supplier.PhoneNumber,
+                Address = supplier.Address
+            };
         }
 
-        public List<Supplier> GetSuppliersByUserId(int userId)
+        public List<SupplierDto> GetSuppliersByUserId(int userId)
         {
-            return _supplierRepository.GetSuppliersByUserId(userId);
+            return _supplierRepository.GetSuppliersByUserId(userId).Select(s => new SupplierDto
+            {
+                Id = s.SupplierId,
+                Name = s.Name,
+                ContactName = s.ContactName,
+                ContactEmail = s.ContactEmail,
+                PhoneNumber = s.PhoneNumber,
+                Address = s.Address
+            }).ToList();
+        }
+
+        public SupplierStatistics GetSupplierStatistics(int supplierId)
+        {
+            throw new NotImplementedException();
         }
 
         public void Update(UpdateSupplierDto supplierDto)

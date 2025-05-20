@@ -16,13 +16,13 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public ActionResult<IEnumerable<SupplierDto>> GetAll()
         {
             return Ok(_supplierService.GetAll());
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public ActionResult<SupplierDto> GetById(int id)
         {
             var supplier = _supplierService.GetById(id);
             if (supplier == null)
@@ -31,7 +31,7 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpGet("user/{userId}")]
-        public IActionResult GetByUserId(int userId)
+        public ActionResult<IEnumerable<SupplierDto>> GetByUserId(int userId)
         {
             return Ok(_supplierService.GetSuppliersByUserId(userId));
         }

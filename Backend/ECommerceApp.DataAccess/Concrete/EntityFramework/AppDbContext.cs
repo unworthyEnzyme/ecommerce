@@ -308,6 +308,9 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                     UserId = 2,
                     Email = "admin@gmail.com",
                     Password = "$2y$10$dcgED.SZWILlsRjKxArc.OpzCcmqhh40NraravIPfGXB8k5QV6UNe", // "secret"
+                    FirstName = "Admin",
+                    LastName = "Admin",
+                    PhoneNumber = "+90 555 555 55 55",
                     RoleId = 1,
                     IsActive = true,
                     CreatedAt = defaultDate,

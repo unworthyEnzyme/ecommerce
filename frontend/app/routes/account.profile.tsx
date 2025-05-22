@@ -1,6 +1,7 @@
 import { Edit, PlusCircle, Save, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useOutletContext } from "react-router";
+import { auth } from "../api/client";
 import type { UserProfile } from "./account.layout";
 
 type AccountContextType = {
@@ -23,10 +24,21 @@ export default function ProfileTab() {
     setEditableProfile((prev) => ({ ...prev, [name]: value }));
   };
 
-  const saveProfile = () => {
-    // TODO: Implement API call to save profile changes
-    setProfile(editableProfile);
-    setIsEditing(false);
+  const saveProfile = async () => {
+    try {
+      await auth.updateProfile({
+        email: editableProfile.email,
+        firstName: editableProfile.firstName || "",
+        lastName: editableProfile.lastName || "",
+        phoneNumber: editableProfile.phoneNumber || "",
+      });
+
+      setProfile(editableProfile);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      // TODO: Show error message to user
+    }
   };
 
   const cancelEditing = () => {

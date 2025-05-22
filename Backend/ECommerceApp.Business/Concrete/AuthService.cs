@@ -112,5 +112,31 @@ namespace ECommerceApp.Business.Concrete
                 Addresses = addresses
             };
         }
+
+        public void UpdateProfile(string token, UpdateProfileDto profileDto)
+        {
+            if (string.IsNullOrEmpty(token))
+                throw new UnauthorizedAccessException("No token provided");
+
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadToken(token) as JwtSecurityToken ?? throw new UnauthorizedAccessException("Invalid token");
+            var userIdClaim = jsonToken.Claims.FirstOrDefault(c => c.Type == "nameid");
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                throw new UnauthorizedAccessException("Invalid user ID in token");
+
+            var user = _userRepository.GetById(userId) ?? throw new Exception("User not found");
+
+            // Check if another user already has this email
+            if (user.Email != profileDto.Email && _userRepository.EmailExists(profileDto.Email))
+                throw new Exception("Email already exists");
+
+            user.Email = profileDto.Email;
+            user.FirstName = profileDto.FirstName ?? user.FirstName;
+            user.LastName = profileDto.LastName ?? user.LastName;
+            user.PhoneNumber = profileDto.PhoneNumber ?? user.PhoneNumber;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            _userRepository.Update(user);
+        }
     }
 }

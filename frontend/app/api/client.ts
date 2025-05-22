@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
 import axios from "axios";
+import type { UserProfile } from "../routes/account.layout";
 
 const apiClient = axios.create({
   baseURL: "https://localhost:7215/api",
@@ -33,14 +34,28 @@ export const auth = {
     });
     return response.data;
   },
-  getProfile: async () => {
+  async getProfile() {
     const token = localStorage.getItem("token");
-    const response = await apiClient.get("/auth/profile", {
+    const response = await apiClient.get<UserProfile>("/auth/profile", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
+  },
+  async updateProfile(profile: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+  }) {
+    const token = localStorage.getItem("token");
+    const { data } = await apiClient.put("/auth/profile", profile, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return data;
   },
 };
 

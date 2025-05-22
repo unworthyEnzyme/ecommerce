@@ -57,5 +57,21 @@ namespace ECommerceApp.API.Controllers
             }
             return Ok(profile);
         }
+
+        [HttpPut("profile")]
+        [Authorize]
+        public ActionResult UpdateProfile([FromBody] UpdateProfileDto profileDto)
+        {
+            var token = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
+            try
+            {
+                _authService.UpdateProfile(token, profileDto);
+                return Ok(new { message = "Profile updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

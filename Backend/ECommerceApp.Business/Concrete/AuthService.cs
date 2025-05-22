@@ -3,6 +3,8 @@ using System.Security.Claims;
 using System.Text;
 using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Auth;
+using ECommerceApp.Business.DTOs.Profile;
+using ECommerceApp.Business.DTOs.UserAddress;
 using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.Entities.Concrete;
 using Microsoft.IdentityModel.Tokens;
@@ -18,7 +20,6 @@ namespace ECommerceApp.Business.Concrete
         {
             _userRepository = userRepository;
         }
-
         public string Login(LoginDto loginDto)
         {
             var user = _userRepository.GetByEmail(loginDto.Email);
@@ -69,6 +70,47 @@ namespace ECommerceApp.Business.Concrete
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
+        }
+        public ProfileDto? GetProfile(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+                throw new UnauthorizedAccessException("No token provided");
+
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadToken(token) as JwtSecurityToken ?? throw new UnauthorizedAccessException("Invalid token");
+            var userIdClaim = jsonToken.Claims.FirstOrDefault(c => c.Type == "nameid");
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                throw new UnauthorizedAccessException("Invalid user ID in token");
+
+            var user = _userRepository.GetById(userId);
+            if (user == null)
+                return null;
+
+            var addresses = user.UserAddresses?
+                .Where(a => a.IsActive)
+                .Select(a => new UserAddressDto
+                {
+                    UserAddressId = a.UserAddressId,
+                    AddressLine1 = a.AddressLine1,
+                    AddressLine2 = a.AddressLine2,
+                    City = a.City,
+                    Country = a.Country,
+                    PostalCode = a.PostalCode,
+                    PhoneNumber = a.PhoneNumber,
+                    CreatedAt = a.CreatedAt,
+                    UpdatedAt = a.UpdatedAt
+                })
+                .ToList() ?? [];
+
+            return new ProfileDto
+            {
+                Id = user.UserId,
+                Email = user.Email,
+                FirstName = user.FirstName ?? string.Empty,
+                LastName = user.LastName ?? string.Empty,
+                PhoneNumber = user.PhoneNumber ?? string.Empty,
+                Addresses = addresses
+            };
         }
     }
 }

@@ -1,5 +1,7 @@
 using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Auth;
+using ECommerceApp.Business.DTOs.Profile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerceApp.API.Controllers
@@ -41,6 +43,19 @@ namespace ECommerceApp.API.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+        }
+
+        [HttpGet("profile")]
+        [Authorize]
+        public ActionResult<ProfileDto> GetProfile()
+        {
+            var token = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
+            var profile = _authService.GetProfile(token);
+            if (profile == null)
+            {
+                return NotFound(new { message = "Profile not found" });
+            }
+            return Ok(profile);
         }
     }
 }

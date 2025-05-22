@@ -605,6 +605,13 @@ export const suppliers = {
         name: string;
         value: number;
       }>;
+      topProducts: Array<{
+        name: string;
+        totalSold: number;
+        revenue: number;
+        lastOrderDate: string;
+        variant: Variant;
+      }>;
     }
     const { data } = await apiClient.get<Statistics>(
       `/supplier/${id}/statistics`,
@@ -615,18 +622,6 @@ export const suppliers = {
       },
     );
     return data;
-  },
-
-  getTopProducts: async (id: string) => {
-    // For demonstration, we'll fetch real variants but associate them with this supplier
-    const response = await variants.getAll();
-    // Take just a few variants and add sales metrics
-    return response.variants.slice(0, 6).map((variant) => ({
-      ...variant,
-      totalSold: faker.number.int({ min: 50, max: 500 }),
-      revenue: faker.number.float({ min: 1000, max: 50000, fractionDigits: 2 }),
-      lastOrderDate: faker.date.recent().toISOString(),
-    }));
   },
 };
 

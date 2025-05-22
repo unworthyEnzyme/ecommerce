@@ -29,9 +29,8 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
   const { id } = params;
   const supplier = await api.suppliers.getSupplierById(id);
   const statistics = await api.suppliers.getSupplierStatistics(id);
-  const topProducts = await api.suppliers.getTopProducts(id);
 
-  return { supplier, statistics, topProducts };
+  return { supplier, statistics, topProducts: statistics.topProducts };
 }
 
 export default function Supplier({ loaderData }: Route.ComponentProps) {
@@ -273,15 +272,15 @@ export default function Supplier({ loaderData }: Route.ComponentProps) {
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
               {topProducts.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
+                <tr key={product.variant.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="h-10 w-10 flex-shrink-0">
-                        {product.images && product.images[0] ? (
+                        {product.variant.images && product.variant.images[0] ? (
                           <img
                             className="h-10 w-10 rounded-full object-cover"
-                            src={`https://localhost:7215/api${product.images[0].imageUrl}`}
-                            alt={product.name}
+                            src={`https://localhost:7215/api${product.variant.images[0].imageUrl}`}
+                            alt={product.variant.name}
                             onError={(e) => {
                               e.currentTarget.src =
                                 "https://via.placeholder.com/40";
@@ -293,18 +292,21 @@ export default function Supplier({ loaderData }: Route.ComponentProps) {
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">
-                          <Link to={`/products/${product.id}`} className="text-sm font-medium text-gray-900 hover:underline">
-                            {product.name}
+                          <Link
+                            to={`/products/${product.variant.id}`}
+                            className="text-sm font-medium text-gray-900 hover:underline"
+                          >
+                            {product.variant.name}
                           </Link>
                         </div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
-                    {product.product.topCategory.name}
+                    {product.variant.product.topCategory.name}
                   </td>
                   <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
-                    ${product.price}
+                    ${product.variant.price}
                   </td>
                   <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
                     {product.totalSold}

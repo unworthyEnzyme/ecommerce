@@ -5,8 +5,8 @@ using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.DataAccess.Concrete.EntityFramework;
 using ECommerceApp.Entities.Concrete;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
+using ECommerceApp.Business.DTOs.Variant;
+using ECommerceApp.Business.DTOs.Product;
 
 namespace ECommerceApp.Business.Concrete
 {
@@ -106,9 +106,10 @@ namespace ECommerceApp.Business.Concrete
                     TotalOrders = 0,
                     Revenue = 0,
                     AverageOrderValue = 0,
-                    MonthlySales = Enumerable.Repeat(0, 6),
-                    MonthlyRevenue = Enumerable.Repeat(0f, 6),
-                    CategoryDistribution = new List<CategoryDistributionItem> { new CategoryDistributionItem("None", 0) }
+                    MonthlySales = Enumerable.Repeat(0, 6).ToList(),
+                    MonthlyRevenue = Enumerable.Repeat(0f, 6).ToList(),
+                    CategoryDistribution = new List<CategoryDistributionItem> { new CategoryDistributionItem("None", 0) },
+                    TopProducts = new List<TopProduct>()
                 };
             }
 
@@ -118,6 +119,8 @@ namespace ECommerceApp.Business.Concrete
             // Get all variants for these products
             var variants = _context.Variants
                 .Where(v => productIds.Contains(v.ProductId) && v.IsActive)
+                .Include(v => v.Product)
+                .Include(v => v.Stock)
                 .ToList();
 
             if (!variants.Any())
@@ -127,9 +130,10 @@ namespace ECommerceApp.Business.Concrete
                     TotalOrders = 0,
                     Revenue = 0,
                     AverageOrderValue = 0,
-                    MonthlySales = Enumerable.Repeat(0, 6),
-                    MonthlyRevenue = Enumerable.Repeat(0f, 6),
-                    CategoryDistribution = new List<CategoryDistributionItem> { new CategoryDistributionItem("None", 0) }
+                    MonthlySales = Enumerable.Repeat(0, 6).ToList(),
+                    MonthlyRevenue = Enumerable.Repeat(0f, 6).ToList(),
+                    CategoryDistribution = [new CategoryDistributionItem("None", 0)],
+                    TopProducts = []
                 };
             }
 
@@ -140,6 +144,8 @@ namespace ECommerceApp.Business.Concrete
             var orderItems = _context.OrderItems
                 .Where(oi => variantIds.Contains(oi.VariantId) && oi.IsActive)
                 .Include(oi => oi.Order)
+                .Include(oi => oi.Variant)
+                .ThenInclude(v => v.Product)
                 .Where(oi => oi.Order.IsActive)
                 .ToList();
 
@@ -197,6 +203,50 @@ namespace ECommerceApp.Business.Concrete
                 categoryDistributionItems.Add(new CategoryDistributionItem("None", 0));
             }
 
+            // Calculate top products
+            var topProducts = orderItems
+                .GroupBy(oi => oi.VariantId)
+                .Select(g => new
+                {
+                    Variant = variants.First(v => v.VariantId == g.Key),
+                    TotalSold = g.Sum(oi => oi.Quantity),
+                    Revenue = g.Sum(oi => oi.Quantity * oi.UnitPrice),
+                    LastOrderDate = g.Max(oi => oi.Order.OrderDate)
+                })
+                .OrderByDescending(p => p.Revenue)
+                .Take(5).Select(tp => new TopProduct(
+                    new VariantDto
+                    {
+                        Id = tp.Variant.VariantId,
+                        Name = tp.Variant.Product.Name, // Use product name since variant doesn't have name
+                        Price = tp.Variant.Price,
+                        Stock = tp.Variant.Stock?.Quantity ?? 0,
+                        Product = new ProductDto
+                        {
+                            ProductId = tp.Variant.Product.ProductId,
+                            Name = tp.Variant.Product.Name,
+                            TopCategory = new TopCategoryDto {
+                                Id = tp.Variant.Product.TopCategoryId,
+                                Name = tp.Variant.Product.TopCategory.Name,
+                            }
+                        },
+                        Attributes = [],
+                        Images = _context.VariantImages
+                            .Where(vi => vi.VariantId == tp.Variant.VariantId && vi.IsActive)
+                            .Select(vi => new VariantImageDto
+                            {
+                                ImageId = vi.ImageId,
+                                ImageUrl = vi.ImageUrl,
+                                IsPrimary = vi.IsPrimary,
+                                SortOrder = vi.SortOrder
+                            }).ToList()
+                    },
+                    tp.TotalSold,
+                    (float)tp.Revenue,
+                    tp.LastOrderDate
+                ))
+                .ToList();
+
             return new SupplierStatistics
             {
                 TotalOrders = orderIds.Count,
@@ -204,7 +254,8 @@ namespace ECommerceApp.Business.Concrete
                 AverageOrderValue = avgOrderValue,
                 MonthlySales = monthlySales,
                 MonthlyRevenue = monthlyRevenue,
-                CategoryDistribution = categoryDistributionItems
+                CategoryDistribution = categoryDistributionItems,
+                TopProducts = topProducts
             };
         }
 

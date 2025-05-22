@@ -21,6 +21,8 @@ export const translations = {
       emptyCart: "Your cart is empty",
       total: "Total",
       quantity: "Qty",
+      suppliers: "Suppliers",
+      supplier: "Supplier",
     },
     product: {
       noProducts: "No products found",

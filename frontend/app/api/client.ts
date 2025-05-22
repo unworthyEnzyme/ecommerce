@@ -614,13 +614,6 @@ export const suppliers = {
         },
       },
     );
-    data.categoryDistribution = [
-      { name: "Electronics", value: faker.number.int({ min: 20, max: 50 }) },
-      { name: "Clothing", value: faker.number.int({ min: 10, max: 40 }) },
-      { name: "Home Goods", value: faker.number.int({ min: 5, max: 30 }) },
-      { name: "Books", value: faker.number.int({ min: 5, max: 20 }) },
-      { name: "Other", value: faker.number.int({ min: 5, max: 15 }) },
-    ];
     return data;
   },
 

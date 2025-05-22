@@ -108,7 +108,7 @@ namespace ECommerceApp.Business.Concrete
                     AverageOrderValue = 0,
                     MonthlySales = Enumerable.Repeat(0, 6),
                     MonthlyRevenue = Enumerable.Repeat(0f, 6),
-                    CategoryDistribution = new KeyValuePair<string, int>("None", 0)
+                    CategoryDistribution = new List<CategoryDistributionItem> { new CategoryDistributionItem("None", 0) }
                 };
             }
 
@@ -129,7 +129,7 @@ namespace ECommerceApp.Business.Concrete
                     AverageOrderValue = 0,
                     MonthlySales = Enumerable.Repeat(0, 6),
                     MonthlyRevenue = Enumerable.Repeat(0f, 6),
-                    CategoryDistribution = new KeyValuePair<string, int>("None", 0)
+                    CategoryDistribution = new List<CategoryDistributionItem> { new CategoryDistributionItem("None", 0) }
                 };
             }
 
@@ -174,23 +174,27 @@ namespace ECommerceApp.Business.Concrete
                 monthlyRevenue.Add((float)monthRev);
             }
 
-            // Calculate top category
-            var topCategoryData = products
+            // Calculate category distribution
+            var categoryDistribution = products
                 .GroupBy(p => p.TopCategoryId)
                 .Select(g => new { CategoryId = g.Key, Count = g.Count() })
-                .OrderByDescending(g => g.Count)
-                .FirstOrDefault();
+                .ToList();
 
-            string topCategoryName = "None";
-            int topCategoryCount = 0;
+            var categoryDistributionItems = new List<CategoryDistributionItem>();
 
-            if (topCategoryData != null)
+            foreach (var category in categoryDistribution)
             {
                 var topCategory = _context.TopCategories
-                    .FirstOrDefault(tc => tc.TopCategoryId == topCategoryData.CategoryId);
+                    .FirstOrDefault(tc => tc.TopCategoryId == category.CategoryId);
 
-                topCategoryName = topCategory?.Name ?? "Unknown";
-                topCategoryCount = topCategoryData.Count;
+                string categoryName = topCategory?.Name ?? "Unknown";
+                categoryDistributionItems.Add(new CategoryDistributionItem(categoryName, category.Count));
+            }
+
+            // If no categories found, add a "None" item
+            if (!categoryDistributionItems.Any())
+            {
+                categoryDistributionItems.Add(new CategoryDistributionItem("None", 0));
             }
 
             return new SupplierStatistics
@@ -200,7 +204,7 @@ namespace ECommerceApp.Business.Concrete
                 AverageOrderValue = avgOrderValue,
                 MonthlySales = monthlySales,
                 MonthlyRevenue = monthlyRevenue,
-                CategoryDistribution = new KeyValuePair<string, int>(topCategoryName, topCategoryCount)
+                CategoryDistribution = categoryDistributionItems
             };
         }
 

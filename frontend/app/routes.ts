@@ -22,7 +22,12 @@ export default [
     route("products/:id", "routes/product.tsx"),
     route("cart", "routes/cart.tsx"),
     route("payment", "routes/payment.tsx"),
-    route("account", "routes/account.tsx"),
+    route("account", "routes/account.layout.tsx", [
+      index("routes/account.index.tsx"),
+      route("profile", "routes/account.profile.tsx"),
+      route("favorites", "routes/account.favorites.tsx"),
+      route("orders", "routes/account.orders.tsx"),
+    ]),
     route("order-confirmation", "routes/order-confirmation.tsx"),
     route("order-details/:id", "routes/order-details.tsx"),
     route("base-products", "routes/base-products.tsx"),

@@ -50,7 +50,7 @@ type CreateVariantBody = {
   }[];
 };
 
-type Variant = {
+export type Variant = {
   id: number;
   name: string;
   price: number;

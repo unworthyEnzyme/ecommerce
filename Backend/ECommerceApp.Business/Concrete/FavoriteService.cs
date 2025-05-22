@@ -3,11 +3,7 @@ using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Favorite;
 using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ECommerceApp.Business.DTOs.Variant;
 
 namespace ECommerceApp.Business.Concrete
 {
@@ -27,11 +23,21 @@ namespace ECommerceApp.Business.Concrete
 
             return favorites.Select(f => new FavoriteDto
             {
-                FavoriteId = f.FavoriteId,
-                VariantId = f.VariantId,
-                Price = f.Variant.Price,
-                ProductName = f.Variant.Product.Name,
-                CreatedAt = f.CreatedAt
+                Id = f.FavoriteId,
+                CreatedAt = f.CreatedAt,
+                Variant = new VariantDto
+                {
+                    Id = f.Variant.VariantId,
+                    Name = f.Variant.Product.Name,
+                    Price = f.Variant.Price,
+                    Images = f.Variant.VariantImages.Select(im => new VariantImageDto
+                    {
+                        ImageId = im.ImageId,
+                        ImageUrl = im.ImageUrl,
+                        IsPrimary = im.IsPrimary
+                    })
+                }
+
             });
         }
 
@@ -67,7 +73,7 @@ namespace ECommerceApp.Business.Concrete
         {
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token);
-            var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier);
+            var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "nameid");
 
             if (userIdClaim == null)
                 throw new Exception("Invalid token");

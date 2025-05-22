@@ -12,12 +12,11 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { useLocalStorage } from "usehooks-ts";
 import apiClient from "~/api/client";
+import { type Variant } from "~/api/client";
 
 type FavoriteItem = {
   id: string;
-  name: string;
-  price: number;
-  imageUrl: string;
+  variant: Variant;
 };
 
 type OrderItem = {
@@ -276,14 +275,18 @@ const FavoritesList = ({ favorites }: { favorites: FavoriteItem[] }) => (
           >
             <div className="h-48 overflow-hidden bg-gray-200">
               <img
-                src={`https://localhost:7215/api${item.imageUrl}`}
-                alt={item.name}
+                src={`https://localhost:7215/api${item.variant.images[0].imageUrl}`}
+                alt={item.variant.name}
                 className="h-full w-full object-cover"
               />
             </div>
             <div className="p-4">
-              <h3 className="text-md font-medium text-gray-900">{item.name}</h3>
-              <p className="mt-1 text-gray-600">${item.price.toFixed(2)}</p>
+              <h3 className="text-md font-medium text-gray-900">
+                {item.variant.name}
+              </h3>
+              <p className="mt-1 text-gray-600">
+                ${item.variant.price.toFixed(2)}
+              </p>
               <div className="mt-4 flex space-x-2">
                 <Link
                   to={`/products/${item.id}`}
@@ -326,7 +329,24 @@ export default function Account() {
   const [activeTab, setActiveTab] = useState<
     "profile" | "orders" | "favorites"
   >("profile");
-  const [favorites] = useLocalStorage<FavoriteItem[]>("favorites", []);
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      apiClient
+        .get("/favorite", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          setFavorites(response.data);
+        })
+        .catch((error) => {
+          console.error("Failed to fetch favorites:", error);
+        });
+    }
+  }, []);
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -23,6 +23,8 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
             return _context.Favorites
                 .Include(f => f.Variant)
                     .ThenInclude(v => v.Product)
+                .Include(f => f.Variant)
+                    .ThenInclude(v => v.VariantImages)
                 .ToList();
         }
 
@@ -31,6 +33,8 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
             return _context.Favorites
                 .Include(f => f.Variant)
                     .ThenInclude(v => v.Product)
+                .Include(f => f.Variant)
+                    .ThenInclude(v => v.VariantImages)
                 .Where(f => f.UserId == userId)
                 .ToList();
         }

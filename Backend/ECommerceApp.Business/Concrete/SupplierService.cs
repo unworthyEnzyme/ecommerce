@@ -218,14 +218,15 @@ namespace ECommerceApp.Business.Concrete
                     new VariantDto
                     {
                         Id = tp.Variant.VariantId,
-                        Name = tp.Variant.Product.Name, // Use product name since variant doesn't have name
+                        Name = tp.Variant.Product.Name,
                         Price = tp.Variant.Price,
                         Stock = tp.Variant.Stock?.Quantity ?? 0,
                         Product = new ProductDto
                         {
                             ProductId = tp.Variant.Product.ProductId,
                             Name = tp.Variant.Product.Name,
-                            TopCategory = new TopCategoryDto {
+                            TopCategory = new TopCategoryDto
+                            {
                                 Id = tp.Variant.Product.TopCategoryId,
                                 Name = tp.Variant.Product.TopCategory.Name,
                             }

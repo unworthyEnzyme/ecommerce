@@ -1,5 +1,4 @@
 ﻿using ECommerceApp.Business.DTOs.Supplier;
-using ECommerceApp.Entities.Concrete;
 
 namespace ECommerceApp.Business.Abstract
 {

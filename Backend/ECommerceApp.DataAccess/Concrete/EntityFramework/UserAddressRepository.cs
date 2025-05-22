@@ -1,11 +1,5 @@
 ﻿using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.Entities.Concrete;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerceApp.DataAccess.Concrete.EntityFramework
 {

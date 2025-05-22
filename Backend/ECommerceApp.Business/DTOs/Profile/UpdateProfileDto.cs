@@ -1,5 +1,3 @@
-using ECommerceApp.Business.DTOs.UserAddress;
-
 namespace ECommerceApp.Business.DTOs.Profile
 {
   public class UpdateProfileDto

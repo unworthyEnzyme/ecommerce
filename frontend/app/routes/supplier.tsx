@@ -6,6 +6,7 @@ import {
   MapPin,
   Package,
   Phone,
+  Plus,
   TrendingUp,
 } from "lucide-react";
 import { Link } from "react-router";
@@ -134,9 +135,16 @@ export default function Supplier({ loaderData }: Route.ComponentProps) {
     <div className="container mx-auto p-6">
       {/* Supplier Header */}
       <div className="mb-8 rounded-lg bg-white p-6 shadow-md">
-        <h1 className="mb-2 text-3xl font-bold text-gray-800">
-          {supplier.name}
-        </h1>
+        <div className="mb-4 flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-gray-800">{supplier.name}</h1>
+          <Link
+            to="/employees/new"
+            className="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+          >
+            <span className="mr-2">Add Employee</span>
+            <Plus size={18} />
+          </Link>
+        </div>
         <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-8">
           <div className="flex items-center text-gray-600">
             <Phone size={18} className="mr-2" />

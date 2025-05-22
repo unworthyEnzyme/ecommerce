@@ -31,5 +31,6 @@ export default [
     route("update-supplier/:id", "routes/update-supplier.tsx"),
     route("supplier/:id", "routes/supplier.tsx"),
     route("suppliers", "routes/suppliers.tsx"),
+    route("employees/new", "routes/new-employee.tsx"),
   ]),
 ] satisfies RouteConfig;

@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Navigate, useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { Link } from "react-router";
 
-export default function AddressForm() {
-  const { id } = useParams();
+export default function NewAddressForm() {
   const navigate = useNavigate();
   const [address, setAddress] = useState({
     addressLine1: "",
@@ -16,18 +15,14 @@ export default function AddressForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // For a complete implementation, we would:
-  // 1. Fetch the address by ID if editing
-  // 2. Create an API handler to save the address
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      // This would be an API call to create/update the address
-      console.log("Saving address:", address);
+      // This would be an API call to create the address
+      console.log("Saving new address:", address);
 
       // Mock delay to simulate API call
       await new Promise((resolve) => setTimeout(resolve, 500));
@@ -51,15 +46,16 @@ export default function AddressForm() {
 
   return (
     <div className="rounded-lg bg-white p-6 shadow-md">
-      {" "}
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-800">Edit Address</h2>
+        <h2 className="text-xl font-semibold text-gray-800">Add New Address</h2>
       </div>
+
       {error && (
         <div className="mb-4 rounded-md bg-red-50 p-4 text-red-600">
           {error}
         </div>
       )}
+
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="md:col-span-2">
@@ -140,7 +136,6 @@ export default function AddressForm() {
               <option value="France">France</option>
               <option value="Canada">Canada</option>
               <option value="Australia">Australia</option>
-              {/* Add more countries as needed */}
             </select>
           </div>
 

@@ -27,6 +27,7 @@ export default [
       route("profile", "routes/account.profile.tsx"),
       route("favorites", "routes/account.favorites.tsx"),
       route("orders", "routes/account.orders.tsx"),
+      route("address/new", "routes/account.address.new.tsx"),
       route("address/:id", "routes/account.address.$id.tsx"),
     ]),
     route("order-confirmation", "routes/order-confirmation.tsx"),

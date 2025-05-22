@@ -1,16 +1,7 @@
-import { Edit, Save, X } from "lucide-react";
+import { Edit, PlusCircle, Save, X } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useOutletContext } from "react-router";
-
-type UserProfile = {
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string;
-  postalCode: string;
-  country: string;
-};
+import { Link, useOutletContext } from "react-router";
+import type { UserProfile } from "./account.layout";
 
 type AccountContextType = {
   profile: UserProfile;
@@ -33,6 +24,7 @@ export default function ProfileTab() {
   };
 
   const saveProfile = () => {
+    // TODO: Implement API call to save profile changes
     setProfile(editableProfile);
     setIsEditing(false);
   };
@@ -41,6 +33,11 @@ export default function ProfileTab() {
     setEditableProfile(profile);
     setIsEditing(false);
   };
+
+  const mainAddress =
+    profile.addresses && profile.addresses.length > 0
+      ? profile.addresses[0]
+      : null;
 
   return (
     <div className="rounded-lg bg-white p-6 shadow-md">
@@ -74,26 +71,150 @@ export default function ProfileTab() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {Object.entries(profile).map(([key, value]) => (
-          <div key={key} className={key === "address" ? "md:col-span-2" : ""}>
-            <label className="block text-sm font-medium text-gray-700">
-              {key.charAt(0).toUpperCase() + key.slice(1)}
-            </label>
-            {isEditing ? (
-              <input
-                type={
-                  key === "email" ? "email" : key === "phone" ? "tel" : "text"
-                }
-                name={key}
-                value={editableProfile[key as keyof UserProfile]}
-                onChange={handleProfileChange}
-                className="mt-1 w-full rounded-md border border-gray-300 p-2"
-              />
-            ) : (
-              <p className="mt-1 text-gray-900">{value}</p>
-            )}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Email
+          </label>
+          <p className="mt-1 text-gray-900">{profile.email}</p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            First Name
+          </label>
+          {isEditing ? (
+            <input
+              type="text"
+              name="firstName"
+              placeholder="Enter your first name"
+              value={editableProfile.firstName || ""}
+              onChange={handleProfileChange}
+              className="mt-1 w-full rounded-md border border-gray-300 p-2"
+            />
+          ) : (
+            <p className="mt-1 text-gray-900">
+              {profile.firstName || (
+                <span className="text-gray-400 italic">Not provided</span>
+              )}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Last Name
+          </label>
+          {isEditing ? (
+            <input
+              type="text"
+              name="lastName"
+              placeholder="Enter your last name"
+              value={editableProfile.lastName || ""}
+              onChange={handleProfileChange}
+              className="mt-1 w-full rounded-md border border-gray-300 p-2"
+            />
+          ) : (
+            <p className="mt-1 text-gray-900">
+              {profile.lastName || (
+                <span className="text-gray-400 italic">Not provided</span>
+              )}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Phone Number
+          </label>
+          {isEditing ? (
+            <input
+              type="tel"
+              name="phoneNumber"
+              placeholder="Enter your phone number"
+              value={editableProfile.phoneNumber || ""}
+              onChange={handleProfileChange}
+              className="mt-1 w-full rounded-md border border-gray-300 p-2"
+            />
+          ) : (
+            <p className="mt-1 text-gray-900">
+              {profile.phoneNumber || (
+                <span className="text-gray-400 italic">Not provided</span>
+              )}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-8">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-800">Addresses</h3>
+          <Link
+            to="/account/address/new"
+            className="flex items-center text-indigo-600 hover:text-indigo-800"
+          >
+            <PlusCircle size={16} className="mr-2" /> Add Address
+          </Link>
+        </div>
+
+        {profile.addresses && profile.addresses.length > 0 ? (
+          <div className="space-y-4">
+            {profile.addresses.map((address) => (
+              <div
+                key={address.userAddressId}
+                className="rounded-md border border-gray-200 p-4"
+              >
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <p className="text-sm text-gray-500">Address Line 1</p>
+                    <p className="text-gray-900">{address.addressLine1}</p>
+                  </div>
+                  {address.addressLine2 && (
+                    <div>
+                      <p className="text-sm text-gray-500">Address Line 2</p>
+                      <p className="text-gray-900">{address.addressLine2}</p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm text-gray-500">City</p>
+                    <p className="text-gray-900">{address.city}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Postal Code</p>
+                    <p className="text-gray-900">{address.postalCode}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Country</p>
+                    <p className="text-gray-900">{address.country}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Phone Number</p>
+                    <p className="text-gray-900">{address.phoneNumber}</p>
+                  </div>
+                </div>
+                <div className="mt-3 flex justify-end">
+                  <Link
+                    to={`/account/address/${address.userAddressId}`}
+                    className="text-sm text-indigo-600 hover:underline"
+                  >
+                    Edit
+                  </Link>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        ) : (
+          <div className="rounded-md bg-gray-50 p-8 text-center">
+            <p className="text-gray-500">
+              You haven't added any addresses yet.
+            </p>
+            <Link
+              to="/account/address/new"
+              className="mt-2 inline-block text-indigo-600 hover:underline"
+            >
+              Add your first address
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

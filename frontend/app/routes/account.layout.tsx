@@ -1,20 +1,37 @@
 import { Heart, LogOut, Package, ShoppingBag, User } from "lucide-react";
 import { Link, Outlet, useLocation } from "react-router";
-import { useLocalStorage } from "usehooks-ts";
+import { useEffect, useState } from "react";
+import { auth } from "../api/client";
 
-type UserProfile = {
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
+export type Address = {
+  userAddressId: number;
+  addressLine1: string;
+  addressLine2?: string;
   city: string;
-  postalCode: string;
   country: string;
+  postalCode: string;
+  phoneNumber: string;
+  createdAt: string;
+  updatedAt?: string;
+};
+
+export type UserProfile = {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  addresses: Address[];
 };
 
 const Sidebar = ({ profile }: { profile: UserProfile }) => {
   const location = useLocation();
   const currentPath = location.pathname;
+
+  const displayName =
+    profile.firstName && profile.lastName
+      ? `${profile.firstName} ${profile.lastName}`
+      : profile.email;
 
   return (
     <div className="rounded-lg bg-white p-6 shadow-md">
@@ -23,7 +40,7 @@ const Sidebar = ({ profile }: { profile: UserProfile }) => {
           <User className="text-indigo-600" size={24} />
         </div>
         <div className="ml-4">
-          <p className="font-medium text-gray-800">{profile.name}</p>
+          <p className="font-medium text-gray-800">{displayName}</p>
           <p className="text-sm text-gray-500">{profile.email}</p>
         </div>
       </div>
@@ -83,15 +100,55 @@ const Sidebar = ({ profile }: { profile: UserProfile }) => {
 };
 
 export default function AccountLayout() {
-  const [profile, setProfile] = useLocalStorage<UserProfile>("userProfile", {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+90 123 123 12 12",
-    address: "123 Main St.",
-    city: "Istanbul",
-    postalCode: "34000",
-    country: "Turkey",
-  });
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setLoading(true);
+        const profileData = await auth.getProfile();
+        setProfile(profileData);
+      } catch (err) {
+        console.error("Failed to fetch profile:", err);
+        setError("Failed to load profile. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex h-48 items-center justify-center">
+          <div className="text-center">
+            <div className="spinner-border mb-4 h-8 w-8 text-indigo-600"></div>
+            <p>Loading profile...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="rounded-lg bg-red-50 p-4">
+          <p className="text-red-600">{error || "Unable to load profile"}</p>
+          <button
+            className="mt-2 text-indigo-600 hover:underline"
+            onClick={() => window.location.reload()}
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

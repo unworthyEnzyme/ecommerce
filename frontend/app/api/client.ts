@@ -33,6 +33,15 @@ export const auth = {
     });
     return response.data;
   },
+  getProfile: async () => {
+    const token = localStorage.getItem("token");
+    const response = await apiClient.get("/auth/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
 };
 
 type CreateVariantBody = {

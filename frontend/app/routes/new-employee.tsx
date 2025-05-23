@@ -1,11 +1,27 @@
-import { Form } from "react-router";
+import { Form, redirect } from "react-router";
 import type { Route } from "./+types/new-employee";
 import * as api from "~/api/client";
+import apiClient from "~/api/client";
 
 export async function clientLoader({ request }: Route.LoaderArgs) {
   const suppliers = await api.suppliers.getSuppliers();
 
   return { suppliers };
+}
+
+export async function clientAction({ request }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const email = formData.get("email");
+  const supplierId = formData.get("supplier-id");
+
+  if (!email || !supplierId) {
+    throw new Error("Email and Supplier ID are required");
+  }
+
+  await apiClient.post(`/supplier/${supplierId}/employee`, {
+    email,
+  });
+  return null;
 }
 
 export default function NewEmployee({ loaderData }: Route.ComponentProps) {

@@ -11,5 +11,6 @@ namespace ECommerceApp.Business.Abstract
         void Delete(int id);
         List<SupplierDto> GetSuppliersByUserId(int userId);
         SupplierStatistics GetSupplierStatistics(int supplierId);
+        void AddEmployee(int id, CreateEmployeeDto employeeDto);
     }
 }

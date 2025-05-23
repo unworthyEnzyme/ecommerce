@@ -73,5 +73,12 @@ namespace ECommerceApp.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPost("complete-auth/{id}")]
+        public ActionResult CompleteOnboarding(string id, [FromBody] CompleteOnboardingDto completeOnboarding)
+        {
+            _authService.CompleteOnboarding(id, completeOnboarding);
+            return Ok(new { message = "Success" });
+        }
     }
 }

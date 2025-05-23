@@ -39,5 +39,6 @@ export default [
     route("supplier/:id", "routes/supplier.tsx"),
     route("suppliers", "routes/suppliers.tsx"),
     route("employees/new", "routes/new-employee.tsx"),
+    route("complete-auth/:uuid", "routes/complete-auth.tsx"),
   ]),
 ] satisfies RouteConfig;

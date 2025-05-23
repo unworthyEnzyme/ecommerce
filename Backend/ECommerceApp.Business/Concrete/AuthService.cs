@@ -14,11 +14,13 @@ namespace ECommerceApp.Business.Concrete
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IEmployeeInvitationRepository _employeeInvitationRepository;
         private const string SecretKey = "your-very-long-secret-key-here-min-16-characters";
 
-        public AuthService(IUserRepository userRepository)
+        public AuthService(IUserRepository userRepository, IEmployeeInvitationRepository employeeInvitationRepository)
         {
             _userRepository = userRepository;
+            _employeeInvitationRepository = employeeInvitationRepository;
         }
         public string Login(LoginDto loginDto)
         {
@@ -137,6 +139,19 @@ namespace ECommerceApp.Business.Concrete
             user.UpdatedAt = DateTime.UtcNow;
 
             _userRepository.Update(user);
+        }
+
+        public void CompleteOnboarding(string id, CompleteOnboardingDto completeOnboarding) {
+            var invitation = _employeeInvitationRepository.GetByUUID(id) ?? throw new Exception("Not Found");
+            //TODO: This should ideally be a transaction.
+            Register(new RegisterDto {
+                Email = invitation.Email,
+                Password = completeOnboarding.Password,
+                ConfirmPassword = completeOnboarding.Password
+            });
+            // TODO: This should be sent to the email as a link.
+            Console.WriteLine($"UUID: {id}");
+            _employeeInvitationRepository.Delete(invitation);
         }
     }
 }

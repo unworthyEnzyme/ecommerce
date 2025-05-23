@@ -13,12 +13,26 @@ namespace ECommerceApp.Business.Concrete
     public class SupplierService : ISupplierService
     {
         private readonly ISupplierRepository _supplierRepository;
+        private readonly IEmployeeInvitationRepository _employeeInvitationRepository;
         private readonly AppDbContext _context;
 
-        public SupplierService(ISupplierRepository supplierRepository, AppDbContext context)
-        {
+        public SupplierService(
+            ISupplierRepository supplierRepository, 
+            AppDbContext context, 
+            IEmployeeInvitationRepository employeeInvitationRepository) {
             _supplierRepository = supplierRepository;
             _context = context;
+            _employeeInvitationRepository = employeeInvitationRepository;
+        }
+
+        public void AddEmployee(int id, CreateEmployeeDto employeeDto) {
+            var supplier = _supplierRepository.GetById(id) ?? throw new Exception("Supplier not found");
+            var employee = new EmployeeInvitation {
+                Email = employeeDto.Email,
+                SupplierId = id,
+                UUID = Guid.NewGuid().ToString(),
+            };
+            _employeeInvitationRepository.Add(employee);
         }
 
         public int Create(string token, CreateSupplierDto supplierDto)

@@ -9,5 +9,6 @@ namespace ECommerceApp.Business.Abstract
         void Register(RegisterDto registerDto);
         ProfileDto? GetProfile(string token);
         void UpdateProfile(string token, UpdateProfileDto profileDto);
+        void CompleteOnboarding(string id, CompleteOnboardingDto completeOnboarding);
     }
 }

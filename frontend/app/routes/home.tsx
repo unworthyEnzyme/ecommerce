@@ -187,12 +187,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Products</h1>
+    <div className="container mx-auto px-4 pt-2 pb-12">
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-3xl font-semibold text-gray-800">Products</h1>
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 md:hidden"
+          className="flex items-center rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none md:hidden"
         >
           {showFilters ? (
             <X size={16} className="mr-2" />
@@ -206,28 +206,33 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       <div className="flex flex-col gap-6 md:flex-row">
         {/* Sidebar - hidden on mobile unless toggled */}
         <aside
-          className={`w-full md:block md:w-64 ${showFilters ? "block" : "hidden"}`}
+          className={`w-full md:block md:w-72 lg:w-80 ${showFilters ? "block" : "hidden"}`}
         >
-          <div className="sticky top-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Filters</h2>
+          <div className="sticky top-6 rounded-xl border border-gray-200 bg-white p-5 shadow-lg">
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-800">Filters</h2>
               <button
                 onClick={clearFilters}
-                className="text-sm text-indigo-600 hover:text-indigo-800"
+                className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
               >
                 Clear All
               </button>
             </div>
 
             {/* Category Filter */}
-            <div className="mb-4 border-b border-gray-200 pb-4">
-              <h3 className="mb-2 font-medium text-gray-800">Categories</h3>
+            <div className="mb-5 border-b border-gray-200 pb-5">
+              <h3 className="mb-3 text-sm font-semibold tracking-wider text-gray-600 uppercase">
+                Categories
+              </h3>
               <div className="space-y-2">
                 {topCategories.map((category) => (
-                  <label key={category.id} className="flex items-center">
+                  <label
+                    key={category.id}
+                    className="flex cursor-pointer items-center rounded-md p-1 hover:bg-gray-50"
+                  >
                     <input
                       type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
                       checked={filters.categoryId === category.id}
                       onChange={() => handleCategoryChange(category.id)}
                     />
@@ -240,15 +245,17 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             </div>
 
             {/* Price Filter */}
-            <div className="mb-4 border-b border-gray-200 pb-4">
-              <h3 className="mb-2 font-medium text-gray-800">Price</h3>
+            <div className="mb-5 border-b border-gray-200 pb-5">
+              <h3 className="mb-3 text-sm font-semibold tracking-wider text-gray-600 uppercase">
+                Price
+              </h3>
               <div className="space-y-3">
                 <div className="flex items-center">
                   <span className="mr-2 text-sm text-gray-600">$</span>
                   <input
                     type="number"
                     placeholder="Min"
-                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                    className="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                     value={minPriceInput}
                     onChange={(e) => setMinPriceInput(e.target.value)}
                   />
@@ -258,14 +265,14 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   <input
                     type="number"
                     placeholder="Max"
-                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                    className="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                     value={maxPriceInput}
                     onChange={(e) => setMaxPriceInput(e.target.value)}
                   />
                 </div>
                 <button
                   onClick={applyPriceRange}
-                  className="w-full rounded bg-indigo-600 px-3 py-1 text-sm text-white hover:bg-indigo-700"
+                  className="w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
                 >
                   Apply
                 </button>
@@ -282,20 +289,20 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             {attributeOptions.map((option) => (
               <div
                 key={option.id}
-                className="mb-4 border-b border-gray-200 pb-4"
+                className="mb-5 border-b border-gray-200 pb-5 last:mb-0 last:border-b-0 last:pb-0"
               >
-                <h3 className="mb-2 font-medium text-gray-800">
+                <h3 className="mb-3 text-sm font-semibold tracking-wider text-gray-600 uppercase">
                   {option.name}
                 </h3>
                 <div className="space-y-2">
                   {option.values.map((value) => (
                     <label
                       key={`${option.id}-${value}`}
-                      className="flex items-center"
+                      className="flex cursor-pointer items-center rounded-md p-1 hover:bg-gray-50"
                     >
                       <input
                         type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
                         checked={(
                           filters.attributeFilters[option.id] || []
                         ).includes(value)}
@@ -321,17 +328,18 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         {/* Products Display */}
         <section className="flex-1">
           {isLoading ? (
-            <div className="flex h-48 items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent"></div>
+            <div className="flex h-64 flex-col items-center justify-center text-gray-500">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent"></div>
+              <p className="mt-4 text-lg">Loading products...</p>
             </div>
           ) : variants.length > 0 ? (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
               {variants.map((variant) => (
                 <div
                   key={variant.id}
-                  className="overflow-hidden rounded-lg bg-white shadow-md transition hover:shadow-lg"
+                  className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg transition-all duration-300 ease-in-out hover:shadow-2xl"
                 >
-                  <div className="flex h-48 items-center justify-center overflow-hidden bg-gray-100">
+                  <div className="flex h-56 items-center justify-center overflow-hidden bg-gray-50">
                     <img
                       src={`https://localhost:7215/api${variant.images[0]?.imageUrl}`}
                       alt={variant.name}
@@ -344,40 +352,39 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                       }}
                     />
                   </div>
-                  <div className="p-4">
-                    <Link to={`/products/${variant.id}`}>
-                      <h3 className="mb-2 text-lg font-semibold text-gray-900 transition hover:text-indigo-600">
+                  <div className="flex flex-grow flex-col p-5">
+                    <Link to={`/products/${variant.id}`} className="group">
+                      <h3 className="text-md mb-1 line-clamp-2 font-semibold text-gray-800 group-hover:text-indigo-600">
                         {variant.name}
                       </h3>
                     </Link>
-                    <p className="mb-2 font-bold text-indigo-600">
+                    <p className="my-1 text-xl font-bold text-indigo-600">
                       ${variant.price}
                     </p>
-                    <p className="mb-3 line-clamp-2 text-sm text-gray-600">
+                    <p className="mb-3 line-clamp-3 flex-grow text-xs text-gray-500">
                       {variant.product.description}
                     </p>
 
                     {/* Display variant attributes */}
-                    <div className="mb-3">
-                      {variant.attributes.map((attr, idx) => (
-                        <span
-                          key={idx}
-                          className="mr-2 rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600"
-                        >
-                          {attr.attributeName}: {attr.attributeValue}
-                        </span>
-                      ))}
-                    </div>
+                    <div className="mt-auto pt-3">
+                      <div className="mb-3 space-y-1 space-x-1">
+                        {variant.attributes.map((attr, idx) => (
+                          <span
+                            key={idx}
+                            className="mr-1 inline-block rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-700"
+                          >
+                            {attr.attributeName}: {attr.attributeValue}
+                          </span>
+                        ))}
+                      </div>
 
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500">
-                          {variant.product.topCategory.name}
-                        </span>
+                      <div className="flex items-center justify-between text-xs text-gray-400">
+                        <span>{variant.product.topCategory.name}</span>
+                        {/* Potential stock status or other info here */}
                       </div>
                       <button
                         onClick={() => addToCart(variant)}
-                        className="mt-2 flex w-full items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
+                        className="mt-3 flex w-full items-center justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
                       >
                         <ShoppingCart size={16} className="mr-2" /> Add to Cart
                       </button>
@@ -387,12 +394,13 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               ))}
             </div>
           ) : (
-            <div className="flex h-48 flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
-              <p className="text-lg font-medium text-gray-500">
+            <div className="flex h-64 flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 py-12 text-center">
+              <Filter size={48} className="mb-4 text-gray-400" />
+              <p className="text-xl font-semibold text-gray-600">
                 No products found
               </p>
-              <p className="text-sm text-gray-400">
-                Try adjusting your filters
+              <p className="mt-2 text-base text-gray-400">
+                Try adjusting your filters or check back later.
               </p>
             </div>
           )}

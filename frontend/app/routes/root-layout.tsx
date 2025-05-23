@@ -49,7 +49,7 @@ function CategoryDropdown({
     <div ref={dropdownRef} className="relative">
       <button
         onClick={handleToggle}
-        className="flex items-center text-gray-700 hover:text-indigo-600 hover:underline focus:outline-none"
+        className="flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-indigo-600 focus:outline-none"
       >
         {category.name}
         <ChevronDown
@@ -59,7 +59,7 @@ function CategoryDropdown({
       </button>
 
       {isOpen && (
-        <div className="ring-opacity-5 absolute left-0 z-10 mt-2 w-48 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black">
+        <div className="ring-opacity-5 absolute left-0 z-10 mt-2 w-48 origin-top-left rounded-lg bg-white shadow-xl ring-1 ring-black">
           <div className="py-1">
             {subCategories ? (
               subCategories.length > 0 ? (
@@ -165,9 +165,9 @@ function Header() {
   );
 
   return (
-    <header className="mb-8">
+    <header className="mb-8 border-b border-gray-200 pb-4 shadow-sm">
       {/* Mobile menu button */}
-      <div className="flex items-center justify-between lg:hidden">
+      <div className="flex items-center justify-between py-3 lg:hidden">
         <Link to="/" className="flex items-center font-medium text-indigo-600">
           <Home size={20} className="mr-2" /> {t("home")}
         </Link>
@@ -175,12 +175,12 @@ function Header() {
           <div className="relative" ref={languageDropdownRef}>
             <button
               onClick={() => setLanguageOpen(!languageOpen)}
-              className="flex items-center text-gray-600 hover:text-indigo-600"
+              className="flex items-center rounded-md p-2 text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
             >
               <Globe size={20} />
             </button>
             {languageOpen && (
-              <div className="ring-opacity-5 absolute right-0 z-20 mt-2 w-32 rounded-md bg-white shadow-lg ring-1 ring-black">
+              <div className="ring-opacity-5 absolute right-0 z-20 mt-2 w-32 rounded-lg bg-white shadow-xl ring-1 ring-black">
                 <div className="py-1">
                   <button
                     onClick={() => {
@@ -214,7 +214,7 @@ function Header() {
           </div>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-gray-600"
+            className="rounded-md p-2 text-gray-600 hover:bg-gray-100"
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -225,7 +225,7 @@ function Header() {
       {mobileMenuOpen && (
         <div
           ref={mobileMenuRef}
-          className="absolute top-16 right-0 left-0 z-20 bg-white p-4 shadow-lg lg:hidden"
+          className="absolute top-[60px] right-0 left-0 z-20 border-t border-gray-200 bg-white p-4 shadow-lg lg:hidden"
         >
           <div className="flex flex-col space-y-4">
             {topCategories.map((category) => (
@@ -241,14 +241,14 @@ function Header() {
                 <>
                   <Link
                     to="/login"
-                    className="flex items-center py-2 text-gray-700"
+                    className="flex items-center rounded-md px-2 py-2 text-gray-700 hover:bg-gray-100"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <LogIn size={16} className="mr-2" /> {t("login")}
                   </Link>
                   <Link
                     to="/signup"
-                    className="flex items-center py-2 text-gray-700"
+                    className="flex items-center rounded-md px-2 py-2 text-gray-700 hover:bg-gray-100"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <UserPlus size={16} className="mr-2" /> {t("signup")}
@@ -257,7 +257,7 @@ function Header() {
               )}
               <Link
                 to="/account"
-                className="flex items-center py-2 text-gray-700"
+                className="flex items-center rounded-md px-2 py-2 text-gray-700 hover:bg-gray-100"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <User size={16} className="mr-2" /> {t("account")}
@@ -268,12 +268,12 @@ function Header() {
       )}
 
       {/* Desktop menu */}
-      <div className="hidden items-center justify-between lg:flex">
+      <div className="hidden items-center justify-between py-2 lg:flex">
         {/* Categories with dropdowns */}
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-2">
           <Link
             to="/"
-            className="mr-4 flex items-center font-medium text-indigo-600 hover:text-indigo-800"
+            className="mr-2 flex items-center rounded-md px-3 py-2 font-medium text-indigo-600 hover:bg-indigo-50 hover:text-indigo-800"
           >
             <Home size={18} className="mr-2" /> {t("home")}
           </Link>
@@ -288,18 +288,18 @@ function Header() {
         </div>
 
         {/* Login, Signup, Dashboard, Cart and Language Selector */}
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-2">
           {!token && (
             <>
               <Link
                 to="/login"
-                className="flex items-center text-gray-700 hover:text-indigo-600 hover:underline"
+                className="flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
               >
                 <LogIn size={16} className="mr-2" /> {t("login")}
               </Link>
               <Link
                 to="/signup"
-                className="flex items-center text-gray-700 hover:text-indigo-600 hover:underline"
+                className="flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
               >
                 <UserPlus size={16} className="mr-2" /> {t("signup")}
               </Link>
@@ -307,7 +307,7 @@ function Header() {
           )}
           <Link
             to="/account"
-            className="flex items-center text-gray-700 hover:text-indigo-600 hover:underline"
+            className="flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
           >
             <User size={16} className="mr-2" /> {t("account")}
           </Link>
@@ -316,7 +316,7 @@ function Header() {
           <div className="relative" ref={languageDropdownRef}>
             <button
               onClick={() => setLanguageOpen(!languageOpen)}
-              className={`flex items-center gap-1 rounded-md px-3 py-2 transition-all duration-200 ${
+              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
                 languageOpen
                   ? "bg-indigo-600 text-white shadow-md"
                   : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
@@ -333,7 +333,7 @@ function Header() {
             </button>
 
             {languageOpen && (
-              <div className="ring-opacity-5 absolute right-0 z-10 mt-2 w-32 rounded-md bg-white shadow-lg ring-1 ring-black">
+              <div className="ring-opacity-5 absolute right-0 z-10 mt-2 w-32 rounded-lg bg-white shadow-xl ring-1 ring-black">
                 <div className="py-1">
                   <button
                     onClick={() => {
@@ -370,7 +370,7 @@ function Header() {
           <div className="relative" ref={cartDropdownRef}>
             <button
               onClick={() => setCartOpen(!cartOpen)}
-              className={`flex items-center gap-1 rounded-md px-3 py-2 transition-all duration-200 ${
+              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
                 cartOpen
                   ? "bg-indigo-600 text-white shadow-md"
                   : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
@@ -389,7 +389,7 @@ function Header() {
 
             {cartOpen && (
               <div
-                className="ring-opacity-5 absolute right-0 z-10 mt-2 w-80 origin-top-right rounded-lg bg-white py-2 shadow-lg ring-1 ring-black transition-all duration-200"
+                className="ring-opacity-5 absolute right-0 z-10 mt-2 w-80 origin-top-right rounded-xl bg-white py-2 shadow-xl ring-1 ring-black transition-all duration-200"
                 style={{
                   animation: "fadeIn 0.2s ease-out forwards",
                 }}
@@ -465,7 +465,7 @@ function Header() {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDashboardOpen(!dashboardOpen)}
-              className={`flex items-center gap-1 rounded-md px-3 py-2 transition-all duration-200 ${
+              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
                 dashboardOpen
                   ? "bg-indigo-600 text-white shadow-md"
                   : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
@@ -481,7 +481,7 @@ function Header() {
 
             {dashboardOpen && (
               <div
-                className="ring-opacity-5 absolute right-0 z-10 mt-2 w-64 origin-top-right rounded-lg bg-white py-2 shadow-lg ring-1 ring-black transition-all duration-200"
+                className="ring-opacity-5 absolute right-0 z-10 mt-2 w-64 origin-top-right rounded-xl bg-white py-2 shadow-xl ring-1 ring-black transition-all duration-200"
                 style={{
                   animation: "fadeIn 0.2s ease-out forwards",
                 }}
@@ -563,7 +563,7 @@ function Header() {
 export default function RootLayout() {
   return (
     <LanguageProvider>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 pt-6 pb-12">
         <Header />
         <Outlet />
       </div>

@@ -22,7 +22,7 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                string token = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
                 var addresses = _userAddressService.GetAllUserAddresses(token);
                 return Ok(addresses);
             }
@@ -37,7 +37,7 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                string token = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
                 var address = _userAddressService.GetUserAddressById(token, id);
                 return Ok(address);
             }
@@ -52,7 +52,7 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                string token = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
                 var addresses = _userAddressService.GetUserAddressesByToken(token);
                 return Ok(addresses);
             }
@@ -63,11 +63,12 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public IActionResult CreateUserAddress([FromBody] CreateUserAddressDto createUserAddressDto)
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                string token = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
                 var addressId = _userAddressService.CreateUserAddress(token, createUserAddressDto);
                 return Ok(new { Id = addressId });
             }
@@ -82,7 +83,7 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                string token = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
                 _userAddressService.UpdateUserAddress(token, id, updateUserAddressDto);
                 return NoContent();
             }
@@ -97,7 +98,7 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                string token = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
                 _userAddressService.DeleteUserAddress(token, id);
                 return NoContent();
             }

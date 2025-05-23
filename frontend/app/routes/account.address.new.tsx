@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Link } from "react-router";
+import apiClient from "~/api/client";
 
 export default function NewAddressForm() {
   const navigate = useNavigate();
@@ -21,17 +22,33 @@ export default function NewAddressForm() {
     setError(null);
 
     try {
-      // This would be an API call to create the address
-      console.log("Saving new address:", address);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
 
-      // Mock delay to simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const response = await apiClient.post(
+        "/UserAddress",
+        { ...address },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
-      // Navigate back to profile page
+      if (response.status !== 200) {
+        throw new Error("Failed to save address");
+      }
+      console.log("Address saved successfully:", response.data);
       navigate("/account/profile");
     } catch (err) {
       console.error("Failed to save address:", err);
-      setError("Failed to save address. Please try again.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to save address. Please try again.",
+      );
     } finally {
       setLoading(false);
     }

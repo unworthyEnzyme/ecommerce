@@ -30,6 +30,7 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<UserAddress> UserAddresses { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
+        public DbSet<EmployeeInvitation> EmployeeInvitations { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -281,9 +282,18 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .HasKey(ua => ua.UserAddressId);
 
             modelBuilder.Entity<User>()
-                .HasMany(u => u.Suppliers)
-                .WithMany(s => s.Users)
-                .UsingEntity(j => j.ToTable("UserSuppliers"));
+            .HasMany(u => u.Suppliers)
+            .WithMany(s => s.Users)
+            .UsingEntity(j => j.ToTable("UserSuppliers"));
+
+            modelBuilder.Entity<EmployeeInvitation>()
+                .HasOne(a => a.Supplier)
+                .WithMany()
+                .HasForeignKey(a => a.SupplierId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<EmployeeInvitation>()
+                .HasKey(a => a.EmployeeInvitationId);
 
             // Seed data
             var defaultDate = new DateTime(2025, 4, 4);

@@ -4,6 +4,7 @@ using ECommerceApp.DataAccess.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerceApp.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250523072136_AddEmployeeRequest")]
+    partial class AddEmployeeRequest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,32 @@ namespace ECommerceApp.DataAccess.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("ECommerceApp.Entities.Concrete.AddEmployeeRequest", b =>
+                {
+                    b.Property<int>("AddEmployeeRequestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AddEmployeeRequestId"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SupplierId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UUID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AddEmployeeRequestId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.ToTable("AddEmployeeRequests");
+                });
 
             modelBuilder.Entity("ECommerceApp.Entities.Concrete.AttributeType", b =>
                 {
@@ -87,32 +116,6 @@ namespace ECommerceApp.DataAccess.Migrations
                     b.HasIndex("VariantId");
 
                     b.ToTable("CartItems");
-                });
-
-            modelBuilder.Entity("ECommerceApp.Entities.Concrete.EmployeeInvitation", b =>
-                {
-                    b.Property<int>("EmployeeInvitationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmployeeInvitationId"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("SupplierId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UUID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("EmployeeInvitationId");
-
-                    b.HasIndex("SupplierId");
-
-                    b.ToTable("EmployeeInvitations");
                 });
 
             modelBuilder.Entity("ECommerceApp.Entities.Concrete.Favorite", b =>
@@ -1164,6 +1167,17 @@ namespace ECommerceApp.DataAccess.Migrations
                     b.ToTable("UserSuppliers", (string)null);
                 });
 
+            modelBuilder.Entity("ECommerceApp.Entities.Concrete.AddEmployeeRequest", b =>
+                {
+                    b.HasOne("ECommerceApp.Entities.Concrete.Supplier", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Supplier");
+                });
+
             modelBuilder.Entity("ECommerceApp.Entities.Concrete.CartItem", b =>
                 {
                     b.HasOne("ECommerceApp.Entities.Concrete.ShoppingCart", "Cart")
@@ -1181,17 +1195,6 @@ namespace ECommerceApp.DataAccess.Migrations
                     b.Navigation("Cart");
 
                     b.Navigation("Variant");
-                });
-
-            modelBuilder.Entity("ECommerceApp.Entities.Concrete.EmployeeInvitation", b =>
-                {
-                    b.HasOne("ECommerceApp.Entities.Concrete.Supplier", "Supplier")
-                        .WithMany()
-                        .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("ECommerceApp.Entities.Concrete.Favorite", b =>

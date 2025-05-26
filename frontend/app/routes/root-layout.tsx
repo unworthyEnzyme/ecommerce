@@ -560,12 +560,54 @@ function Header() {
   );
 }
 
+export type Address = {
+  userAddressId: number;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  country: string;
+  postalCode: string;
+  phoneNumber: string;
+  createdAt: string;
+  updatedAt?: string;
+};
+
+export type UserProfile = {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  addresses: Address[];
+};
+
 export default function RootLayout() {
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setLoading(true);
+        const profileData = await api.auth.getProfile();
+        setProfile(profileData);
+      } catch (err) {
+        console.error("Failed to fetch profile:", err);
+        setError("Failed to load profile. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
   return (
     <LanguageProvider>
       <div className="container mx-auto px-4 pt-6 pb-12">
         <Header />
-        <Outlet />
+        <Outlet context={{ profile, setProfile }} />
       </div>
     </LanguageProvider>
   );

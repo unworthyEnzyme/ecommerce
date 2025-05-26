@@ -18,6 +18,7 @@ namespace ECommerceApp.API.Controllers
     }
 
     [HttpGet]
+    [Authorize]
     public ActionResult<IEnumerable<OrderDetailsDto>> GetOrders()
     {
       try
@@ -37,6 +38,7 @@ namespace ECommerceApp.API.Controllers
     }
 
     [HttpPost]
+    [Authorize]
     public ActionResult<CreateOrderResponseDto> CreateOrder(CreateOrderDto orderDto)
     {
       try

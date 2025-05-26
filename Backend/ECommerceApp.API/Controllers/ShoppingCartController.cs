@@ -18,6 +18,7 @@ namespace ECommerceApp.API.Controllers
     }
 
     [HttpGet]
+    [Authorize]
     public ActionResult<CartDto> GetCart()
     {
       try
@@ -36,6 +37,7 @@ namespace ECommerceApp.API.Controllers
     }
 
     [HttpPost]
+    [Authorize]
     public ActionResult<CartDto> AddToCart([FromBody] AddToCartDto addToCartDto)
     {
       try
@@ -54,6 +56,7 @@ namespace ECommerceApp.API.Controllers
     }
 
     [HttpPost("merge")]
+    [Authorize]
     public ActionResult MergeCart([FromBody] List<AddToCartDto> items)
     {
       try
@@ -76,6 +79,7 @@ namespace ECommerceApp.API.Controllers
     }
 
     [HttpPut("items/{cartItemId}")]
+    [Authorize]
     public ActionResult UpdateQuantity(int cartItemId, [FromBody] int quantity)
     {
       try
@@ -95,6 +99,7 @@ namespace ECommerceApp.API.Controllers
     }
 
     [HttpDelete("items/{cartItemId}")]
+    [Authorize]
     public ActionResult RemoveItem(int cartItemId)
     {
       try
@@ -114,6 +119,7 @@ namespace ECommerceApp.API.Controllers
     }
 
     [HttpDelete]
+    [Authorize]
     public ActionResult ClearCart()
     {
       try

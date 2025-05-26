@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 
@@ -21,7 +22,7 @@ namespace ECommerceApp.API.Controllers
     }
 
     [HttpPost("upload")]
-    // [Authorize]
+    [Authorize(Roles = "Admin,User")]
     public ActionResult<List<string>> UploadFiles([FromForm] List<IFormFile> files)
     {
       try

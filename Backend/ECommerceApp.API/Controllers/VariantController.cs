@@ -1,5 +1,6 @@
 ﻿using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Variant;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerceApp.API.Controllers
@@ -42,6 +43,7 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public ActionResult<int> Add(CreateVariantDto createVariantDto)
         {
             try
@@ -56,6 +58,7 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public ActionResult Delete(int id)
         {
             try

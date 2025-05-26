@@ -1,6 +1,7 @@
 ﻿using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Category;
 using ECommerceApp.Business.DTOs.Product;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerceApp.API.Controllers
@@ -46,6 +47,7 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpPost("top-category")]
+        [Authorize(Roles = "Admin")]
         public ActionResult AddTopCategory([FromBody] TopCategoryDto topCategoryDto)
         {
             try
@@ -60,6 +62,7 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpPost("sub-category")]
+        [Authorize(Roles = "Admin")]
         public ActionResult AddSubCategory([FromBody] CreateSubCategoryDto createSubCategoryDto)
         {
             try
@@ -67,7 +70,8 @@ namespace ECommerceApp.API.Controllers
                 _categoryService.AddSubCategory(createSubCategoryDto);
                 return Ok(new { success = true });
 
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
             }

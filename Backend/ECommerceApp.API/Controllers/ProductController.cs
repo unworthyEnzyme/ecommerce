@@ -75,7 +75,7 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public ActionResult Add([FromBody] CreateProductDto productDto)
         {
             try
@@ -95,7 +95,7 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public ActionResult Update(int id, [FromBody] UpdateProductDto productDto)
         {
             try
@@ -115,7 +115,7 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public ActionResult Delete(int id)
         {
             try

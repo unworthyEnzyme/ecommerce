@@ -18,6 +18,7 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult GetAllUserAddresses()
         {
             try
@@ -33,6 +34,7 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public IActionResult GetUserAddressById(int id)
         {
             try
@@ -48,6 +50,7 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpGet("user")]
+        [Authorize]
         public IActionResult GetUserAddresses()
         {
             try
@@ -79,6 +82,7 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public IActionResult UpdateUserAddress(int id, [FromBody] CreateUserAddressDto updateUserAddressDto)
         {
             try
@@ -94,6 +98,7 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public IActionResult DeleteUserAddress(int id)
         {
             try

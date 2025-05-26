@@ -1,5 +1,5 @@
 import { Heart, LogOut, Package, ShoppingBag, User } from "lucide-react";
-import { Link, Outlet, useLocation } from "react-router";
+import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { auth } from "../api/client";
 
@@ -26,6 +26,7 @@ export type UserProfile = {
 
 const Sidebar = ({ profile }: { profile: UserProfile }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
 
   const displayName =
@@ -90,7 +91,13 @@ const Sidebar = ({ profile }: { profile: UserProfile }) => {
 
         <hr className="my-2 border-gray-200" />
 
-        <button className="flex w-full items-center rounded-md px-3 py-2 text-left text-red-600 hover:bg-red-50">
+        <button
+          className="flex w-full items-center rounded-md px-3 py-2 text-left text-red-600 hover:bg-red-50"
+          onClick={() => {
+            localStorage.removeItem("token");
+            navigate("/login", { replace: true });
+          }}
+        >
           <LogOut size={18} className="mr-3" />
           <span>Sign Out</span>
         </button>

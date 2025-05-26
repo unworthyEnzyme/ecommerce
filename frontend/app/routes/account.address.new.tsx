@@ -1,9 +1,16 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useOutletContext } from "react-router";
 import { Link } from "react-router";
 import apiClient from "~/api/client";
+import type { UserProfile } from "./account.layout";
+
+type AccountContextType = {
+  profile: UserProfile;
+  setProfile: (profile: UserProfile) => void;
+};
 
 export default function NewAddressForm() {
+  const { profile, setProfile } = useOutletContext<AccountContextType>();
   const navigate = useNavigate();
   const [address, setAddress] = useState({
     addressLine1: "",
@@ -41,6 +48,11 @@ export default function NewAddressForm() {
         throw new Error("Failed to save address");
       }
       console.log("Address saved successfully:", response.data);
+      const updatedProfile = {
+        ...profile,
+        addresses: [...(profile.addresses || []), response.data],
+      };
+      setProfile(updatedProfile);
       navigate("/account/profile");
     } catch (err) {
       console.error("Failed to save address:", err);

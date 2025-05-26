@@ -476,15 +476,11 @@ export const cart = {
     }>,
   ) => {
     const token = localStorage.getItem("token");
-    return await apiClient.post(
-      "/ShoppingCart/merge",
-      { items },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    return await apiClient.post("/ShoppingCart/merge", items, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    );
+    });
   },
 };
 

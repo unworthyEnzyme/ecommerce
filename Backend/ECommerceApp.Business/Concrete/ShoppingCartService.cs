@@ -30,7 +30,7 @@ namespace ECommerceApp.Business.Concrete
       if (jsonToken == null)
         throw new UnauthorizedAccessException("Invalid token");
 
-      var userIdClaim = jsonToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+      var userIdClaim = jsonToken.Claims.FirstOrDefault(c => c.Type == "nameid");
       if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
         throw new UnauthorizedAccessException("Invalid user ID in token");
 

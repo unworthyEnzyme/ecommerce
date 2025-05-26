@@ -1,8 +1,20 @@
-import { ChevronLeft, CreditCard, MapPin, ShieldCheck } from "lucide-react";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import {
+  ChevronLeft,
+  CreditCard,
+  MapPin,
+  PlusCircle,
+  ShieldCheck,
+} from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useOutletContext } from "react-router";
 import { useLocalStorage } from "usehooks-ts";
 import * as api from "~/api/client";
+import type { UserProfile, Address } from "./account.layout";
+
+type AccountContextType = {
+  profile: UserProfile;
+  setProfile: (profile: UserProfile) => void;
+};
 
 type CartItem = {
   id: string;
@@ -12,38 +24,64 @@ type CartItem = {
   amount: number;
 };
 
-type FormState = {
+type FormFields = {
   fullName: string;
   email: string;
-  address: string;
-  city: string;
-  postalCode: string;
-  country: string;
+  phoneNumber: string;
   cardName: string;
   cardNumber: string;
   expiryDate: string;
   cvv: string;
-  phoneNumber: string;
 };
+
+type FormErrors = Partial<FormFields> & { shippingAddress?: string };
 
 export default function Payment() {
   const navigate = useNavigate();
+  const { profile } = useOutletContext<AccountContextType>();
   const [cart, setCart] = useLocalStorage<CartItem[]>("cart", []);
-  const [formState, setFormState] = useState<FormState>({
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
+    null,
+  );
+
+  const [formState, setFormState] = useState<FormFields>({
     fullName: "",
     email: "",
-    address: "",
-    city: "",
-    postalCode: "",
-    country: "",
+    phoneNumber: "",
     cardName: "",
     cardNumber: "",
     expiryDate: "",
     cvv: "",
-    phoneNumber: "",
   });
-  const [errors, setErrors] = useState<Partial<FormState>>({});
+  const [errors, setErrors] = useState<FormErrors>({});
   const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    if (profile) {
+      setFormState((prev) => ({
+        ...prev,
+        fullName:
+          profile.firstName && profile.lastName
+            ? `${profile.firstName} ${profile.lastName}`
+            : "",
+        email: profile.email || "",
+        phoneNumber: profile.phoneNumber || "",
+      }));
+
+      if (
+        profile.addresses &&
+        profile.addresses.length > 0 &&
+        !selectedAddressId
+      ) {
+        setSelectedAddressId(profile.addresses[0].userAddressId);
+      } else if (
+        (!profile.addresses || profile.addresses.length === 0) &&
+        selectedAddressId
+      ) {
+        setSelectedAddressId(null); // Clear selection if addresses are removed
+      }
+    }
+  }, [profile, selectedAddressId]);
 
   const cartTotal = cart.reduce(
     (sum, item) => sum + item.price * item.amount,
@@ -53,39 +91,44 @@ export default function Payment() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
-    // Clear error when field is modified
-    if (errors[name as keyof FormState]) {
+    if (errors[name as keyof FormFields]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
-  const validateForm = () => {
-    const newErrors: Partial<FormState> = {};
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
 
-    // Shipping information validation
-    if (!formState.fullName.trim()) newErrors.fullName = "Name is required";
+    if (!formState.fullName.trim())
+      newErrors.fullName = "Full name is required";
     if (!formState.email.trim()) newErrors.email = "Email is required";
-    if (!/^\S+@\S+\.\S+$/.test(formState.email))
+    else if (!/^\S+@\S+\.\S+$/.test(formState.email))
       newErrors.email = "Invalid email format";
-    if (!formState.address.trim()) newErrors.address = "Address is required";
-    if (!formState.city.trim()) newErrors.city = "City is required";
-    if (!formState.postalCode.trim())
-      newErrors.postalCode = "Postal code is required";
-    if (!formState.country.trim()) newErrors.country = "Country is required";
+    if (!formState.phoneNumber.trim())
+      newErrors.phoneNumber = "Phone number is required";
 
-    // Payment information validation
+    if (profile && profile.addresses && profile.addresses.length > 0) {
+      if (!selectedAddressId) {
+        newErrors.shippingAddress = "Please select a shipping address.";
+      }
+    } else {
+      newErrors.shippingAddress =
+        "Please add a shipping address to your profile to continue.";
+    }
+
     if (!formState.cardName.trim())
       newErrors.cardName = "Name on card is required";
     if (!formState.cardNumber.trim())
       newErrors.cardNumber = "Card number is required";
-    if (!/^\d{16}$/.test(formState.cardNumber.replace(/\s/g, "")))
-      newErrors.cardNumber = "Invalid card number";
+    else if (!/^\d{16}$/.test(formState.cardNumber.replace(/\s/g, "")))
+      newErrors.cardNumber = "Invalid card number (must be 16 digits)";
     if (!formState.expiryDate.trim())
       newErrors.expiryDate = "Expiry date is required";
-    if (!/^\d{2}\/\d{2}$/.test(formState.expiryDate))
+    else if (!/^\d{2}\/\d{2}$/.test(formState.expiryDate))
       newErrors.expiryDate = "Invalid format (MM/YY)";
     if (!formState.cvv.trim()) newErrors.cvv = "CVV is required";
-    if (!/^\d{3,4}$/.test(formState.cvv)) newErrors.cvv = "Invalid CVV";
+    else if (!/^\d{3,4}$/.test(formState.cvv))
+      newErrors.cvv = "Invalid CVV (must be 3 or 4 digits)";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -94,20 +137,38 @@ export default function Payment() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!profile) {
+      setErrors((prev) => ({
+        ...prev,
+        shippingAddress: "User profile not available. Please try reloading.",
+      }));
+      return;
+    }
     if (!validateForm()) return;
+
+    const selectedUserAddress = profile.addresses.find(
+      (addr) => addr.userAddressId === selectedAddressId,
+    );
+
+    if (!selectedUserAddress) {
+      setErrors((prev) => ({
+        ...prev,
+        shippingAddress: "Selected shipping address not found or invalid.",
+      }));
+      return;
+    }
 
     setIsProcessing(true);
 
     try {
-      // Create order first
       const orderData = {
         fullName: formState.fullName,
         email: formState.email,
-        address: formState.address,
-        city: formState.city,
-        postalCode: formState.postalCode,
-        country: formState.country,
-        phoneNumber: formState.phoneNumber,
+        address: selectedUserAddress.addressLine1,
+        city: selectedUserAddress.city,
+        postalCode: selectedUserAddress.postalCode,
+        country: selectedUserAddress.country,
+        phoneNumber: formState.phoneNumber, // Using phone number from form, prefilled from profile
         items: cart.map((item) => ({
           variantId: parseInt(item.id),
           quantity: item.amount,
@@ -115,13 +176,14 @@ export default function Payment() {
       };
 
       const { orderId } = await api.orders.createOrder(orderData);
-
-      // Clear cart and redirect
       setCart([]);
       navigate(`/order-confirmation?orderId=${orderId}`);
     } catch (error) {
       console.error("Order creation failed", error);
-      // Handle error appropriately
+      setErrors((prev) => ({
+        ...prev,
+        shippingAddress: "Failed to create order. Please try again.",
+      }));
     } finally {
       setIsProcessing(false);
     }
@@ -148,15 +210,23 @@ export default function Payment() {
     );
   }
 
+  if (!profile) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex h-48 items-center justify-center">
+          <p>Loading user information...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="mb-8 text-2xl font-bold text-gray-800">Checkout</h1>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-        {/* Payment Form */}
         <div className="md:col-span-2">
           <form onSubmit={handleSubmit}>
-            {/* Shipping Information */}
             <div className="mb-8 rounded-lg bg-white p-6 shadow-md">
               <div className="mb-4 flex items-center">
                 <MapPin className="mr-2 text-indigo-600" size={20} />
@@ -179,9 +249,7 @@ export default function Payment() {
                     name="fullName"
                     value={formState.fullName}
                     onChange={handleChange}
-                    className={`mt-1 w-full rounded-md border p-2 ${
-                      errors.fullName ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`mt-1 w-full rounded-md border p-2 ${errors.fullName ? "border-red-500" : "border-gray-300"}`}
                   />
                   {errors.fullName && (
                     <p className="mt-1 text-xs text-red-500">
@@ -189,7 +257,6 @@ export default function Payment() {
                     </p>
                   )}
                 </div>
-
                 <div>
                   <label
                     htmlFor="email"
@@ -203,110 +270,13 @@ export default function Payment() {
                     name="email"
                     value={formState.email}
                     onChange={handleChange}
-                    className={`mt-1 w-full rounded-md border p-2 ${
-                      errors.email ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`mt-1 w-full rounded-md border p-2 ${errors.email ? "border-red-500" : "border-gray-300"}`}
                   />
                   {errors.email && (
                     <p className="mt-1 text-xs text-red-500">{errors.email}</p>
                   )}
                 </div>
-
                 <div className="md:col-span-2">
-                  <label
-                    htmlFor="address"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Address
-                  </label>
-                  <input
-                    type="text"
-                    id="address"
-                    name="address"
-                    value={formState.address}
-                    onChange={handleChange}
-                    className={`mt-1 w-full rounded-md border p-2 ${
-                      errors.address ? "border-red-500" : "border-gray-300"
-                    }`}
-                  />
-                  {errors.address && (
-                    <p className="mt-1 text-xs text-red-500">
-                      {errors.address}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="city"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    City
-                  </label>
-                  <input
-                    type="text"
-                    id="city"
-                    name="city"
-                    value={formState.city}
-                    onChange={handleChange}
-                    className={`mt-1 w-full rounded-md border p-2 ${
-                      errors.city ? "border-red-500" : "border-gray-300"
-                    }`}
-                  />
-                  {errors.city && (
-                    <p className="mt-1 text-xs text-red-500">{errors.city}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="postalCode"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Postal Code
-                  </label>
-                  <input
-                    type="text"
-                    id="postalCode"
-                    name="postalCode"
-                    value={formState.postalCode}
-                    onChange={handleChange}
-                    className={`mt-1 w-full rounded-md border p-2 ${
-                      errors.postalCode ? "border-red-500" : "border-gray-300"
-                    }`}
-                  />
-                  {errors.postalCode && (
-                    <p className="mt-1 text-xs text-red-500">
-                      {errors.postalCode}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="country"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Country
-                  </label>
-                  <input
-                    type="text"
-                    id="country"
-                    name="country"
-                    value={formState.country}
-                    onChange={handleChange}
-                    className={`mt-1 w-full rounded-md border p-2 ${
-                      errors.country ? "border-red-500" : "border-gray-300"
-                    }`}
-                  />
-                  {errors.country && (
-                    <p className="mt-1 text-xs text-red-500">
-                      {errors.country}
-                    </p>
-                  )}
-                </div>
-
-                <div>
                   <label
                     htmlFor="phoneNumber"
                     className="block text-sm font-medium text-gray-700"
@@ -319,9 +289,7 @@ export default function Payment() {
                     name="phoneNumber"
                     value={formState.phoneNumber}
                     onChange={handleChange}
-                    className={`mt-1 w-full rounded-md border p-2 ${
-                      errors.phoneNumber ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`mt-1 w-full rounded-md border p-2 ${errors.phoneNumber ? "border-red-500" : "border-gray-300"}`}
                   />
                   {errors.phoneNumber && (
                     <p className="mt-1 text-xs text-red-500">
@@ -330,9 +298,74 @@ export default function Payment() {
                   )}
                 </div>
               </div>
+
+              <div className="mt-6">
+                <h3 className="text-md mb-2 font-semibold text-gray-700">
+                  Select Shipping Address
+                </h3>
+                {profile.addresses && profile.addresses.length > 0 ? (
+                  <div className="space-y-3">
+                    {profile.addresses.map((addr: Address) => (
+                      <label
+                        key={addr.userAddressId}
+                        className={`flex cursor-pointer items-start rounded-md border p-3 transition-all ${
+                          selectedAddressId === addr.userAddressId
+                            ? "border-indigo-600 bg-indigo-50 ring-2 ring-indigo-500"
+                            : "border-gray-300 hover:border-gray-400"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="shippingAddress"
+                          value={addr.userAddressId}
+                          checked={selectedAddressId === addr.userAddressId}
+                          onChange={() => {
+                            setSelectedAddressId(addr.userAddressId);
+                            if (errors.shippingAddress) {
+                              setErrors((prev) => ({
+                                ...prev,
+                                shippingAddress: undefined,
+                              }));
+                            }
+                          }}
+                          className="mt-1 mr-3 h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        />
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {addr.addressLine1}
+                            {addr.addressLine2 && `, ${addr.addressLine2}`}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {addr.city}, {addr.postalCode}, {addr.country}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            Phone: {addr.phoneNumber}
+                          </p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4 text-center">
+                    <p className="text-sm text-gray-600">
+                      No shipping addresses found in your profile.
+                    </p>
+                    <Link
+                      to="/account/address/new"
+                      className="mt-2 inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800"
+                    >
+                      <PlusCircle size={16} className="mr-1" /> Add New Address
+                    </Link>
+                  </div>
+                )}
+                {errors.shippingAddress && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.shippingAddress}
+                  </p>
+                )}
+              </div>
             </div>
 
-            {/* Payment Information */}
             <div className="mb-8 rounded-lg bg-white p-6 shadow-md">
               <div className="mb-4 flex items-center">
                 <CreditCard className="mr-2 text-indigo-600" size={20} />
@@ -340,7 +373,6 @@ export default function Payment() {
                   Payment Information
                 </h2>
               </div>
-
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="md:col-span-2">
                   <label
@@ -355,9 +387,7 @@ export default function Payment() {
                     name="cardName"
                     value={formState.cardName}
                     onChange={handleChange}
-                    className={`mt-1 w-full rounded-md border p-2 ${
-                      errors.cardName ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`mt-1 w-full rounded-md border p-2 ${errors.cardName ? "border-red-500" : "border-gray-300"}`}
                   />
                   {errors.cardName && (
                     <p className="mt-1 text-xs text-red-500">
@@ -365,7 +395,6 @@ export default function Payment() {
                     </p>
                   )}
                 </div>
-
                 <div className="md:col-span-2">
                   <label
                     htmlFor="cardNumber"
@@ -380,9 +409,7 @@ export default function Payment() {
                     value={formState.cardNumber}
                     onChange={handleChange}
                     placeholder="0000 0000 0000 0000"
-                    className={`mt-1 w-full rounded-md border p-2 ${
-                      errors.cardNumber ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`mt-1 w-full rounded-md border p-2 ${errors.cardNumber ? "border-red-500" : "border-gray-300"}`}
                   />
                   {errors.cardNumber && (
                     <p className="mt-1 text-xs text-red-500">
@@ -390,7 +417,6 @@ export default function Payment() {
                     </p>
                   )}
                 </div>
-
                 <div>
                   <label
                     htmlFor="expiryDate"
@@ -405,9 +431,7 @@ export default function Payment() {
                     value={formState.expiryDate}
                     onChange={handleChange}
                     placeholder="MM/YY"
-                    className={`mt-1 w-full rounded-md border p-2 ${
-                      errors.expiryDate ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`mt-1 w-full rounded-md border p-2 ${errors.expiryDate ? "border-red-500" : "border-gray-300"}`}
                   />
                   {errors.expiryDate && (
                     <p className="mt-1 text-xs text-red-500">
@@ -415,7 +439,6 @@ export default function Payment() {
                     </p>
                   )}
                 </div>
-
                 <div>
                   <label
                     htmlFor="cvv"
@@ -430,16 +453,13 @@ export default function Payment() {
                     value={formState.cvv}
                     onChange={handleChange}
                     placeholder="123"
-                    className={`mt-1 w-full rounded-md border p-2 ${
-                      errors.cvv ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`mt-1 w-full rounded-md border p-2 ${errors.cvv ? "border-red-500" : "border-gray-300"}`}
                   />
                   {errors.cvv && (
                     <p className="mt-1 text-xs text-red-500">{errors.cvv}</p>
                   )}
                 </div>
               </div>
-
               <div className="mt-4 flex items-center">
                 <ShieldCheck size={16} className="mr-2 text-green-500" />
                 <span className="text-xs text-gray-500">
@@ -459,13 +479,11 @@ export default function Payment() {
           </form>
         </div>
 
-        {/* Order Summary */}
         <div className="md:col-span-1">
           <div className="mb-8 rounded-lg bg-white p-6 shadow-md">
             <h2 className="mb-4 text-lg font-semibold text-gray-800">
               Order Summary
             </h2>
-
             <div className="mb-4 max-h-96 overflow-auto">
               {cart.map((item) => (
                 <div
@@ -478,7 +496,7 @@ export default function Payment() {
                   </div>
                   <div className="mt-1 flex justify-between text-sm text-gray-500">
                     <span>Qty: {item.amount}</span>
-                    <span>${item.price} each</span>
+                    <span>${item.price.toFixed(2)} each</span>
                   </div>
                   {item.attributes &&
                     Object.keys(item.attributes).length > 0 && (
@@ -492,24 +510,20 @@ export default function Payment() {
                 </div>
               ))}
             </div>
-
             <div className="mb-2 flex justify-between">
               <span className="text-gray-600">Subtotal</span>
               <span className="font-medium">${cartTotal.toFixed(2)}</span>
             </div>
-
             <div className="mb-2 flex justify-between">
               <span className="text-gray-600">Shipping</span>
               <span className="font-medium">Free</span>
             </div>
-
             <div className="mb-4 flex justify-between">
               <span className="text-gray-600">Tax</span>
               <span className="font-medium">
                 ${(cartTotal * 0.07).toFixed(2)}
               </span>
             </div>
-
             <div className="mb-6 border-t border-gray-200 pt-4">
               <div className="flex justify-between">
                 <span className="text-lg font-semibold">Total</span>
@@ -518,12 +532,15 @@ export default function Payment() {
                 </span>
               </div>
             </div>
-
             <button
               type="submit"
               onClick={handleSubmit}
-              disabled={isProcessing}
-              className="w-full rounded-md bg-indigo-600 px-4 py-3 text-center font-medium text-white hover:bg-indigo-700 disabled:bg-indigo-300"
+              disabled={
+                isProcessing ||
+                !profile ||
+                (profile.addresses.length === 0 && !selectedAddressId)
+              }
+              className="w-full rounded-md bg-indigo-600 px-4 py-3 text-center font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-indigo-300"
             >
               {isProcessing ? "Processing..." : "Complete Order"}
             </button>

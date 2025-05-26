@@ -20,6 +20,7 @@ import { Link, Outlet } from "react-router";
 import { useLocalStorage, useOnClickOutside } from "usehooks-ts";
 import * as api from "~/api/client";
 import { LanguageProvider, useLanguage } from "../hooks/useLanguage";
+import { If } from "~/lib/conditional";
 
 type CategoryDropdownProps = {
   category: { id: number; name: string };
@@ -237,31 +238,34 @@ function Header() {
               />
             ))}
             <div className="mt-2 border-t border-gray-200 pt-4">
-              {!token && (
-                <>
+              {If(token !== null)
+                .then(
                   <Link
-                    to="/login"
+                    to="/account"
                     className="flex items-center rounded-md px-2 py-2 text-gray-700 hover:bg-gray-100"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <LogIn size={16} className="mr-2" /> {t("login")}
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className="flex items-center rounded-md px-2 py-2 text-gray-700 hover:bg-gray-100"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <UserPlus size={16} className="mr-2" /> {t("signup")}
-                  </Link>
-                </>
-              )}
-              <Link
-                to="/account"
-                className="flex items-center rounded-md px-2 py-2 text-gray-700 hover:bg-gray-100"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <User size={16} className="mr-2" /> {t("account")}
-              </Link>
+                    <User size={16} className="mr-2" /> {t("account")}
+                  </Link>,
+                )
+                .else(
+                  <>
+                    <Link
+                      to="/login"
+                      className="flex items-center rounded-md px-2 py-2 text-gray-700 hover:bg-gray-100"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <LogIn size={16} className="mr-2" /> {t("login")}
+                    </Link>
+                    <Link
+                      to="/signup"
+                      className="flex items-center rounded-md px-2 py-2 text-gray-700 hover:bg-gray-100"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <UserPlus size={16} className="mr-2" /> {t("signup")}
+                    </Link>
+                  </>,
+                )}
             </div>
           </div>
         </div>
@@ -289,28 +293,34 @@ function Header() {
 
         {/* Login, Signup, Dashboard, Cart and Language Selector */}
         <div className="flex items-center space-x-2">
-          {!token && (
-            <>
+          {If(token !== null)
+            .then(
               <Link
-                to="/login"
-                className="flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
+                to="/account"
+                className="flex items-center rounded-md px-2 py-2 text-gray-700 hover:bg-gray-100"
+                onClick={() => setMobileMenuOpen(false)}
               >
-                <LogIn size={16} className="mr-2" /> {t("login")}
-              </Link>
-              <Link
-                to="/signup"
-                className="flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
-              >
-                <UserPlus size={16} className="mr-2" /> {t("signup")}
-              </Link>
-            </>
-          )}
-          <Link
-            to="/account"
-            className="flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
-          >
-            <User size={16} className="mr-2" /> {t("account")}
-          </Link>
+                <User size={16} className="mr-2" /> {t("account")}
+              </Link>,
+            )
+            .else(
+              <>
+                <Link
+                  to="/login"
+                  className="flex items-center rounded-md px-2 py-2 text-gray-700 hover:bg-gray-100"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <LogIn size={16} className="mr-2" /> {t("login")}
+                </Link>
+                <Link
+                  to="/signup"
+                  className="flex items-center rounded-md px-2 py-2 text-gray-700 hover:bg-gray-100"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <UserPlus size={16} className="mr-2" /> {t("signup")}
+                </Link>
+              </>,
+            )}
 
           {/* Language Selector */}
           <div className="relative" ref={languageDropdownRef}>

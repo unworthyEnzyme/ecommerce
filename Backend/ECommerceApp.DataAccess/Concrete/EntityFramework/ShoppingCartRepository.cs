@@ -18,8 +18,12 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
       return _context.ShoppingCarts
           .Include(c => c.CartItems.Where(ci => ci.IsActive))
             .ThenInclude(ci => ci.Variant)
+            .ThenInclude(v => v.VariantAttributeValues)
+            .ThenInclude(vav => vav.AttributeType)
+          .Include(c => c.CartItems.Where(ci => ci.IsActive))
+            .ThenInclude(ci => ci.Variant)
             .ThenInclude(v => v.Product)
-           .Include(c => c.CartItems.Where(ci => ci.IsActive))
+          .Include(c => c.CartItems.Where(ci => ci.IsActive))
             .ThenInclude(ci => ci.Variant)
             .ThenInclude(v => v.StockMovements)
           .FirstOrDefault(c => c.UserId == userId && c.IsActive);

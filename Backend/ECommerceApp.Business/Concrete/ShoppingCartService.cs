@@ -108,7 +108,7 @@ namespace ECommerceApp.Business.Concrete
       _cartRepository.ClearCart(cart.CartId);
     }
 
-    private CartDto MapCartToDto(ShoppingCart cart)
+    private static CartDto MapCartToDto(ShoppingCart cart)
     {
       var items = cart.CartItems.Select(ci => new CartItemDto
       {
@@ -120,6 +120,10 @@ namespace ECommerceApp.Business.Concrete
           Name = ci.Variant.Product.Name,
           Price = ci.Variant.Price,
           Stock = ci.Variant.StockMovements.Sum(m => m.MovementType == "IN" ? m.Quantity : -m.Quantity),
+            Attributes = ci.Variant.VariantAttributeValues.Select(vav => new VariantAttributeDto {
+                AttributeName = vav.AttributeType.AttributeName,
+                AttributeValue = vav.AttributeValue,
+            }).ToList(),
         },
         SubTotal = ci.Quantity * ci.Variant.Price
       }).ToList();

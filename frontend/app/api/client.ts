@@ -482,6 +482,31 @@ export const cart = {
       },
     });
   },
+
+  getCart: async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    type CartItem = {
+      cartItemId: number;
+      variant: Variant;
+      quantity: number;
+      subTotal: number;
+    };
+    type Cart = {
+      cartId: number;
+      items: CartItem[];
+      totalAmount: number;
+    };
+    const { data } = await apiClient.get<Cart>("/ShoppingCart", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return data;
+  },
 };
 
 export const orders = {

@@ -19,11 +19,27 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
         quantity: item.amount,
       }));
       await cart.mergeLocalCart(cartItems);
-      localStorage.removeItem("cart"); // Clear local cart after merging
     }
 
+    const mergedCart = await cart.getCart();
+    const items = mergedCart.items.map((item) => ({
+      id: item.variant.id.toString(),
+      price: item.variant.price,
+      name: item.variant.name,
+      attributes: item.variant.attributes.reduce(
+        (acc: Record<string, string>, attr) => {
+          acc[attr.attributeName] = attr.attributeValue;
+          return acc;
+        },
+        {},
+      ),
+      amount: item.quantity,
+    }));
+    localStorage.setItem("cart", JSON.stringify(items));
+    console.log("Cart merged successfully:", items);
     return redirect("/");
   } catch (error) {
+    console.error("Login failed:", error);
     return { error: "Invalid email or password" };
   }
 }

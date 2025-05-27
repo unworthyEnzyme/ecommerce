@@ -1,5 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Cart;
 using ECommerceApp.Business.DTOs.Variant;
@@ -19,27 +17,8 @@ namespace ECommerceApp.Business.Concrete
       _variantRepository = variantRepository;
     }
 
-    private int GetUserIdFromToken(string token)
+    public CartDto GetCart(int userId)
     {
-      if (string.IsNullOrEmpty(token))
-        throw new UnauthorizedAccessException("No token provided");
-
-      var handler = new JwtSecurityTokenHandler();
-      var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
-
-      if (jsonToken == null)
-        throw new UnauthorizedAccessException("Invalid token");
-
-      var userIdClaim = jsonToken.Claims.FirstOrDefault(c => c.Type == "nameid");
-      if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
-        throw new UnauthorizedAccessException("Invalid user ID in token");
-
-      return userId;
-    }
-
-    public CartDto GetCart(string token)
-    {
-      var userId = GetUserIdFromToken(token);
       var cart = _cartRepository.GetByUserId(userId);
 
       if (cart == null)
@@ -51,9 +30,8 @@ namespace ECommerceApp.Business.Concrete
       return MapCartToDto(cart);
     }
 
-    public CartDto AddToCart(AddToCartDto addToCartDto, string token)
+    public CartDto AddToCart(AddToCartDto addToCartDto, int userId)
     {
-      var userId = GetUserIdFromToken(token);
       var cart = _cartRepository.GetByUserId(userId) ?? _cartRepository.CreateCart(userId);
 
       var cartItem = new CartItem
@@ -64,12 +42,11 @@ namespace ECommerceApp.Business.Concrete
       };
 
       _cartRepository.AddItem(cartItem);
-      return GetCart(token);
+      return GetCart(userId);
     }
 
-    public void UpdateQuantity(int cartItemId, int quantity, string token)
+    public void UpdateQuantity(int cartItemId, int quantity, int userId)
     {
-      var userId = GetUserIdFromToken(token);
       var cart = _cartRepository.GetByUserId(userId);
       if (cart == null)
         throw new Exception("Cart not found");
@@ -84,9 +61,8 @@ namespace ECommerceApp.Business.Concrete
         _cartRepository.UpdateItemQuantity(cartItemId, quantity);
     }
 
-    public void RemoveItem(int cartItemId, string token)
+    public void RemoveItem(int cartItemId, int userId)
     {
-      var userId = GetUserIdFromToken(token);
       var cart = _cartRepository.GetByUserId(userId);
       if (cart == null)
         throw new Exception("Cart not found");
@@ -98,9 +74,8 @@ namespace ECommerceApp.Business.Concrete
       _cartRepository.RemoveItem(cartItemId);
     }
 
-    public void ClearCart(string token)
+    public void ClearCart(int userId)
     {
-      var userId = GetUserIdFromToken(token);
       var cart = _cartRepository.GetByUserId(userId);
       if (cart == null)
         throw new Exception("Cart not found");
@@ -120,10 +95,11 @@ namespace ECommerceApp.Business.Concrete
           Name = ci.Variant.Product.Name,
           Price = ci.Variant.Price,
           Stock = ci.Variant.StockMovements.Sum(m => m.MovementType == "IN" ? m.Quantity : -m.Quantity),
-            Attributes = ci.Variant.VariantAttributeValues.Select(vav => new VariantAttributeDto {
-                AttributeName = vav.AttributeType.AttributeName,
-                AttributeValue = vav.AttributeValue,
-            }).ToList(),
+          Attributes = ci.Variant.VariantAttributeValues.Select(vav => new VariantAttributeDto
+          {
+            AttributeName = vav.AttributeType.AttributeName,
+            AttributeValue = vav.AttributeValue,
+          }).ToList(),
         },
         SubTotal = ci.Quantity * ci.Variant.Price
       }).ToList();

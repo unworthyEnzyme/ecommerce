@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Cart;
+using System.Security.Claims;
 
 namespace ECommerceApp.API.Controllers
 {
@@ -17,14 +18,22 @@ namespace ECommerceApp.API.Controllers
       _shoppingCartService = shoppingCartService;
     }
 
+    private int GetCurrentUserId()
+    {
+      var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+      if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+        throw new UnauthorizedAccessException("Invalid user ID in token");
+      return userId;
+    }
+
     [HttpGet]
     [Authorize]
     public ActionResult<CartDto> GetCart()
     {
       try
       {
-        string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        return Ok(_shoppingCartService.GetCart(token));
+        var userId = GetCurrentUserId();
+        return Ok(_shoppingCartService.GetCart(userId));
       }
       catch (UnauthorizedAccessException ex)
       {
@@ -42,8 +51,8 @@ namespace ECommerceApp.API.Controllers
     {
       try
       {
-        string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        return Ok(_shoppingCartService.AddToCart(addToCartDto, token));
+        var userId = GetCurrentUserId();
+        return Ok(_shoppingCartService.AddToCart(addToCartDto, userId));
       }
       catch (UnauthorizedAccessException ex)
       {
@@ -61,10 +70,10 @@ namespace ECommerceApp.API.Controllers
     {
       try
       {
-        string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        var userId = GetCurrentUserId();
         foreach (var item in items)
         {
-          _shoppingCartService.AddToCart(item, token);
+          _shoppingCartService.AddToCart(item, userId);
         }
         return Ok(new { message = "Cart merged successfully" });
       }
@@ -84,8 +93,8 @@ namespace ECommerceApp.API.Controllers
     {
       try
       {
-        string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        _shoppingCartService.UpdateQuantity(cartItemId, quantity, token);
+        var userId = GetCurrentUserId();
+        _shoppingCartService.UpdateQuantity(cartItemId, quantity, userId);
         return Ok(new { message = "Quantity updated successfully" });
       }
       catch (UnauthorizedAccessException ex)
@@ -104,8 +113,8 @@ namespace ECommerceApp.API.Controllers
     {
       try
       {
-        string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        _shoppingCartService.RemoveItem(cartItemId, token);
+        var userId = GetCurrentUserId();
+        _shoppingCartService.RemoveItem(cartItemId, userId);
         return Ok(new { message = "Item removed successfully" });
       }
       catch (UnauthorizedAccessException ex)
@@ -124,8 +133,8 @@ namespace ECommerceApp.API.Controllers
     {
       try
       {
-        string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        _shoppingCartService.ClearCart(token);
+        var userId = GetCurrentUserId();
+        _shoppingCartService.ClearCart(userId);
         return Ok(new { message = "Cart cleared successfully" });
       }
       catch (UnauthorizedAccessException ex)

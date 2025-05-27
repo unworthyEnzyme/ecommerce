@@ -2,6 +2,7 @@
 using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.UserAddress;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace ECommerceApp.API.Controllers
 {
@@ -17,14 +18,21 @@ namespace ECommerceApp.API.Controllers
             _userAddressService = userAddressService;
         }
 
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                throw new UnauthorizedAccessException("Invalid user ID in token");
+            return userId;
+        }
+
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public IActionResult GetAllUserAddresses()
         {
             try
             {
-                string token = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
-                var addresses = _userAddressService.GetAllUserAddresses(token);
+                var addresses = _userAddressService.GetAllUserAddresses();
                 return Ok(addresses);
             }
             catch (Exception ex)
@@ -39,8 +47,8 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
-                var address = _userAddressService.GetUserAddressById(token, id);
+                var userId = GetCurrentUserId();
+                var address = _userAddressService.GetUserAddressById(userId, id);
                 return Ok(address);
             }
             catch (Exception ex)
@@ -55,8 +63,8 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
-                var addresses = _userAddressService.GetUserAddressesByToken(token);
+                var userId = GetCurrentUserId();
+                var addresses = _userAddressService.GetUserAddressesByUserId(userId);
                 return Ok(addresses);
             }
             catch (Exception ex)
@@ -71,8 +79,8 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
-                var addressId = _userAddressService.CreateUserAddress(token, createUserAddressDto);
+                var userId = GetCurrentUserId();
+                var addressId = _userAddressService.CreateUserAddress(userId, createUserAddressDto);
                 return Ok(new { Id = addressId });
             }
             catch (Exception ex)
@@ -87,8 +95,8 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
-                _userAddressService.UpdateUserAddress(token, id, updateUserAddressDto);
+                var userId = GetCurrentUserId();
+                _userAddressService.UpdateUserAddress(userId, id, updateUserAddressDto);
                 return NoContent();
             }
             catch (Exception ex)
@@ -103,8 +111,8 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
-                _userAddressService.DeleteUserAddress(token, id);
+                var userId = GetCurrentUserId();
+                _userAddressService.DeleteUserAddress(userId, id);
                 return NoContent();
             }
             catch (Exception ex)

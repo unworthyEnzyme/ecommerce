@@ -2,7 +2,6 @@
 using ECommerceApp.Business.DTOs.UserAddress;
 using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.Entities.Concrete;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace ECommerceApp.Business.Concrete
 {
@@ -15,9 +14,8 @@ namespace ECommerceApp.Business.Concrete
             _userAddressRepository = userAddressRepository;
         }
 
-        public int CreateUserAddress(string token, CreateUserAddressDto createUserAddressDto)
+        public int CreateUserAddress(int userId, CreateUserAddressDto createUserAddressDto)
         {
-            int userId = GetUserIdFromToken(token);
             var userAddress = new UserAddress
             {
                 AddressLine1 = createUserAddressDto.AddressLine1,
@@ -34,9 +32,8 @@ namespace ECommerceApp.Business.Concrete
             return _userAddressRepository.Add(userAddress);
         }
 
-        public void UpdateUserAddress(string token, int id, CreateUserAddressDto updateUserAddressDto)
+        public void UpdateUserAddress(int userId, int id, CreateUserAddressDto updateUserAddressDto)
         {
-            int userId = GetUserIdFromToken(token);
             var existingAddress = _userAddressRepository.GetById(id) ?? throw new Exception($"User address with ID {id} not found");
             if (existingAddress.UserId != userId)
             {
@@ -53,9 +50,8 @@ namespace ECommerceApp.Business.Concrete
             _userAddressRepository.Update(existingAddress);
         }
 
-        public void DeleteUserAddress(string token, int id)
+        public void DeleteUserAddress(int userId, int id)
         {
-            int userId = GetUserIdFromToken(token);
             var existingAddress = _userAddressRepository.GetById(id) ?? throw new Exception($"User address with ID {id} not found");
             if (existingAddress.UserId != userId)
             {
@@ -65,9 +61,8 @@ namespace ECommerceApp.Business.Concrete
             _userAddressRepository.Delete(id);
         }
 
-        public UserAddressDto GetUserAddressById(string token, int id)
+        public UserAddressDto GetUserAddressById(int userId, int id)
         {
-            int userId = GetUserIdFromToken(token);
             var userAddress = _userAddressRepository.GetById(id) ?? throw new Exception($"User address with ID {id} not found");
             if (userAddress.UserId != userId)
             {
@@ -77,17 +72,14 @@ namespace ECommerceApp.Business.Concrete
             return MapToDto(userAddress);
         }
 
-        public IEnumerable<UserAddressDto> GetUserAddressesByToken(string token)
+        public IEnumerable<UserAddressDto> GetUserAddressesByUserId(int userId)
         {
-            int userId = GetUserIdFromToken(token);
             var userAddresses = _userAddressRepository.GetAllByUserId(userId);
             return userAddresses.Select(MapToDto);
         }
 
-        public IEnumerable<UserAddressDto> GetAllUserAddresses(string token)
+        public IEnumerable<UserAddressDto> GetAllUserAddresses()
         {
-            // This method could be restricted to admin users only
-            // For now, we're just returning all addresses regardless of the token
             var userAddresses = _userAddressRepository.GetAll();
             return userAddresses.Select(MapToDto);
         }
@@ -106,14 +98,6 @@ namespace ECommerceApp.Business.Concrete
                 CreatedAt = userAddress.CreatedAt,
                 UpdatedAt = userAddress.UpdatedAt,
             };
-        }
-
-        private static int GetUserIdFromToken(string token)
-        {
-            var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(token);
-            var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "nameid") ?? throw new Exception("Invalid token");
-            return int.Parse(userIdClaim.Value);
         }
     }
 }

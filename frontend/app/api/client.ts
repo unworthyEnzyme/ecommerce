@@ -675,4 +675,36 @@ export const suppliers = {
   },
 };
 
+export const userAddress = {
+  async getById(id: number) {
+    const token = localStorage.getItem("token");
+    const { data } = await apiClient.get(`/UserAddress/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return data;
+  },
+
+  async updateById(
+    id: number,
+    addressData: {
+      addressLine1: string;
+      addressLine2?: string;
+      city: string;
+      country: string;
+      postalCode: string;
+      phoneNumber: string;
+    },
+  ) {
+    const token = localStorage.getItem("token");
+    const { data } = await apiClient.put(`/UserAddress/${id}`, addressData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return data;
+  },
+};
+
 export default apiClient;

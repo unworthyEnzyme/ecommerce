@@ -546,20 +546,6 @@ function Header() {
                       {t("suppliers")}
                     </span>
                   </Link>
-
-                  <Link
-                    to="/products/1/edit"
-                    className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50"
-                    onClick={() => setDashboardOpen(false)}
-                  >
-                    <Edit
-                      size={18}
-                      className="mr-3 text-gray-400 group-hover:text-indigo-500"
-                    />
-                    <span className="group-hover:text-indigo-600">
-                      {t("editProduct")}
-                    </span>
-                  </Link>
                 </div>
               </div>
             )}

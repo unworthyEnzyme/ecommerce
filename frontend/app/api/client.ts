@@ -116,7 +116,12 @@ export const variants = {
   async create(
     payload: CreateVariantBody,
   ): Promise<{ id: number; message: string }> {
-    const { data } = await apiClient.post("/variant", payload);
+    const token = localStorage.getItem("token");
+    const { data } = await apiClient.post("/variant", payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return data;
   },
 

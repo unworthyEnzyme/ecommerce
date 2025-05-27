@@ -1,5 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Product;
 using ECommerceApp.Business.DTOs.Supplier;
@@ -11,32 +9,11 @@ namespace ECommerceApp.Business.Concrete
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
-
         public ProductService(IProductRepository productRepository)
         {
             _productRepository = productRepository;
         }
 
-        private bool IsAdmin(string token)
-        {
-            if (string.IsNullOrEmpty(token))
-                return false;
-
-            var handler = new JwtSecurityTokenHandler();
-            var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
-
-            if (jsonToken == null)
-                return false;
-
-            var roleClaim = jsonToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
-            return roleClaim?.Value == "Admin";
-        }
-
-        private void ValidateAdminAccess(string token)
-        {
-            if (!IsAdmin(token))
-                throw new UnauthorizedAccessException("Only administrators can perform this operation");
-        }
         private ProductDto MapToDto(Product product)
         {
             return new ProductDto
@@ -56,7 +33,8 @@ namespace ECommerceApp.Business.Concrete
                     Id = product.TopCategoryId,
                     Name = product.TopCategory.Name
                 },
-                Supplier = new SupplierDto {
+                Supplier = new SupplierDto
+                {
                     Id = product.SupplierId,
                     Name = product.Supplier.Name,
                     Address = product.Supplier.Address,
@@ -118,11 +96,8 @@ namespace ECommerceApp.Business.Concrete
             return $"P{timestamp.ToString().Substring(Math.Max(0, timestamp.ToString().Length - 8))}";
         }
 
-        public int Add(CreateProductDto productDto, string token)
+        public int Add(CreateProductDto productDto)
         {
-            //TODO: Uncomment this line after you add an admin user to the database.
-            //ValidateAdminAccess(token);
-
             var productCode = GenerateProductCode();
             var product = new Product
             {
@@ -138,10 +113,8 @@ namespace ECommerceApp.Business.Concrete
             return addedProduct.ProductId;
         }
 
-        public void Update(int id, UpdateProductDto productDto, string token)
+        public void Update(int id, UpdateProductDto productDto)
         {
-            ValidateAdminAccess(token);
-
             var existingProduct = _productRepository.GetById(id);
             if (existingProduct == null)
                 throw new Exception("Product not found");
@@ -154,9 +127,8 @@ namespace ECommerceApp.Business.Concrete
             _productRepository.Update(existingProduct);
         }
 
-        public void Delete(int id, string token)
+        public void Delete(int id)
         {
-            ValidateAdminAccess(token);
             _productRepository.Delete(id);
         }
 

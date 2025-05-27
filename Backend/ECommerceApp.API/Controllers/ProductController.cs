@@ -80,13 +80,8 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers[key: "Authorization"].ToString().Replace("Bearer ", "");
-                int productId = _productService.Add(productDto, token);
+                int productId = _productService.Add(productDto);
                 return Ok(new { id = productId, message = "Product added successfully" });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -100,13 +95,8 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                _productService.Update(id, productDto, token);
+                _productService.Update(id, productDto);
                 return Ok(new { message = "Product updated successfully" });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -120,13 +110,8 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                _productService.Delete(id, token);
+                _productService.Delete(id);
                 return Ok(new { message = "Product deleted successfully" });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
             }
             catch (Exception ex)
             {

@@ -3,6 +3,7 @@ using ECommerceApp.Business.DTOs.Auth;
 using ECommerceApp.Business.DTOs.Profile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ECommerceApp.API.Controllers
 {
@@ -15,6 +16,14 @@ namespace ECommerceApp.API.Controllers
         public AuthController(IAuthService authService)
         {
             _authService = authService;
+        }
+
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                throw new UnauthorizedAccessException("Invalid user ID in token");
+            return userId;
         }
 
         [HttpPost("login")]
@@ -49,23 +58,30 @@ namespace ECommerceApp.API.Controllers
         [Authorize]
         public ActionResult<ProfileDto> GetProfile()
         {
-            var token = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
-            var profile = _authService.GetProfile(token);
-            if (profile == null)
+            try
             {
-                return NotFound(new { message = "Profile not found" });
+                var userId = GetCurrentUserId();
+                var profile = _authService.GetProfile(userId);
+                if (profile == null)
+                {
+                    return NotFound(new { message = "Profile not found" });
+                }
+                return Ok(profile);
             }
-            return Ok(profile);
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPut("profile")]
         [Authorize]
         public ActionResult UpdateProfile([FromBody] UpdateProfileDto profileDto)
         {
-            var token = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
             try
             {
-                _authService.UpdateProfile(token, profileDto);
+                var userId = GetCurrentUserId();
+                _authService.UpdateProfile(userId, profileDto);
                 return Ok(new { message = "Profile updated successfully" });
             }
             catch (Exception ex)

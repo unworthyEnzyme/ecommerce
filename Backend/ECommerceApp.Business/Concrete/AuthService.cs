@@ -73,17 +73,9 @@ namespace ECommerceApp.Business.Concrete
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-        public ProfileDto? GetProfile(string token)
+
+        public ProfileDto? GetProfile(int userId)
         {
-            if (string.IsNullOrEmpty(token))
-                throw new UnauthorizedAccessException("No token provided");
-
-            var handler = new JwtSecurityTokenHandler();
-            var jsonToken = handler.ReadToken(token) as JwtSecurityToken ?? throw new UnauthorizedAccessException("Invalid token");
-            var userIdClaim = jsonToken.Claims.FirstOrDefault(c => c.Type == "nameid");
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
-                throw new UnauthorizedAccessException("Invalid user ID in token");
-
             var user = _userRepository.GetById(userId);
             if (user == null)
                 return null;
@@ -115,17 +107,8 @@ namespace ECommerceApp.Business.Concrete
             };
         }
 
-        public void UpdateProfile(string token, UpdateProfileDto profileDto)
+        public void UpdateProfile(int userId, UpdateProfileDto profileDto)
         {
-            if (string.IsNullOrEmpty(token))
-                throw new UnauthorizedAccessException("No token provided");
-
-            var handler = new JwtSecurityTokenHandler();
-            var jsonToken = handler.ReadToken(token) as JwtSecurityToken ?? throw new UnauthorizedAccessException("Invalid token");
-            var userIdClaim = jsonToken.Claims.FirstOrDefault(c => c.Type == "nameid");
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
-                throw new UnauthorizedAccessException("Invalid user ID in token");
-
             var user = _userRepository.GetById(userId) ?? throw new Exception("User not found");
 
             // Check if another user already has this email
@@ -141,10 +124,12 @@ namespace ECommerceApp.Business.Concrete
             _userRepository.Update(user);
         }
 
-        public void CompleteOnboarding(string id, CompleteOnboardingDto completeOnboarding) {
+        public void CompleteOnboarding(string id, CompleteOnboardingDto completeOnboarding)
+        {
             var invitation = _employeeInvitationRepository.GetByUUID(id) ?? throw new Exception("Not Found");
             //TODO: This should ideally be a transaction.
-            Register(new RegisterDto {
+            Register(new RegisterDto
+            {
                 Email = invitation.Email,
                 Password = completeOnboarding.Password,
                 ConfirmPassword = completeOnboarding.Password

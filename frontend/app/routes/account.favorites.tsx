@@ -98,7 +98,7 @@ export default function FavoritesTab() {
                 </p>
                 <div className="mt-4 flex space-x-2">
                   <Link
-                    to={`/products/${item.id}`}
+                    to={`/products/${item.variant.id}`}
                     className="flex-1 rounded-md bg-indigo-600 px-3 py-2 text-center text-sm text-white hover:bg-indigo-700"
                   >
                     View Details

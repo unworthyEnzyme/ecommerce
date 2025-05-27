@@ -4,8 +4,8 @@ namespace ECommerceApp.Business.Abstract
 {
   public interface IOrderService
   {
-    int CreateOrder(CreateOrderDto orderDto, string token);
+    int CreateOrder(CreateOrderDto orderDto, int userId);
     OrderDetailsDto GetOrderDetails(int orderId);
-    IEnumerable<OrderDetailsDto> GetOrders(string token);
+    IEnumerable<OrderDetailsDto> GetOrders(int userId);
   }
 }

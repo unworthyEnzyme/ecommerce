@@ -1,4 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
 using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Order;
 using ECommerceApp.Core.DataAccess.Abstract;
@@ -10,36 +9,13 @@ namespace ECommerceApp.Business.Concrete
   public class OrderService : IOrderService
   {
     private readonly AppDbContext _context;
-    private readonly IVariantRepository _variantRepository;
-
-    public OrderService(AppDbContext context, IVariantRepository variantRepository)
+    private readonly IVariantRepository _variantRepository; public OrderService(AppDbContext context, IVariantRepository variantRepository)
     {
       _context = context;
       _variantRepository = variantRepository;
     }
-
-    private int GetUserIdFromToken(string token)
+    public int CreateOrder(CreateOrderDto orderDto, int userId)
     {
-      if (string.IsNullOrEmpty(token))
-        throw new UnauthorizedAccessException("No token provided");
-
-      var handler = new JwtSecurityTokenHandler();
-      var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
-
-      if (jsonToken == null)
-        throw new UnauthorizedAccessException("Invalid token");
-
-      var userIdClaim = jsonToken.Claims.FirstOrDefault(c => c.Type == "nameid");
-      if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
-        throw new UnauthorizedAccessException("Invalid user ID in token");
-
-      return userId;
-    }
-
-    public int CreateOrder(CreateOrderDto orderDto, string token)
-    {
-      var userId = GetUserIdFromToken(token);
-
       using (var transaction = _context.Database.BeginTransaction())
       {
         try
@@ -208,10 +184,8 @@ namespace ECommerceApp.Business.Concrete
       }
       return stock;
     }
-
-    public IEnumerable<OrderDetailsDto> GetOrders(string token)
+    public IEnumerable<OrderDetailsDto> GetOrders(int userId)
     {
-      int userId = GetUserIdFromToken(token);
       var orders = _context.Orders
           .Where(o => o.UserId == userId && o.IsActive)
           .Select(o => new OrderDetailsDto

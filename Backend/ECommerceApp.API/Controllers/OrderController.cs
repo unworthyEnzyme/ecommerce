@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Order;
+using System.Security.Claims;
 
 namespace ECommerceApp.API.Controllers
 {
@@ -10,11 +11,17 @@ namespace ECommerceApp.API.Controllers
   [Authorize]
   public class OrderController : ControllerBase
   {
-    private readonly IOrderService _orderService;
-
-    public OrderController(IOrderService orderService)
+    private readonly IOrderService _orderService; public OrderController(IOrderService orderService)
     {
       _orderService = orderService;
+    }
+
+    private int GetCurrentUserId()
+    {
+      var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+      if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+        throw new UnauthorizedAccessException("Invalid user ID in token");
+      return userId;
     }
 
     [HttpGet]
@@ -23,8 +30,8 @@ namespace ECommerceApp.API.Controllers
     {
       try
       {
-        string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        var orders = _orderService.GetOrders(token);
+        var userId = GetCurrentUserId();
+        var orders = _orderService.GetOrders(userId);
         return Ok(orders);
       }
       catch (UnauthorizedAccessException ex)
@@ -36,15 +43,14 @@ namespace ECommerceApp.API.Controllers
         return BadRequest(new ErrorResponseDto { Message = ex.Message });
       }
     }
-
     [HttpPost]
     [Authorize]
     public ActionResult<CreateOrderResponseDto> CreateOrder(CreateOrderDto orderDto)
     {
       try
       {
-        string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        var orderId = _orderService.CreateOrder(orderDto, token);
+        var userId = GetCurrentUserId();
+        var orderId = _orderService.CreateOrder(orderDto, userId);
         return Ok(new CreateOrderResponseDto { OrderId = orderId, Message = "Success" });
       }
       catch (UnauthorizedAccessException ex)

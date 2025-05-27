@@ -21,6 +21,7 @@ import { useLocalStorage, useOnClickOutside } from "usehooks-ts";
 import * as api from "~/api/client";
 import { LanguageProvider, useLanguage } from "../hooks/useLanguage";
 import { If } from "~/lib/conditional";
+import { isAdmin } from "~/lib/jwt";
 
 type CategoryDropdownProps = {
   category: { id: number; name: string };
@@ -472,84 +473,88 @@ function Header() {
           </div>
 
           {/* Dashboard Dropdown */}
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setDashboardOpen(!dashboardOpen)}
-              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
-                dashboardOpen
-                  ? "bg-indigo-600 text-white shadow-md"
-                  : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
-              }`}
-            >
-              <LayoutDashboard size={16} className="mr-1" />
-              {t("dashboard")}
-              <ChevronDown
-                size={16}
-                className={`ml-1 transition-transform duration-200 ${dashboardOpen ? "rotate-180" : ""}`}
-              />
-            </button>
+          {If(token !== null && isAdmin(token))
+            .then(
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setDashboardOpen(!dashboardOpen)}
+                  className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                    dashboardOpen
+                      ? "bg-indigo-600 text-white shadow-md"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
+                  }`}
+                >
+                  <LayoutDashboard size={16} className="mr-1" />
+                  {t("dashboard")}
+                  <ChevronDown
+                    size={16}
+                    className={`ml-1 transition-transform duration-200 ${dashboardOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
 
-            {dashboardOpen && (
-              <div
-                className="ring-opacity-5 absolute right-0 z-10 mt-2 w-64 origin-top-right rounded-xl bg-white py-2 shadow-xl ring-1 ring-black transition-all duration-200"
-                style={{
-                  animation: "fadeIn 0.2s ease-out forwards",
-                }}
-              >
-                <div className="border-b border-gray-100 px-4 py-2">
-                  <h3 className="text-sm font-medium text-gray-500">
-                    {t("adminDashboard")}
-                  </h3>
-                </div>
-
-                <div className="py-1">
-                  <Link
-                    to="/products/add"
-                    className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50"
-                    onClick={() => setDashboardOpen(false)}
+                {dashboardOpen && (
+                  <div
+                    className="ring-opacity-5 absolute right-0 z-10 mt-2 w-64 origin-top-right rounded-xl bg-white py-2 shadow-xl ring-1 ring-black transition-all duration-200"
+                    style={{
+                      animation: "fadeIn 0.2s ease-out forwards",
+                    }}
                   >
-                    <PlusCircle
-                      size={18}
-                      className="mr-3 text-gray-400 group-hover:text-indigo-500"
-                    />
-                    <span className="group-hover:text-indigo-600">
-                      {t("addProduct")}
-                    </span>
-                  </Link>
+                    <div className="border-b border-gray-100 px-4 py-2">
+                      <h3 className="text-sm font-medium text-gray-500">
+                        {t("adminDashboard")}
+                      </h3>
+                    </div>
 
-                  <Link
-                    to="/products/create-attribute-type"
-                    className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50"
-                    onClick={() => setDashboardOpen(false)}
-                  >
-                    <Tag
-                      size={18}
-                      className="mr-3 text-gray-400 group-hover:text-indigo-500"
-                    />
-                    <span className="group-hover:text-indigo-600">
-                      {t("createAttribute")}
-                    </span>
-                  </Link>
+                    <div className="py-1">
+                      <Link
+                        to="/products/add"
+                        className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50"
+                        onClick={() => setDashboardOpen(false)}
+                      >
+                        <PlusCircle
+                          size={18}
+                          className="mr-3 text-gray-400 group-hover:text-indigo-500"
+                        />
+                        <span className="group-hover:text-indigo-600">
+                          {t("addProduct")}
+                        </span>
+                      </Link>
 
-                  <div className="my-1 border-t border-gray-100"></div>
+                      <Link
+                        to="/products/create-attribute-type"
+                        className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50"
+                        onClick={() => setDashboardOpen(false)}
+                      >
+                        <Tag
+                          size={18}
+                          className="mr-3 text-gray-400 group-hover:text-indigo-500"
+                        />
+                        <span className="group-hover:text-indigo-600">
+                          {t("createAttribute")}
+                        </span>
+                      </Link>
 
-                  <Link
-                    to="/suppliers"
-                    className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50"
-                    onClick={() => setDashboardOpen(false)}
-                  >
-                    <Truck
-                      size={18}
-                      className="mr-3 text-gray-400 group-hover:text-indigo-500"
-                    />
-                    <span className="group-hover:text-indigo-600">
-                      {t("suppliers")}
-                    </span>
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
+                      <div className="my-1 border-t border-gray-100"></div>
+
+                      <Link
+                        to="/suppliers"
+                        className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50"
+                        onClick={() => setDashboardOpen(false)}
+                      >
+                        <Truck
+                          size={18}
+                          className="mr-3 text-gray-400 group-hover:text-indigo-500"
+                        />
+                        <span className="group-hover:text-indigo-600">
+                          {t("suppliers")}
+                        </span>
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>,
+            )
+            .else(null)}
         </div>
       </div>
     </header>

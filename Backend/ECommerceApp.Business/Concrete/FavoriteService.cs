@@ -1,5 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using ECommerceApp.Business.Abstract;
+﻿using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Favorite;
 using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.Entities.Concrete;
@@ -15,10 +14,8 @@ namespace ECommerceApp.Business.Concrete
         {
             _favoriteRepository = favoriteRepository;
         }
-
-        public IEnumerable<FavoriteDto> GetAll(string token)
+        public IEnumerable<FavoriteDto> GetAll(int userId)
         {
-            var userId = GetUserIdFromToken(token);
             var favorites = _favoriteRepository.GetByUserId(userId);
 
             return favorites.Select(f => new FavoriteDto
@@ -40,11 +37,8 @@ namespace ECommerceApp.Business.Concrete
 
             });
         }
-
-        public int Add(string token, CreateFavoriteDto createFavoriteDto)
+        public int Add(int userId, CreateFavoriteDto createFavoriteDto)
         {
-            var userId = GetUserIdFromToken(token);
-
             var favorite = new Favorite
             {
                 UserId = userId,
@@ -54,31 +48,12 @@ namespace ECommerceApp.Business.Concrete
 
             return _favoriteRepository.Add(favorite);
         }
-
-        public void Delete(string token, int id)
+        public void Delete(int userId, int id)
         {
-            var userId = GetUserIdFromToken(token);
-            var favorite = _favoriteRepository.GetById(id);
-
-            if (favorite == null)
-                throw new Exception("Favorite not found");
+            var favorite = _favoriteRepository.GetById(id) ?? throw new Exception("Favorite not found");
 
             if (favorite.UserId != userId)
-                throw new Exception("Unauthorized to delete this favorite");
-
-            _favoriteRepository.Delete(id);
-        }
-
-        private int GetUserIdFromToken(string token)
-        {
-            var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(token);
-            var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "nameid");
-
-            if (userIdClaim == null)
-                throw new Exception("Invalid token");
-
-            return int.Parse(userIdClaim.Value);
+                throw new Exception("Unauthorized to delete this favorite"); _favoriteRepository.Delete(id);
         }
     }
 }

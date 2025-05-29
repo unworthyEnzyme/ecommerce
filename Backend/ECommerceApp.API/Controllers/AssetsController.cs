@@ -11,7 +11,7 @@ namespace ECommerceApp.API.Controllers
     private readonly string _uploadsPath;
     private readonly FileExtensionContentTypeProvider _contentTypeProvider;
 
-    public AssetsController(IConfiguration configuration)
+    public AssetsController()
     {
       _uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "assets");
       if (!Directory.Exists(_uploadsPath))

@@ -9,7 +9,8 @@ namespace ECommerceApp.Business.Concrete
   public class OrderService : IOrderService
   {
     private readonly AppDbContext _context;
-    private readonly IVariantRepository _variantRepository; public OrderService(AppDbContext context, IVariantRepository variantRepository)
+    private readonly IVariantRepository _variantRepository;
+    public OrderService(AppDbContext context, IVariantRepository variantRepository)
     {
       _context = context;
       _variantRepository = variantRepository;

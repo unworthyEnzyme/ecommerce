@@ -9,12 +9,10 @@ namespace ECommerceApp.Business.Concrete
   public class ShoppingCartService : IShoppingCartService
   {
     private readonly IShoppingCartRepository _cartRepository;
-    private readonly IVariantRepository _variantRepository;
 
-    public ShoppingCartService(IShoppingCartRepository cartRepository, IVariantRepository variantRepository)
+    public ShoppingCartService(IShoppingCartRepository cartRepository)
     {
       _cartRepository = cartRepository;
-      _variantRepository = variantRepository;
     }
 
     public CartDto GetCart(int userId)

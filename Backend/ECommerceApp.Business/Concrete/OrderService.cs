@@ -210,7 +210,7 @@ namespace ECommerceApp.Business.Concrete
             }).ToList()
           })
           .ToList();
-      if (orders == null || !orders.Any())
+      if (orders == null || orders.Count == 0)
       {
         throw new KeyNotFoundException($"No orders found for user with ID {userId}.");
       }

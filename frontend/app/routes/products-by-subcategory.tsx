@@ -30,6 +30,7 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 
 export default function ProductsBySubcategory({
   loaderData,
+  params,
 }: Route.ComponentProps) {
   const {
     variants: initialVariants,
@@ -63,21 +64,21 @@ export default function ProductsBySubcategory({
     async function applyFilters() {
       setIsLoading(true);
       try {
-        const params: any = {
-          topCategoryId: loaderData.variants[0]?.product.topCategory.id,
-          subCategoryId: loaderData.variants[0]?.product.subCategory.id,
+        const parameters: Record<string, any> = {
+          topCategoryId: params.topCategoryId,
+          subCategoryId: params.subcategoryId,
         };
 
         if (filters.priceRange) {
-          params.minPrice = filters.priceRange.min;
-          params.maxPrice = filters.priceRange.max;
+          parameters.minPrice = filters.priceRange.min;
+          parameters.maxPrice = filters.priceRange.max;
         }
 
         if (Object.keys(filters.attributeFilters).length > 0) {
-          params.attributeFilters = filters.attributeFilters;
+          parameters.attributeFilters = filters.attributeFilters;
         }
 
-        const result = await api.variants.filterVariants(params);
+        const result = await api.variants.filterVariants(parameters);
         setVariants(result.variants);
         setAttributeOptions(result.attributeOptions);
       } catch (error) {

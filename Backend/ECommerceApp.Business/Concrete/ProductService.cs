@@ -42,28 +42,6 @@ namespace ECommerceApp.Business.Concrete
                     ContactEmail = product.Supplier.ContactEmail,
                     ContactName = product.Supplier.ContactName
                 }
-                //Attributes = product.ProductAttributeValues
-                //    .Where(pav => pav.IsActive)
-                //    .Select(pav => new ProductAttributeDto
-                //    {
-                //        AttributeName = pav.AttributeType.AttributeName,
-                //        AttributeValue = pav.AttributeValue
-                //    }).ToList(),
-                //Variants = product.Variants
-                //    .Where(v => v.IsActive)
-                //    .Select(v => new VariantDto
-                //    {
-                //        Id = v.VariantId,
-                //        Price = v.Price,
-                //        Stock = v.Stock.Quantity,
-                //        Attributes = v.VariantAttributeValues
-                //            .Where(vav => vav.IsActive)
-                //            .Select(vav => new VariantAttributeDto
-                //            {
-                //                AttributeName = vav.AttributeType.AttributeName,
-                //                AttributeValue = vav.AttributeValue
-                //            }).ToList()
-                //    }).ToList()
             };
         }
 

@@ -1,8 +1,8 @@
 ﻿using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Supplier;
-using ECommerceApp.Entities.Concrete;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ECommerceApp.API.Controllers
 {
@@ -15,6 +15,14 @@ namespace ECommerceApp.API.Controllers
         public SupplierController(ISupplierService supplierService)
         {
             _supplierService = supplierService;
+        }
+
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                throw new UnauthorizedAccessException("Invalid user ID in token");
+            return userId;
         }
 
         [HttpGet]
@@ -41,13 +49,19 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public IActionResult Create(CreateSupplierDto supplierDto)
         {
-            string token = Request.Headers[key: "Authorization"].ToString().Replace("Bearer ", "");
-            if (string.IsNullOrEmpty(token))
-                return Unauthorized();
-            int id = _supplierService.Create(token, supplierDto);
-            return Ok(new { Id = id });
+            try
+            {
+                var userId = GetCurrentUserId();
+                int id = _supplierService.Create(userId, supplierDto);
+                return Ok(new { Id = id });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPut]

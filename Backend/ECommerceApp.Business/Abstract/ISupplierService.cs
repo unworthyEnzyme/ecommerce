@@ -6,7 +6,7 @@ namespace ECommerceApp.Business.Abstract
     {
         SupplierDto GetById(int id);
         List<SupplierDto> GetAll();
-        int Create(string token, CreateSupplierDto supplierDto);
+        int Create(int userId, CreateSupplierDto supplierDto);
         void Update(UpdateSupplierDto supplierDto);
         void Delete(int id);
         List<SupplierDto> GetSuppliersByUserId(int userId);

@@ -1,5 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using ECommerceApp.Business.Abstract;
+﻿using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Supplier;
 using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.DataAccess.Concrete.EntityFramework;
@@ -17,25 +16,27 @@ namespace ECommerceApp.Business.Concrete
         private readonly AppDbContext _context;
 
         public SupplierService(
-            ISupplierRepository supplierRepository, 
-            AppDbContext context, 
-            IEmployeeInvitationRepository employeeInvitationRepository) {
+            ISupplierRepository supplierRepository,
+            AppDbContext context,
+            IEmployeeInvitationRepository employeeInvitationRepository)
+        {
             _supplierRepository = supplierRepository;
             _context = context;
             _employeeInvitationRepository = employeeInvitationRepository;
         }
 
-        public void AddEmployee(int id, CreateEmployeeDto employeeDto) {
+        public void AddEmployee(int id, CreateEmployeeDto employeeDto)
+        {
             var supplier = _supplierRepository.GetById(id) ?? throw new Exception("Supplier not found");
-            var employee = new EmployeeInvitation {
+            var employee = new EmployeeInvitation
+            {
                 Email = employeeDto.Email,
                 SupplierId = id,
                 UUID = Guid.NewGuid().ToString(),
             };
             _employeeInvitationRepository.Add(employee);
         }
-
-        public int Create(string token, CreateSupplierDto supplierDto)
+        public int Create(int userId, CreateSupplierDto supplierDto)
         {
             var supplier = new Supplier
             {
@@ -46,8 +47,7 @@ namespace ECommerceApp.Business.Concrete
                 Address = supplierDto.Address
             };
 
-            var ownerId = GetUserIdFromToken(token);
-            var owner = _context.Users.FirstOrDefault(u => u.UserId == ownerId);
+            var owner = _context.Users.FirstOrDefault(u => u.UserId == userId);
             if (owner != null)
             {
                 supplier.Users = [owner];
@@ -286,24 +286,6 @@ namespace ECommerceApp.Business.Concrete
                 supplier.Address = supplierDto.Address;
                 _supplierRepository.Update(supplier);
             }
-        }
-
-        private int GetUserIdFromToken(string token)
-        {
-            if (string.IsNullOrEmpty(token))
-                throw new UnauthorizedAccessException("No token provided");
-
-            var handler = new JwtSecurityTokenHandler();
-            var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
-
-            if (jsonToken == null)
-                throw new UnauthorizedAccessException("Invalid token");
-
-            var userIdClaim = jsonToken.Claims.FirstOrDefault(c => c.Type == "nameid");
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
-                throw new UnauthorizedAccessException("Invalid user ID in token");
-
-            return userId;
         }
     }
 }

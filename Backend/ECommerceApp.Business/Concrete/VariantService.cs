@@ -157,12 +157,6 @@ namespace ECommerceApp.Business.Concrete
             _variantRepository.Delete(id);
         }
 
-        public record VariantAttributeOptions(int Id, string Name, IEnumerable<string> Values);
-        public IEnumerable<VariantAttributeOptions> GetAttributeOptions(int id)
-        {
-            throw new NotImplementedException();
-        }
-
         public IEnumerable<VariantDto> GetByCategories(int topCategoryId, int subCategoryId)
         {
             return _variantRepository.GetByCategories(topCategoryId, subCategoryId)
@@ -255,7 +249,7 @@ namespace ECommerceApp.Business.Concrete
             // Get the variant with its product
             var variant = _variantRepository.GetById(variantId);
             if (variant == null)
-                return Enumerable.Empty<AttributeOptionDto>();
+                return [];
 
             // Get the product ID to find all variants of the same product
             int productId = variant.ProductId;

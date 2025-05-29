@@ -705,6 +705,15 @@ export const userAddress = {
     });
     return data;
   },
+
+  async deleteById(id: number) {
+    const token = localStorage.getItem("token");
+    await apiClient.delete(`/UserAddress/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
 };
 
 export default apiClient;

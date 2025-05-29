@@ -1,6 +1,7 @@
-import { Edit, PlusCircle, Save, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Edit, PlusCircle, Save, Trash2, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router";
+import * as client from "~/api/client";
 import { auth } from "../api/client";
 import type { UserProfile } from "./account.layout";
 
@@ -44,6 +45,16 @@ export default function ProfileTab() {
   const cancelEditing = () => {
     setEditableProfile(profile);
     setIsEditing(false);
+  };
+
+  const handleDeleteAddress = async (addressId: number) => {
+    await client.userAddress.deleteById(addressId);
+    setProfile({
+      ...profile,
+      addresses: profile.addresses.filter(
+        (addr) => addr.userAddressId !== addressId,
+      ),
+    });
   };
 
   const mainAddress =
@@ -201,15 +212,22 @@ export default function ProfileTab() {
                   <div>
                     <p className="text-sm text-gray-500">Phone Number</p>
                     <p className="text-gray-900">{address.phoneNumber}</p>
-                  </div>
+                  </div>{" "}
                 </div>
-                <div className="mt-3 flex justify-end">
+                <div className="mt-3 flex items-center justify-end space-x-4">
                   <Link
                     to={`/account/address/${address.userAddressId}`}
-                    className="text-sm text-indigo-600 hover:underline"
+                    className="flex items-center text-sm text-indigo-600 hover:underline"
                   >
                     Edit
                   </Link>
+                  <button
+                    onClick={() => handleDeleteAddress(address.userAddressId)}
+                    className="flex items-center text-sm text-red-600 hover:text-red-800"
+                  >
+                    <Trash2 size={14} className="mr-1" />
+                    Delete
+                  </button>
                 </div>
               </div>
             ))}

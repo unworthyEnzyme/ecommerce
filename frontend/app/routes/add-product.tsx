@@ -19,14 +19,36 @@ export async function clientAction({ request }: Route.ActionArgs) {
   const subCategoryId = form.get("sub-category-id") as string;
   const supplierId = form.get("supplier-id") as string;
 
-  const { id } = await products.createProduct({
-    name,
-    description,
-    topCategoryId,
-    subCategoryId,
-    supplierId,
-  });
-  return redirect(`/products/${id}/add-variant`);
+  // Basic
+  if (
+    !name ||
+    !description ||
+    !topCategoryId ||
+    !subCategoryId ||
+    !supplierId
+  ) {
+    return {
+      error: "All fields are required. Please fill out all information.",
+    };
+  }
+
+  try {
+    const { id } = await products.createProduct({
+      name,
+      description,
+      topCategoryId,
+      subCategoryId,
+      supplierId,
+    });
+    return redirect(`/products/${id}/add-variant`);
+  } catch (error: any) {
+    return {
+      error:
+        error.response?.data?.message ||
+        error.message ||
+        "An unexpected error occurred while creating the product",
+    };
+  }
 }
 
 interface Category {
@@ -34,7 +56,10 @@ interface Category {
   name: string;
 }
 
-export default function AddProduct({ loaderData }: Route.ComponentProps) {
+export default function AddProduct({
+  loaderData,
+  actionData,
+}: Route.ComponentProps) {
   const { topCategories, suppliers } = loaderData;
   const [subCategories, setSubCategories] = useState<Category[]>([]);
 
@@ -46,6 +71,22 @@ export default function AddProduct({ loaderData }: Route.ComponentProps) {
             Add New Product
           </h2>
         </div>
+
+        {actionData?.error && (
+          <div className="rounded-md bg-red-50 p-4">
+            <div className="flex">
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">
+                  Error creating product
+                </h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <p>{actionData.error}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <Form method="post" className="mt-8 space-y-6">
           <fieldset className="space-y-4 rounded-md border border-gray-200 p-4">
             <legend className="px-2 text-lg font-medium text-gray-900">
@@ -56,6 +97,7 @@ export default function AddProduct({ loaderData }: Route.ComponentProps) {
                 type="text"
                 name="name"
                 placeholder="Name"
+                required
                 className="mb-3 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
@@ -63,12 +105,14 @@ export default function AddProduct({ loaderData }: Route.ComponentProps) {
               <textarea
                 name="description"
                 placeholder="Description"
+                required
                 className="mb-3 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
             <div>
               <select
                 name="supplier-id"
+                required
                 className="mb-3 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
               >
                 <option value="">Select Supplier</option>
@@ -82,6 +126,7 @@ export default function AddProduct({ loaderData }: Route.ComponentProps) {
             <div>
               <select
                 name="top-category-id"
+                required
                 onChange={async (e) => {
                   const topCategoryId = e.target.value;
                   if (topCategoryId) {
@@ -106,6 +151,7 @@ export default function AddProduct({ loaderData }: Route.ComponentProps) {
             <div>
               <select
                 name="sub-category-id"
+                required
                 className="mb-3 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
               >
                 <option value="">Select Sub Category</option>

@@ -6,37 +6,47 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-
   try {
     const response = await auth.login(email, password);
     localStorage.setItem("token", response.token);
 
-    // Get local cart and merge with server cart
-    const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
-    if (localCart.length > 0) {
-      const cartItems = localCart.map((item: any) => ({
-        variantId: parseInt(item.id),
-        quantity: item.amount,
+    try {
+      // Get local cart and merge with server cart
+      const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
+      if (localCart.length > 0) {
+        const cartItems = localCart.map((item: any) => ({
+          variantId: parseInt(item.id),
+          quantity: item.amount,
+        }));
+        await cart.mergeLocalCart(cartItems);
+      }
+
+      const mergedCart = await cart.getCart();
+      const items = mergedCart.items.map((item) => ({
+        id: item.variant.id.toString(),
+        price: item.variant.price,
+        name: item.variant.name,
+        attributes: item.variant.attributes.reduce(
+          (acc: Record<string, string>, attr) => {
+            acc[attr.attributeName] = attr.attributeValue;
+            return acc;
+          },
+          {},
+        ),
+        amount: item.quantity,
       }));
-      await cart.mergeLocalCart(cartItems);
+      localStorage.setItem("cart", JSON.stringify(items));
+      console.log("Cart merged successfully:", items);
+    } catch (cartError) {
+      console.error("Cart merge failed:", cartError);
+      // Clear local cart on merge failure to prevent issues
+      localStorage.removeItem("cart");
+      return {
+        error:
+          "Login successful, but there was an issue merging your cart. Your cart has been cleared.",
+      };
     }
 
-    const mergedCart = await cart.getCart();
-    const items = mergedCart.items.map((item) => ({
-      id: item.variant.id.toString(),
-      price: item.variant.price,
-      name: item.variant.name,
-      attributes: item.variant.attributes.reduce(
-        (acc: Record<string, string>, attr) => {
-          acc[attr.attributeName] = attr.attributeValue;
-          return acc;
-        },
-        {},
-      ),
-      amount: item.quantity,
-    }));
-    localStorage.setItem("cart", JSON.stringify(items));
-    console.log("Cart merged successfully:", items);
     return redirect("/");
   } catch (error) {
     console.error("Login failed:", error);
@@ -44,7 +54,8 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   }
 }
 
-export default function Login() {
+export default function Login({ actionData }: Route.ComponentProps) {
+  const error = actionData?.error;
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg">
@@ -53,6 +64,11 @@ export default function Login() {
             Sign in to your account
           </h2>
         </div>
+        {error && (
+          <div className="rounded-md bg-red-50 p-4">
+            <div className="text-sm text-red-700">{error}</div>
+          </div>
+        )}
         <Form method="post" className="mt-8 space-y-6">
           <div className="-space-y-px rounded-md shadow-sm">
             <div>

@@ -4,41 +4,61 @@ import * as api from "~/api/client";
 import { useState } from "react";
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
-  const attributeTypes = await api.products.getAttributeTypes();
-  const product = await api.products.getProductById(params.id);
+  try {
+    const attributeTypes = await api.products.getAttributeTypes();
+    const product = await api.products.getProductById(params.id);
 
-  return { attributeTypes, product };
+    return { attributeTypes, product, error: null };
+  } catch (error) {
+    return {
+      attributeTypes: [],
+      product: null,
+      error: error instanceof Error ? error.message : "Failed to load data",
+    };
+  }
 }
 
 export async function clientAction({ request, params }: Route.ActionArgs) {
-  const productId = params.id;
-  const form = await request.formData();
-  const price = form.get("price") as string;
-  const stock = form.get("stock") as string;
-  const attributes: Array<{ id: number; value: string }> = [];
-  const imageUrls: string[] = [];
+  try {
+    const productId = params.id;
+    const form = await request.formData();
+    const price = form.get("price") as string;
+    const stock = form.get("stock") as string;
+    const attributes: Array<{ id: number; value: string }> = [];
+    const imageUrls: string[] = [];
 
-  for (const [key, value] of form.entries()) {
-    if (key.startsWith("attribute-")) {
-      const idMatch = key.match(/^attribute-(\d+)$/);
-      if (idMatch) {
-        const id = parseInt(idMatch[1], 10);
-        attributes.push({ id, value: value as string });
-      }
-    } else if (key.startsWith("image-")) {
-      imageUrls.push(value as string);
+    // Validation
+    if (!price || !stock) {
+      return { error: "Price and stock are required" };
     }
+
+    for (const [key, value] of form.entries()) {
+      if (key.startsWith("attribute-")) {
+        const idMatch = key.match(/^attribute-(\d+)$/);
+        if (idMatch) {
+          const id = parseInt(idMatch[1], 10);
+          attributes.push({ id, value: value as string });
+        }
+      } else if (key.startsWith("image-")) {
+        imageUrls.push(value as string);
+      }
+    }
+
+    const images = imageUrls.map((imageUrl, index) => ({
+      imageUrl,
+      isPrimary: index === 0, // First image is primary
+      sortOrder: index, // Use index as sort order
+    }));
+
+    const requestBody = { productId, price, stock, attributes, images };
+    const { id } = await api.variants.create(requestBody);
+    return redirect(`/products/${id}`);
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error ? error.message : "Failed to create variant",
+    };
   }
-
-  const images = imageUrls.map((imageUrl, index) => ({
-    imageUrl,
-    isPrimary: index === 0, // First image is primary
-    sortOrder: index, // Use index as sort order
-  }));
-
-  const requestBody = { productId, price, stock, attributes, images };
-  const { id } = await api.variants.create(requestBody);
-  return redirect(`/products/${id}`);
 }
 
 type AttributeType = {
@@ -52,25 +72,65 @@ interface Attribute {
   value: string;
 }
 
-export default function AddAttribute({ loaderData }: Route.ComponentProps) {
-  const { attributeTypes, product } = loaderData;
+export default function AddAttribute({
+  loaderData,
+  actionData,
+}: Route.ComponentProps) {
+  const { attributeTypes, product, error: loaderError } = loaderData;
+  const actionError = actionData?.error;
   const [attributes, setAttributes] = useState<Attribute[]>([]);
   const [currentAttributeType, setCurrentAttributeType] =
     useState<AttributeType>(attributeTypes[0]);
   const [uploadedImages, setUploadedImages] = useState<
     Array<{ url: string; name: string }>
   >([]);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   console.log(uploadedImages);
+
+  // Show error if product failed to load
+  if (loaderError || !product) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
+          <div className="text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <svg
+                className="h-6 w-6 text-red-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z"
+                />
+              </svg>
+            </div>
+            <h3 className="mb-2 text-lg font-medium text-gray-900">
+              Error Loading Product
+            </h3>
+            <p className="text-sm text-gray-500">
+              {loaderError || "Product not found"}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const unusedAttributeTypes = attributeTypes.filter(
     (type) => !attributes.some((attr) => attr.id === type.id),
   );
-
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     if (!event.target.files || event.target.files.length === 0) return;
 
     const filesToUpload = Array.from(event.target.files);
+    setUploadError(null); // Clear previous errors
+
     try {
       const uploadedUrls = await api.assets.uploadFiles(filesToUpload);
       const newImages = uploadedUrls.map((url, index) => ({
@@ -80,6 +140,9 @@ export default function AddAttribute({ loaderData }: Route.ComponentProps) {
       setUploadedImages((prev) => [...prev, ...newImages]);
     } catch (error) {
       console.error("Error uploading files:", error);
+      setUploadError(
+        error instanceof Error ? error.message : "Failed to upload files",
+      );
     }
   };
 
@@ -103,6 +166,31 @@ export default function AddAttribute({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
         </div>
+        {actionError && (
+          <div className="rounded-md bg-red-50 p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg
+                  className="h-5 w-5 text-red-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">Error</h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <p>{actionError}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         <Form method="post">
           <fieldset className="space-y-4 rounded-md border border-gray-200 p-4">
             <legend className="px-2 text-lg font-medium text-gray-900">
@@ -137,6 +225,9 @@ export default function AddAttribute({ loaderData }: Route.ComponentProps) {
                 accept="image/*"
                 className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100"
               />
+              {uploadError && (
+                <div className="mt-2 text-sm text-red-600">{uploadError}</div>
+              )}
               {uploadedImages.length > 0 && (
                 <div className="mt-2">
                   <p className="text-sm text-gray-500">Uploaded files:</p>

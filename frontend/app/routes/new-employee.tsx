@@ -15,17 +15,30 @@ export async function clientAction({ request }: Route.ActionArgs) {
   const supplierId = formData.get("supplier-id");
 
   if (!email || !supplierId) {
-    throw new Error("Email and Supplier ID are required");
+    return { error: "Email and Supplier ID are required" };
   }
 
-  await apiClient.post(`/supplier/${supplierId}/employee`, {
-    email,
-  });
-  return null;
+  try {
+    await apiClient.post(`/supplier/${supplierId}/employee`, {
+      email,
+    });
+    return { success: true };
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error ? error.message : "Failed to create employee",
+    };
+  }
 }
 
-export default function NewEmployee({ loaderData }: Route.ComponentProps) {
+export default function NewEmployee({
+  loaderData,
+  actionData,
+}: Route.ComponentProps) {
   const { suppliers } = loaderData;
+  const error = actionData?.error;
+  const success = actionData?.success;
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="w-full max-w-2xl space-y-8 rounded-lg bg-white p-8 shadow-lg">
@@ -34,6 +47,21 @@ export default function NewEmployee({ loaderData }: Route.ComponentProps) {
             Add New Employee
           </h2>
         </div>
+
+        {error && (
+          <div className="rounded-md bg-red-50 p-4">
+            <div className="text-sm text-red-700">{error}</div>
+          </div>
+        )}
+
+        {success && (
+          <div className="rounded-md bg-green-50 p-4">
+            <div className="text-sm text-green-700">
+              Employee created successfully!
+            </div>
+          </div>
+        )}
+
         <Form method="post" className="mt-8 space-y-6">
           <fieldset className="space-y-4 rounded-md border border-gray-200 p-4">
             <legend className="px-2 text-lg font-medium text-gray-900">

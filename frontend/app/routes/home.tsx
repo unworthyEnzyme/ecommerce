@@ -66,6 +66,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     }>
   >("cart", []);
 
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get("q") || "";
+
   useEffect(() => {
     async function applyFilters() {
       setIsLoading(true);
@@ -91,7 +94,15 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         }
 
         const result = await api.variants.filterVariants(params);
-        setVariants(result.variants);
+        let processedVariants = result.variants;
+
+        if (searchQuery) {
+          processedVariants = processedVariants.filter((variant: any) =>
+            variant.name.toLowerCase().includes(searchQuery.toLowerCase()),
+          );
+        }
+
+        setVariants(processedVariants);
         setAttributeOptions(result.attributeOptions);
       } catch (error) {
         console.error("Error filtering variants:", error);
@@ -101,18 +112,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     }
 
     applyFilters();
-  }, [filters]);
-  const [searchParams] = useSearchParams();
-  const searchQuery = searchParams.get("q") || "";
-  useEffect(() => {
-    if (searchQuery) {
-      setVariants((variants) =>
-        variants.filter((variant) =>
-          variant.name.toLowerCase().includes(searchQuery.toLowerCase()),
-        ),
-      );
-    }
-  }, [searchQuery]);
+  }, [filters, searchQuery]);
 
   const addToCart = (variant: any) => {
     const existingItemIndex = cart.findIndex((item) => item.id === variant.id);

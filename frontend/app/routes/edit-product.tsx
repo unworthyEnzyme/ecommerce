@@ -11,19 +11,27 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 }
 
 export async function clientAction({ request, params }: Route.ActionArgs) {
-  const id = params.id;
-  const form = await request.formData();
+  try {
+    const id = params.id;
+    const form = await request.formData();
 
-  const productData = {
-    name: form.get("name") as string,
-    description: form.get("description") as string,
-    topCategoryId: form.get("top-category-id") as string,
-    subCategoryId: form.get("sub-category-id") as string,
-  };
+    const productData = {
+      name: form.get("name") as string,
+      description: form.get("description") as string,
+      topCategoryId: form.get("top-category-id") as string,
+      subCategoryId: form.get("sub-category-id") as string,
+    };
 
-  await products.updateProduct(id, productData);
+    await products.updateProduct(id, productData);
 
-  return { success: true };
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "An unexpected error occurred",
+    };
+  }
 }
 
 interface Category {
@@ -31,7 +39,10 @@ interface Category {
   name: string;
 }
 
-export default function EditProduct({ loaderData }: Route.ComponentProps) {
+export default function EditProduct({
+  loaderData,
+  actionData,
+}: Route.ComponentProps) {
   const { product, topCategories } = loaderData;
   const [subCategories, setSubCategories] = useState<Category[]>([
     product.subCategory,
@@ -45,6 +56,20 @@ export default function EditProduct({ loaderData }: Route.ComponentProps) {
             Edit Product
           </h2>
         </div>
+        {actionData?.error && (
+          <div className="rounded-md bg-red-50 p-4">
+            <div className="text-sm text-red-700">
+              <strong>Error:</strong> {actionData.error}
+            </div>
+          </div>
+        )}
+        {actionData?.success && (
+          <div className="rounded-md bg-green-50 p-4">
+            <div className="text-sm text-green-700">
+              Product updated successfully!
+            </div>
+          </div>
+        )}
         <Form method="put" className="mt-8 space-y-6">
           <fieldset className="space-y-4 rounded-md border border-gray-200 p-4">
             <legend className="px-2 text-lg font-medium text-gray-900">

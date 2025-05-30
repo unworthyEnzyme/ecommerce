@@ -9,7 +9,7 @@ import {
   Plus,
   TrendingUp,
 } from "lucide-react";
-import { Link } from "react-router";
+import { href, Link } from "react-router";
 import {
   Bar,
   BarChart,
@@ -51,7 +51,7 @@ export default function Supplier({ loaderData }: Route.ComponentProps) {
         <div className="rounded-lg bg-red-50 p-4 text-red-800">
           <p>Supplier information not found.</p>
           <Link
-            to="/suppliers"
+            to={href("/suppliers")}
             className="mt-2 inline-block text-indigo-600 hover:underline"
           >
             Return to Suppliers List
@@ -138,7 +138,7 @@ export default function Supplier({ loaderData }: Route.ComponentProps) {
         <div className="mb-4 flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-800">{supplier.name}</h1>
           <Link
-            to="/employees/new"
+            to={href("/employees/new")}
             className="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
           >
             <span className="mr-2">Add Employee</span>

@@ -1,6 +1,6 @@
 import { Heart, X } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Link } from "react-router";
+import { href, Link } from "react-router";
 import apiClient from "~/api/client";
 import { type Variant } from "~/api/client";
 
@@ -20,7 +20,7 @@ const EmptyState = ({ icon: Icon, message, actionText }: EmptyStateProps) => (
     <Icon size={48} className="mb-4 text-gray-300" />
     <p className="text-gray-500">{message}</p>
     <Link
-      to="/"
+      to={href("/")}
       className="mt-4 rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
     >
       {actionText}

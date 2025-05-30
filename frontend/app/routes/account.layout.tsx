@@ -1,5 +1,5 @@
 import { Heart, LogOut, Package, ShoppingBag, User } from "lucide-react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router";
+import { href, Link, Outlet, useLocation, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { auth } from "../api/client";
 
@@ -82,7 +82,7 @@ const Sidebar = ({ profile }: { profile: UserProfile }) => {
         ))}
 
         <Link
-          to="/cart"
+          to={href("/cart")}
           className="flex w-full items-center rounded-md px-3 py-2 text-left text-gray-700 hover:bg-gray-100"
         >
           <ShoppingBag size={18} className="mr-3" />

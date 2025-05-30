@@ -1,5 +1,5 @@
 import { Heart } from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import { href, Link, useNavigate } from "react-router";
 import { useLocalStorage } from "usehooks-ts";
 import * as api from "~/api/client";
 import type { Route } from "./+types/product";
@@ -103,7 +103,7 @@ export default function Product({ loaderData }: Route.ComponentProps) {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
         <Link
-          to="/"
+          to={href("/")}
           className="text-indigo-600 hover:text-indigo-800 hover:underline"
         >
           ← Back to Products

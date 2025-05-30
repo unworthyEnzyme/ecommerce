@@ -1,6 +1,6 @@
 import { Edit, PlusCircle, Save, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useOutletContext } from "react-router";
+import { href, Link, useOutletContext } from "react-router";
 import * as client from "~/api/client";
 import { auth } from "../api/client";
 import type { UserProfile } from "./account.layout";
@@ -172,7 +172,7 @@ export default function ProfileTab() {
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-800">Addresses</h3>
           <Link
-            to="/account/address/new"
+            to={href("/account/address/new")}
             className="flex items-center text-indigo-600 hover:text-indigo-800"
           >
             <PlusCircle size={16} className="mr-2" /> Add Address
@@ -238,7 +238,7 @@ export default function ProfileTab() {
               You haven't added any addresses yet.
             </p>
             <Link
-              to="/account/address/new"
+              to={href("/account/address/new")}
               className="mt-2 inline-block text-indigo-600 hover:underline"
             >
               Add your first address

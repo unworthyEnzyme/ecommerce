@@ -1,4 +1,4 @@
-import { Form, redirect, Link } from "react-router";
+import { Form, redirect, Link, href } from "react-router";
 import type { Route } from "./+types/login";
 import { auth, cart } from "../api/client";
 
@@ -103,7 +103,7 @@ export default function Login({ actionData }: Route.ComponentProps) {
           <p className="text-gray-600">
             Don't have an account?{" "}
             <Link
-              to="/signup"
+              to={href("/signup")}
               className="text-indigo-600 hover:text-indigo-500"
             >
               Sign up

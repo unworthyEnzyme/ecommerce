@@ -1,6 +1,6 @@
 import { Plus, Search } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router";
+import { href, Link } from "react-router";
 import * as api from "~/api/client";
 import type { Route } from "./+types/suppliers";
 
@@ -41,7 +41,7 @@ export default function Suppliers({ loaderData }: Route.ComponentProps) {
           </div>
 
           <Link
-            to="/create-supplier"
+            to={href("/create-supplier")}
             className="flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
           >
             <Plus size={18} className="mr-2" />

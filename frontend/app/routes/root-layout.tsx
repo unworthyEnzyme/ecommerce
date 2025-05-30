@@ -17,7 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link, Outlet, useNavigate, useSearchParams } from "react-router";
+import { href, Link, Outlet, useNavigate, useSearchParams } from "react-router";
 import { useLocalStorage, useOnClickOutside } from "usehooks-ts";
 import * as api from "~/api/client";
 import { LanguageProvider, useLanguage } from "../hooks/useLanguage";
@@ -179,7 +179,10 @@ function Header() {
     <header className="mb-8 border-b border-gray-200 pb-4 shadow-sm">
       {/* Mobile menu button */}
       <div className="flex items-center justify-between py-3 lg:hidden">
-        <Link to="/" className="flex items-center font-medium text-indigo-600">
+        <Link
+          to={href("/")}
+          className="flex items-center font-medium text-indigo-600"
+        >
           <Home size={20} className="mr-2" /> {t("home")}
         </Link>
         <div className="flex items-center gap-2">
@@ -264,7 +267,7 @@ function Header() {
               {If(token !== null)
                 .then(
                   <Link
-                    to="/account"
+                    to={href("/account")}
                     className="flex items-center rounded-md px-2 py-2 text-gray-700 hover:bg-gray-100"
                     onClick={() => setMobileMenuOpen(false)}
                   >
@@ -274,14 +277,14 @@ function Header() {
                 .else(
                   <>
                     <Link
-                      to="/login"
+                      to={href("/login")}
                       className="flex items-center rounded-md px-2 py-2 text-gray-700 hover:bg-gray-100"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <LogIn size={16} className="mr-2" /> {t("login")}
                     </Link>
                     <Link
-                      to="/signup"
+                      to={href("/signup")}
                       className="flex items-center rounded-md px-2 py-2 text-gray-700 hover:bg-gray-100"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -298,7 +301,7 @@ function Header() {
         {/* Categories with dropdowns */}
         <div className="flex items-center space-x-2">
           <Link
-            to="/"
+            to={href("/")}
             className="mr-2 flex items-center rounded-md px-3 py-2 font-medium text-indigo-600 hover:bg-indigo-50 hover:text-indigo-800"
           >
             <Home size={18} className="mr-2" /> {t("home")}
@@ -334,7 +337,7 @@ function Header() {
           {If(token !== null)
             .then(
               <Link
-                to="/account"
+                to={href("/account")}
                 className="flex items-center rounded-md px-2 py-2 text-gray-700 hover:bg-gray-100"
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -344,14 +347,14 @@ function Header() {
             .else(
               <>
                 <Link
-                  to="/login"
+                  to={href("/login")}
                   className="flex items-center rounded-md px-2 py-2 text-gray-700 hover:bg-gray-100"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <LogIn size={16} className="mr-2" /> {t("login")}
                 </Link>
                 <Link
-                  to="/signup"
+                  to={href("/signup")}
                   className="flex items-center rounded-md px-2 py-2 text-gray-700 hover:bg-gray-100"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -496,7 +499,7 @@ function Header() {
                     </div>
                     <div className="border-t border-gray-100 px-4 py-2">
                       <Link
-                        to="/cart"
+                        to={href("/cart")}
                         className="block rounded-md bg-indigo-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-indigo-700"
                         onClick={() => setCartOpen(false)}
                       >
@@ -544,7 +547,7 @@ function Header() {
 
                     <div className="py-1">
                       <Link
-                        to="/products/add"
+                        to={href("/products/add")}
                         className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50"
                         onClick={() => setDashboardOpen(false)}
                       >
@@ -558,7 +561,7 @@ function Header() {
                       </Link>
 
                       <Link
-                        to="/products/create-attribute-type"
+                        to={href("/products/create-attribute-type")}
                         className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50"
                         onClick={() => setDashboardOpen(false)}
                       >
@@ -574,7 +577,7 @@ function Header() {
                       <div className="my-1 border-t border-gray-100"></div>
 
                       <Link
-                        to="/suppliers"
+                        to={href("/suppliers")}
                         className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50"
                         onClick={() => setDashboardOpen(false)}
                       >

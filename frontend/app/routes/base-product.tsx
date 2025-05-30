@@ -1,6 +1,6 @@
 import apiClient from "~/api/client";
 import type { Route } from "./+types/base-product";
-import { Link } from "react-router";
+import { href, Link } from "react-router";
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
   type Product = {
@@ -33,7 +33,7 @@ export default function BaseProduct({ loaderData }: Route.ComponentProps) {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
         <Link
-          to="/base-products"
+          to={href("/base-products")}
           className="text-indigo-600 hover:text-indigo-800 hover:underline"
         >
           ← Back to Products

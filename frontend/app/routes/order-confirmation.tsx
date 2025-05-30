@@ -1,6 +1,7 @@
-import { useSearchParams } from "react-router";
+import { href, useSearchParams } from "react-router";
 import { CheckCircle2, ChevronLeft } from "lucide-react";
 import { Link } from "react-router";
+import { hr } from "@faker-js/faker";
 
 export default function OrderConfirmation() {
   let [searchParams] = useSearchParams();
@@ -27,7 +28,7 @@ export default function OrderConfirmation() {
           tracking information once your package ships.
         </p>
         <Link
-          to="/"
+          to={href("/")}
           className="flex items-center rounded-md bg-indigo-600 px-6 py-3 text-white transition hover:bg-indigo-700"
         >
           <ChevronLeft size={16} className="mr-2" /> Continue Shopping

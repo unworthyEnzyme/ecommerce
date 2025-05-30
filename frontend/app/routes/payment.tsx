@@ -6,7 +6,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useOutletContext } from "react-router";
+import { href, Link, useNavigate, useOutletContext } from "react-router";
 import { useLocalStorage } from "usehooks-ts";
 import * as api from "~/api/client";
 import type { UserProfile, Address } from "./account.layout";
@@ -200,7 +200,7 @@ export default function Payment() {
             You need items in your cart to proceed to payment.
           </p>
           <Link
-            to="/cart"
+            to={href("/cart")}
             className="flex items-center rounded-md bg-indigo-600 px-6 py-3 text-white transition hover:bg-indigo-700"
           >
             <ChevronLeft size={16} className="mr-2" /> Return to Cart
@@ -351,7 +351,7 @@ export default function Payment() {
                       No shipping addresses found in your profile.
                     </p>
                     <Link
-                      to="/account/address/new"
+                      to={href("/account/address/new")}
                       className="mt-2 inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800"
                     >
                       <PlusCircle size={16} className="mr-1" /> Add New Address
@@ -470,7 +470,7 @@ export default function Payment() {
 
             <div className="mt-6">
               <Link
-                to="/cart"
+                to={href("/cart")}
                 className="mr-4 flex w-auto items-center text-indigo-600 hover:text-indigo-800"
               >
                 <ChevronLeft size={16} className="mr-2" /> Return to Cart

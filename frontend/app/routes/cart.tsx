@@ -1,5 +1,5 @@
 import { ChevronLeft, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
-import { Link } from "react-router";
+import { href, Link } from "react-router";
 import { useLocalStorage } from "usehooks-ts";
 
 type CartItem = {
@@ -45,7 +45,7 @@ export default function Cart() {
             Looks like you haven't added anything to your cart yet.
           </p>
           <Link
-            to="/"
+            to={href("/")}
             className="flex items-center rounded-md bg-indigo-600 px-6 py-3 text-white transition hover:bg-indigo-700"
           >
             <ChevronLeft size={16} className="mr-2" /> Continue Shopping
@@ -146,7 +146,7 @@ export default function Cart() {
 
           <div className="mt-6">
             <Link
-              to="/"
+              to={href("/")}
               className="flex w-auto items-center text-indigo-600 hover:text-indigo-800"
             >
               <ChevronLeft size={16} className="mr-2" /> Continue Shopping
@@ -186,7 +186,7 @@ export default function Cart() {
             </div>
 
             <Link
-              to="/payment"
+              to={href("/payment")}
               className="block w-full rounded-md bg-indigo-600 px-4 py-3 text-center font-medium text-white hover:bg-indigo-700"
             >
               Proceed to Checkout

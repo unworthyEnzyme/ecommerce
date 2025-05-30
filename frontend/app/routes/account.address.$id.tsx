@@ -4,6 +4,7 @@ import {
   useNavigate,
   useParams,
   useOutletContext,
+  href,
 } from "react-router";
 import { Link } from "react-router";
 import { userAddress } from "~/api/client";
@@ -214,7 +215,7 @@ export default function AddressForm() {
             </div>
             <div className="flex justify-end space-x-4">
               <Link
-                to="/account/profile"
+                to={href("/account/profile")}
                 className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
               >
                 Cancel

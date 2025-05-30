@@ -1,6 +1,6 @@
 import { Form, redirect } from "react-router";
-import type { Route } from "./+types/create-supplier";
 import apiClient from "~/api/client";
+import type { Route } from "./+types/create-supplier";
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
   const form = await request.formData();
@@ -31,11 +31,14 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     return redirect(`/supplier/${id}`);
   } catch (error) {
     console.error("Error creating supplier:", error);
-    throw new Error("Failed to create supplier");
+    return {
+      error:
+        error instanceof Error ? error.message : "Failed to create supplier",
+    };
   }
 }
 
-export default function CreateSupplier() {
+export default function CreateSupplier({ actionData }: Route.ComponentProps) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="w-full max-w-2xl space-y-8 rounded-lg bg-white p-8 shadow-lg">
@@ -44,6 +47,20 @@ export default function CreateSupplier() {
             Create New Supplier
           </h2>
         </div>
+        {actionData?.error && (
+          <div className="rounded-md bg-red-50 p-4">
+            <div className="flex">
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">
+                  Error creating supplier
+                </h3>
+                <div className="mt-2 text-sm text-red-700">
+                  {actionData.error}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         <Form method="post" className="mt-8 space-y-6">
           <fieldset className="space-y-4 rounded-md border border-gray-200 p-4">
             <legend className="px-2 text-lg font-medium text-gray-900">

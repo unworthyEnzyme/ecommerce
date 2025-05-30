@@ -1,5 +1,5 @@
 import { ShoppingCart, Filter, X } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { useLocalStorage } from "usehooks-ts";
 import { useState, useEffect } from "react";
 import * as api from "~/api/client";
@@ -102,6 +102,17 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
     applyFilters();
   }, [filters]);
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get("q") || "";
+  useEffect(() => {
+    if (searchQuery) {
+      setVariants((variants) =>
+        variants.filter((variant) =>
+          variant.name.toLowerCase().includes(searchQuery.toLowerCase()),
+        ),
+      );
+    }
+  }, [searchQuery]);
 
   const addToCart = (variant: any) => {
     const existingItemIndex = cart.findIndex((item) => item.id === variant.id);

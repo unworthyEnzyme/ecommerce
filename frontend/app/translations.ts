@@ -23,6 +23,7 @@ export const translations = {
       quantity: "Qty",
       suppliers: "Suppliers",
       supplier: "Supplier",
+      searchProducts: "Search Products...",
     },
     product: {
       noProducts: "No products found",
@@ -58,6 +59,7 @@ export const translations = {
       quantity: "Adet",
       suppliers: "Tedarikçiler",
       supplier: "Tedarikçi",
+      searchProducts: "Ürünleri Ara...",
     },
     product: {
       noProducts: "Ürün bulunamadı",

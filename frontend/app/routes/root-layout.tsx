@@ -7,6 +7,7 @@ import {
   LogIn,
   Menu,
   PlusCircle,
+  Search,
   Settings,
   ShoppingCart,
   Tag,
@@ -16,7 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link, Outlet } from "react-router";
+import { Link, Outlet, useNavigate, useSearchParams } from "react-router";
 import { useLocalStorage, useOnClickOutside } from "usehooks-ts";
 import * as api from "~/api/client";
 import { LanguageProvider, useLanguage } from "../hooks/useLanguage";
@@ -91,6 +92,7 @@ function CategoryDropdown({
 
 function Header() {
   const { language, setLanguage, t } = useLanguage();
+  const navigate = useNavigate();
   const [topCategories, setTopCategories] = useState<
     Array<{ id: number; name: string }>
   >([]);
@@ -160,11 +162,18 @@ function Header() {
       setLanguageOpen(false);
     },
   );
-
   const cartTotal = cart.reduce(
     (sum, item) => sum + item.price * (item.amount || 1),
     0,
   );
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      setSearchParams({ q: searchQuery.trim() });
+    }
+  };
 
   return (
     <header className="mb-8 border-b border-gray-200 pb-4 shadow-sm">
@@ -222,7 +231,6 @@ function Header() {
           </button>
         </div>
       </div>
-
       {/* Mobile menu */}
       {mobileMenuOpen && (
         <div
@@ -230,6 +238,20 @@ function Header() {
           className="absolute top-[60px] right-0 left-0 z-20 border-t border-gray-200 bg-white p-4 shadow-lg lg:hidden"
         >
           <div className="flex flex-col space-y-4">
+            {/* Mobile Search Bar */}
+            <form onSubmit={handleSearch} className="relative">
+              <div className="relative">
+                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder={t("searchProducts")}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-white py-2 pr-4 pl-10 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                />
+              </div>
+            </form>
+
             {topCategories.map((category) => (
               <CategoryDropdown
                 key={category.id}
@@ -271,7 +293,6 @@ function Header() {
           </div>
         </div>
       )}
-
       {/* Desktop menu */}
       <div className="hidden items-center justify-between py-2 lg:flex">
         {/* Categories with dropdowns */}
@@ -290,6 +311,22 @@ function Header() {
               subCategories={subCategories[category.id]}
             />
           ))}
+        </div>
+
+        {/* Search Bar */}
+        <div className="mx-8 max-w-md flex-1">
+          <form onSubmit={handleSearch} className="relative">
+            <div className="relative">
+              <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder={t("searchProducts") || "Search products..."}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 bg-white py-2 pr-4 pl-10 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+              />
+            </div>
+          </form>
         </div>
 
         {/* Login, Signup, Dashboard, Cart and Language Selector */}

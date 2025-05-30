@@ -134,8 +134,11 @@ export const variants = {
   },
 
   async getById(id: number) {
+    interface VariantDetail extends Variant {
+      isFavorite: boolean;
+    }
     const { data } = await apiClient.get<{
-      variant: Variant;
+      variant: VariantDetail;
       attributeOptions: AttributeOption[];
     }>(`/variant/${id}`);
     return data;
@@ -543,11 +546,8 @@ export const favorites = {
     const token = localStorage.getItem("token");
     const { data } = await apiClient.get<
       Array<{
-        favoriteId: number;
-        variantId: number;
-        price: number;
-        productName: string;
-        createdAt: string;
+        id: number;
+        variant: Variant;
       }>
     >("/favorite", {
       headers: {

@@ -21,8 +21,8 @@ export default function Product({ loaderData }: Route.ComponentProps) {
   const [_cart, setCart] = useLocalStorage("cart", [] as Array<{ id: string }>);
   const [favorites, setFavorites] = useState<
     Array<{
-      favoriteId: number;
-      variantId: number;
+      id: number;
+      variant: { id: number };
     }>
   >([]);
   const [selectedAttributes, setSelectedAttributes] = useState<
@@ -76,17 +76,14 @@ export default function Product({ loaderData }: Route.ComponentProps) {
   const toggleFavorite = async () => {
     try {
       const existingFavorite = favorites.find(
-        (f) => f.variantId === variant.id,
+        (f) => f.variant.id === variant.id,
       );
       if (existingFavorite) {
-        await api.favorites.remove(existingFavorite.favoriteId);
-        setFavorites(favorites.filter((f) => f.variantId !== variant.id));
+        await api.favorites.remove(existingFavorite.id);
+        setFavorites(favorites.filter((f) => f.variant.id !== variant.id));
       } else {
         const result = await api.favorites.add(variant.id);
-        setFavorites([
-          ...favorites,
-          { favoriteId: result.id, variantId: variant.id },
-        ]);
+        setFavorites([...favorites, { id: result.id, variant }]);
       }
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -100,7 +97,7 @@ export default function Product({ loaderData }: Route.ComponentProps) {
     }
   };
 
-  const isFavorite = favorites.some((item) => item.variantId === variant.id);
+  const isFavorite = favorites.some((item) => item.variant.id === variant.id);
 
   return (
     <div className="container mx-auto px-4 py-8">

@@ -3,6 +3,7 @@ using ECommerceApp.Business.DTOs.Order;
 using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.DataAccess.Concrete.EntityFramework;
 using ECommerceApp.Entities.Concrete;
+using System.Text.Json;
 
 namespace ECommerceApp.Business.Concrete
 {
@@ -10,10 +11,12 @@ namespace ECommerceApp.Business.Concrete
   {
     private readonly AppDbContext _context;
     private readonly IVariantRepository _variantRepository;
-    public OrderService(AppDbContext context, IVariantRepository variantRepository)
+    private readonly IMessageQueueService _messageQueueService;
+    public OrderService(AppDbContext context, IVariantRepository variantRepository, IMessageQueueService messageQueueService)
     {
       _context = context;
       _variantRepository = variantRepository;
+      _messageQueueService = messageQueueService;
     }
     public int CreateOrder(CreateOrderDto orderDto, int userId)
     {
@@ -113,6 +116,35 @@ namespace ECommerceApp.Business.Concrete
           _context.SaveChanges();
 
           transaction.Commit();
+
+          // Send order to message queue for further processing
+          var orderForQueue = new
+          {
+            OrderId = order.OrderId,
+            UserId = userId,
+            Items = itemsWithVariants.Select(x => new
+            {
+              VariantId = x.Item.VariantId,
+              Quantity = x.Item.Quantity,
+              UnitPrice = x.Variant.Price
+            }).ToArray(),
+            TotalAmount = totalAmount,
+            OrderDate = order.OrderDate
+          };
+
+          _ = Task.Run(async () =>
+          {
+            try
+            {
+              await _messageQueueService.PublishOrderProcessedAsync(order.OrderId, JsonSerializer.Serialize(orderForQueue));
+            }
+            catch (Exception ex)
+            {
+              // Log error but don't affect the order creation
+              Console.WriteLine($"Failed to publish order to queue: {ex.Message}");
+            }
+          });
+
           return order.OrderId;
         }
         catch

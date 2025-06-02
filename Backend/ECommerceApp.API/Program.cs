@@ -67,6 +67,7 @@ builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IEmployeeInvitationRepository, EmployeeInvitationRepository>();
 builder.Services.AddScoped<IUserAddressService, UserAddressService>();
+builder.Services.AddScoped<IMessageQueueService, RabbitMQService>();
 
 var app = builder.Build();
 

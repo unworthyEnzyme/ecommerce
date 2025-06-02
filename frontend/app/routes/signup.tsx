@@ -1,4 +1,4 @@
-import { Form, redirect, Link } from "react-router";
+import { Form, redirect, Link, href } from "react-router";
 import type { Route } from "./+types/signup";
 import { auth } from "../api/client";
 
@@ -16,7 +16,8 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   }
 }
 
-export default function Signup() {
+export default function Signup({ actionData }: Route.ComponentProps) {
+  const error = actionData?.error;
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg">
@@ -26,6 +27,11 @@ export default function Signup() {
           </h2>
         </div>
         <Form method="post" className="mt-8 space-y-6">
+          {error && (
+            <div className="rounded-md bg-red-50 p-4">
+              <div className="text-sm text-red-700">{error}</div>
+            </div>
+          )}
           <div className="-space-y-px rounded-md shadow-sm">
             <div>
               <input
@@ -67,7 +73,10 @@ export default function Signup() {
         <div className="text-center text-sm">
           <p className="text-gray-600">
             Already have an account?{" "}
-            <Link to="/login" className="text-indigo-600 hover:text-indigo-500">
+            <Link
+              to={href("/login")}
+              className="text-indigo-600 hover:text-indigo-500"
+            >
               Sign in
             </Link>
           </p>

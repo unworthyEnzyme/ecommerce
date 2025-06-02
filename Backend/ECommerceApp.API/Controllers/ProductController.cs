@@ -7,7 +7,6 @@ namespace ECommerceApp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
@@ -22,13 +21,8 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                var products = _productService.GetAll(token);
+                var products = _productService.GetAll();
                 return Ok(products);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -41,15 +35,10 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                var product = _productService.GetById(id, token);
+                var product = _productService.GetById(id);
                 if (product == null)
                     return NotFound(new { message = "Product not found" });
                 return Ok(product);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -62,13 +51,8 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                var products = _productService.GetByTopCategory(topCategoryId, token);
+                var products = _productService.GetByTopCategory(topCategoryId);
                 return Ok(products);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -81,13 +65,8 @@ namespace ECommerceApp.API.Controllers
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                var products = _productService.GetBySubCategory(subCategoryId, token);
+                var products = _productService.GetBySubCategory(subCategoryId);
                 return Ok(products);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -96,18 +75,13 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public ActionResult Add([FromBody] CreateProductDto productDto)
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                _productService.Add(productDto, token);
-                return Ok(new { message = "Product added successfully" });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
+                int productId = _productService.Add(productDto);
+                return Ok(new { id = productId, message = "Product added successfully" });
             }
             catch (Exception ex)
             {
@@ -116,18 +90,13 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public ActionResult Update(int id, [FromBody] UpdateProductDto productDto)
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                _productService.Update(id, productDto, token);
+                _productService.Update(id, productDto);
                 return Ok(new { message = "Product updated successfully" });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -136,18 +105,27 @@ namespace ECommerceApp.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public ActionResult Delete(int id)
         {
             try
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                _productService.Delete(id, token);
+                _productService.Delete(id);
                 return Ok(new { message = "Product deleted successfully" });
             }
-            catch (UnauthorizedAccessException ex)
+            catch (Exception ex)
             {
-                return Unauthorized(new { message = ex.Message });
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("top-categories")]
+        public ActionResult<IEnumerable<TopCategoryDto>> GetTopCategories()
+        {
+            try
+            {
+                var topCategories = _productService.GetTopCategories();
+                return Ok(topCategories);
             }
             catch (Exception ex)
             {

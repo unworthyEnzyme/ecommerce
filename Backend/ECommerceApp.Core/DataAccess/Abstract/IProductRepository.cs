@@ -8,9 +8,10 @@ namespace ECommerceApp.Core.DataAccess.Abstract
         Product GetById(int id);
         IEnumerable<Product> GetByTopCategory(int topCategoryId);
         IEnumerable<Product> GetBySubCategory(int subCategoryId);
-        void Add(Product product);
+        Product Add(Product product);
         void Update(Product product);
         void Delete(int id);
         bool Exists(string productCode);
+        IEnumerable<TopCategory> GetTopCategories();
     }
 }

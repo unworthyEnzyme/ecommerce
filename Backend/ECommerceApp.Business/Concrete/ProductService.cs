@@ -1,7 +1,6 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Product;
+using ECommerceApp.Business.DTOs.Supplier;
 using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.Entities.Concrete;
 
@@ -10,31 +9,9 @@ namespace ECommerceApp.Business.Concrete
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
-
         public ProductService(IProductRepository productRepository)
         {
             _productRepository = productRepository;
-        }
-
-        private bool IsAdmin(string token)
-        {
-            if (string.IsNullOrEmpty(token))
-                return false;
-
-            var handler = new JwtSecurityTokenHandler();
-            var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
-            
-            if (jsonToken == null) 
-                return false;
-
-            var roleClaim = jsonToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
-            return roleClaim?.Value == "Admin";
-        }
-
-        private void ValidateAdminAccess(string token)
-        {
-            if (!IsAdmin(token))
-                throw new UnauthorizedAccessException("Only administrators can perform this operation");
         }
 
         private ProductDto MapToDto(Product product)
@@ -45,57 +22,77 @@ namespace ECommerceApp.Business.Concrete
                 ProductCode = product.ProductCode,
                 Name = product.Name,
                 Description = product.Description,
-                SubCategoryId = product.SubCategoryId,
-                TopCategoryId = product.TopCategoryId,
-                TopCategoryName = product.TopCategory?.Name,
-                SubCategoryName = product.SubCategory?.Name
+                SubCategory = new SubCategoryDto
+                {
+                    Id = product.SubCategoryId,
+                    Name = product.SubCategory.Name,
+                    TopCategoryId = product.TopCategoryId
+                },
+                TopCategory = new TopCategoryDto
+                {
+                    Id = product.TopCategoryId,
+                    Name = product.TopCategory.Name
+                },
+                Supplier = new SupplierDto
+                {
+                    Id = product.SupplierId,
+                    Name = product.Supplier.Name,
+                    Address = product.Supplier.Address,
+                    PhoneNumber = product.Supplier.PhoneNumber,
+                    ContactEmail = product.Supplier.ContactEmail,
+                    ContactName = product.Supplier.ContactName
+                }
             };
         }
 
-        public IEnumerable<ProductDto> GetAll(string token)
+        public IEnumerable<ProductDto> GetAll()
         {
             return _productRepository.GetAll().Select(MapToDto);
         }
 
-        public ProductDto GetById(int id, string token)
+        public ProductDto GetById(int id)
         {
             var product = _productRepository.GetById(id);
-            return product != null ? MapToDto(product) : null;
+            if (product == null)
+                return null!;
+            return MapToDto(product);
         }
 
-        public IEnumerable<ProductDto> GetByTopCategory(int topCategoryId, string token)
+        public IEnumerable<ProductDto> GetByTopCategory(int topCategoryId)
         {
             return _productRepository.GetByTopCategory(topCategoryId).Select(MapToDto);
         }
 
-        public IEnumerable<ProductDto> GetBySubCategory(int subCategoryId, string token)
+        public IEnumerable<ProductDto> GetBySubCategory(int subCategoryId)
         {
             return _productRepository.GetBySubCategory(subCategoryId).Select(MapToDto);
         }
 
-        public void Add(CreateProductDto productDto, string token)
+        private string GenerateProductCode()
         {
-            ValidateAdminAccess(token);
+            var timestamp = DateTime.UtcNow.Ticks;
+            return $"P{timestamp.ToString().Substring(Math.Max(0, timestamp.ToString().Length - 8))}";
+        }
 
-            if (_productRepository.Exists(productDto.ProductCode))
-                throw new Exception("Product with this code already exists");
-
+        public int Add(CreateProductDto productDto)
+        {
+            var productCode = GenerateProductCode();
             var product = new Product
             {
-                ProductCode = productDto.ProductCode,
+                ProductCode = productCode,
                 Name = productDto.Name,
                 Description = productDto.Description,
                 SubCategoryId = productDto.SubCategoryId,
-                TopCategoryId = productDto.TopCategoryId
+                TopCategoryId = productDto.TopCategoryId,
+                SupplierId = productDto.SupplierId,
             };
 
-            _productRepository.Add(product);
+            var addedProduct = _productRepository.Add(product);
+            return addedProduct.ProductId;
         }
 
-        public void Update(int id, UpdateProductDto productDto, string token)
+        public void Update(int id, UpdateProductDto productDto)
         {
-            ValidateAdminAccess(token);
-
             var existingProduct = _productRepository.GetById(id);
             if (existingProduct == null)
                 throw new Exception("Product not found");
@@ -108,10 +105,18 @@ namespace ECommerceApp.Business.Concrete
             _productRepository.Update(existingProduct);
         }
 
-        public void Delete(int id, string token)
+        public void Delete(int id)
         {
-            ValidateAdminAccess(token);
             _productRepository.Delete(id);
+        }
+
+        public IEnumerable<TopCategoryDto> GetTopCategories()
+        {
+            return _productRepository.GetTopCategories().Select(tc => new TopCategoryDto
+            {
+                Id = tc.TopCategoryId,
+                Name = tc.Name
+            });
         }
     }
 }

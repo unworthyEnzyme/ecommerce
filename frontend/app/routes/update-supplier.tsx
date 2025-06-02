@@ -1,21 +1,53 @@
 import { Form } from "react-router";
 import type { Route } from "./+types/update-supplier";
-import { faker } from "@faker-js/faker";
+import * as api from "~/api/client";
 
-export async function clientLoader() {
-  return {
-    supplier: {
-      supplierId: faker.number.int({ min: 1, max: 1000 }),
-      name: faker.company.name(),
-      contactName: faker.person.fullName(),
-      contactEmail: faker.internet.email(),
-      phoneNumber: faker.phone.number(),
-      address: faker.location.streetAddress(true),
-    },
-  };
+export async function clientLoader({ params }: Route.LoaderArgs) {
+  const { id } = params;
+  const supplier = await api.suppliers.getSupplierById(id);
+
+  if (!supplier) {
+    throw new Error("Supplier not found");
+  }
+
+  return { supplier };
 }
 
-export default function UpdateSupplier({ loaderData }: Route.ComponentProps) {
+async function clientAction({ request }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const supplierId = formData.get("supplierId");
+  const name = formData.get("name") as string;
+  const contactName = formData.get("contactName") as string;
+  const contactEmail = formData.get("contactEmail") as string;
+  const phoneNumber = formData.get("phoneNumber") as string;
+  const address = formData.get("address") as string;
+
+  if (
+    !supplierId ||
+    !name ||
+    !contactName ||
+    !contactEmail ||
+    !phoneNumber ||
+    !address
+  ) {
+    throw new Error("All fields are required");
+  }
+
+  await api.suppliers.updateSupplier(Number(supplierId), {
+    name,
+    contactName,
+    contactEmail,
+    phoneNumber,
+    address,
+  });
+
+  return { success: true };
+}
+
+export default function UpdateSupplier({
+  loaderData,
+  params,
+}: Route.ComponentProps) {
   const { supplier } = loaderData;
 
   return (
@@ -27,7 +59,7 @@ export default function UpdateSupplier({ loaderData }: Route.ComponentProps) {
           </h2>
         </div>
         <Form method="put" className="mt-8 space-y-6">
-          <input type="hidden" name="supplierId" value={supplier.supplierId} />
+          <input type="hidden" name="supplierId" value={params.id} />
 
           <fieldset className="space-y-4 rounded-md border border-gray-200 p-4">
             <legend className="px-2 text-lg font-medium text-gray-900">

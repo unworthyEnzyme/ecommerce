@@ -581,6 +581,16 @@ export const favorites = {
   },
 };
 
+interface Supplier {
+  id: number;
+  name: string;
+  contactName: string;
+  contactEmail: string;
+  phoneNumber: string;
+  address: string;
+  createdAt: string;
+}
+
 export const suppliers = {
   getSuppliers: async () => {
     interface Supplier {
@@ -645,6 +655,16 @@ export const suppliers = {
       },
     );
     return data;
+  },
+
+  async updateSupplier(id: number, data: Partial<Supplier>) {
+    const token = localStorage.getItem("token");
+    const { data: response } = await apiClient.put(`/supplier/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response;
   },
 };
 

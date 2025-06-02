@@ -69,6 +69,9 @@ builder.Services.AddScoped<IEmployeeInvitationRepository, EmployeeInvitationRepo
 builder.Services.AddScoped<IUserAddressService, UserAddressService>();
 builder.Services.AddScoped<IMessageQueueService, RabbitMQService>();
 
+// Register the Order Consumer as a hosted service
+builder.Services.AddHostedService<OrderConsumerHostedService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

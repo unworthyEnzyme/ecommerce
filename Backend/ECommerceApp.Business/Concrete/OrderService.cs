@@ -18,7 +18,7 @@ namespace ECommerceApp.Business.Concrete
       _variantRepository = variantRepository;
       _messageQueueService = messageQueueService;
     }
-    public int CreateOrder(CreateOrderDto orderDto, int userId)
+    public async Task<int> CreateOrder(CreateOrderDto orderDto, int userId)
     {
       using (var transaction = _context.Database.BeginTransaction())
       {
@@ -132,18 +132,15 @@ namespace ECommerceApp.Business.Concrete
             OrderDate = order.OrderDate
           };
 
-          _ = Task.Run(async () =>
+          try
           {
-            try
-            {
-              await _messageQueueService.PublishOrderProcessedAsync(order.OrderId, JsonSerializer.Serialize(orderForQueue));
-            }
-            catch (Exception ex)
-            {
-              // Log error but don't affect the order creation
-              Console.WriteLine($"Failed to publish order to queue: {ex.Message}");
-            }
-          });
+            await _messageQueueService.PublishOrderProcessedAsync(order.OrderId, JsonSerializer.Serialize(orderForQueue));
+          }
+          catch (Exception ex)
+          {
+            // Log error but don't affect the order creation
+            Console.WriteLine($"Failed to publish order to queue: {ex.Message}");
+          }
 
           return order.OrderId;
         }

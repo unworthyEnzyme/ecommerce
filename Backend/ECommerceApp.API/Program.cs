@@ -67,6 +67,10 @@ builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IEmployeeInvitationRepository, EmployeeInvitationRepository>();
 builder.Services.AddScoped<IUserAddressService, UserAddressService>();
+builder.Services.AddScoped<IMessageQueueService, RabbitMQService>();
+
+// Register the Order Consumer as a hosted service
+builder.Services.AddHostedService<OrderConsumerHostedService>();
 
 var app = builder.Build();
 

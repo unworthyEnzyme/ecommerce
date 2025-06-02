@@ -47,12 +47,12 @@ namespace ECommerceApp.API.Controllers
     }
     [HttpPost]
     [Authorize]
-    public ActionResult<CreateOrderResponseDto> CreateOrder(CreateOrderDto orderDto)
+    public async Task<ActionResult<CreateOrderResponseDto>> CreateOrder(CreateOrderDto orderDto)
     {
       try
       {
         var userId = GetCurrentUserId();
-        var orderId = _orderService.CreateOrder(orderDto, userId);
+        var orderId = await _orderService.CreateOrder(orderDto, userId);
         return Ok(new CreateOrderResponseDto { OrderId = orderId, Message = "Success" });
       }
       catch (UnauthorizedAccessException ex)

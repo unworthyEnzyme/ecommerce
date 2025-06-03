@@ -184,6 +184,24 @@ export const variants = {
     }>(`/variant/filter?${queryParams}`);
     return data;
   },
+
+  async getVariantByAttributeOptions(
+    productId: number,
+    attributeOptions: Record<number, string>,
+  ) {
+    const queryParams = new URLSearchParams();
+    queryParams.append("productId", productId.toString());
+
+    // Add attribute options to query params
+    Object.entries(attributeOptions).forEach(([id, value]) => {
+      queryParams.append(`attributeOptions[${id}]`, value);
+    });
+
+    const { data } = await apiClient.get<Variant | null>(
+      `/variant/variant-by-attribute-options?${queryParams}`,
+    );
+    return data;
+  },
 };
 
 export const products = {

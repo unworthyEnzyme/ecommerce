@@ -1,4 +1,4 @@
-﻿using ECommerceApp.Business.DTOs.Variant;
+using ECommerceApp.Business.DTOs.Variant;
 
 namespace ECommerceApp.Business.Abstract
 {
@@ -18,5 +18,6 @@ namespace ECommerceApp.Business.Abstract
             decimal? minPrice,
             decimal? maxPrice,
             Dictionary<int, string> attributeFilters);
+        VariantDto? GetVariantByAttributeOptions(Dictionary<int, string> attributeOptions, int productId);
     }
 }

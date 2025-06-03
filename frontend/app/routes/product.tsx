@@ -60,6 +60,29 @@ export default function Product({ loaderData }: Route.ComponentProps) {
     fetchFavorites();
   }, [variant, attributeOptions]);
 
+  // Watch for attribute selection changes and redirect to the corresponding variant
+  useEffect(() => {
+    const fetchVariantByAttributes = async () => {
+      if (Object.keys(selectedAttributes).length === 0) {
+        return;
+      }
+
+      try {
+        const result = await api.variants.getVariantByAttributeOptions(
+          variant.product.productId,
+          selectedAttributes,
+        );
+        if (result && result.id !== variant.id) {
+          navigate(`/products/${result.id}`);
+        }
+      } catch (error) {
+        console.error("Failed to fetch variant by attributes:", error);
+      }
+    };
+
+    fetchVariantByAttributes();
+  }, [selectedAttributes, variant, navigate]);
+
   const addToCart = () => {
     setCart((prev) => [
       ...prev,

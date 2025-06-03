@@ -1,4 +1,5 @@
-﻿using ECommerceApp.Business.Abstract;
+using System;
+using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Product;
 using ECommerceApp.Business.DTOs.Variant;
 using ECommerceApp.Core.DataAccess.Abstract;
@@ -359,6 +360,80 @@ namespace ECommerceApp.Business.Concrete
                         SortOrder = vi.SortOrder
                     }).ToList()
             }).ToList();
+        }
+
+        public VariantDto? GetVariantByAttributeOptions(Dictionary<int, string> attributeOptions, int productId)
+        {
+            var variants = _variantRepository.GetAll()
+                .Where(v => v.ProductId == productId && v.IsActive)
+                .ToList();
+
+            foreach (var variant in variants)
+            {
+                var variantAttributes = variant.VariantAttributeValues;
+
+                // Check if this variant has exactly the requested attributes
+                if (variantAttributes.Count == attributeOptions.Count)
+                {
+                    bool matches = true;
+                    foreach (var requestedAttribute in attributeOptions)
+                    {
+                        var variantAttribute = variantAttributes.FirstOrDefault(va =>
+                            va.AttributeTypeId == requestedAttribute.Key &&
+                            va.AttributeValue == requestedAttribute.Value);
+
+                        if (variantAttribute == null)
+                        {
+                            matches = false;
+                            break;
+                        }
+                    }
+
+                    if (matches)
+                    {
+                        return new VariantDto
+                        {
+                            Id = variant.VariantId,
+                            Name = variant.Product.Name,
+                            Price = variant.Price,
+                            Stock = variant.Stock?.Quantity ?? 0,
+                            Product = new ProductDto
+                            {
+                                Name = variant.Product.Name,
+                                ProductId = variant.Product.ProductId,
+                                ProductCode = variant.Product.ProductCode,
+                                Description = variant.Product.Description,
+                                TopCategory = new TopCategoryDto
+                                {
+                                    Id = variant.Product.TopCategoryId,
+                                    Name = variant.Product.TopCategory.Name
+                                },
+                                SubCategory = new SubCategoryDto
+                                {
+                                    Id = variant.Product.SubCategoryId,
+                                    Name = variant.Product.SubCategory.Name,
+                                    TopCategoryId = variant.Product.TopCategoryId
+                                },
+                            },
+                            Attributes = variantAttributes.Select(attr => new VariantAttributeDto
+                            {
+                                AttributeName = attr.AttributeType.AttributeName,
+                                AttributeValue = attr.AttributeValue
+                            }).ToList(),
+                            Images = _variantImageRepository.GetByVariantId(variant.VariantId)
+                                .Select(vi => new VariantImageDto
+                                {
+                                    ImageId = vi.ImageId,
+                                    ImageUrl = vi.ImageUrl,
+                                    IsPrimary = vi.IsPrimary,
+                                    SortOrder = vi.SortOrder
+                                }).ToList()
+                        };
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }

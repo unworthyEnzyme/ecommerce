@@ -29,6 +29,25 @@ namespace ECommerceApp.API.Controllers
             });
         }
 
+        [HttpGet("variant-by-attribute-options")]
+        public ActionResult<VariantDto?> GetVariantByAttributeOptions([FromQuery] Dictionary<int, string> attributeOptions, [FromQuery] int productId)
+        {
+            try
+            {
+                if (attributeOptions == null || attributeOptions.Count == 0)
+                {
+                    return BadRequest(new { message = "No attribute options provided" });
+                }
+
+                var variant = _variantService.GetVariantByAttributeOptions(attributeOptions, productId);
+                return Ok(variant);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpGet("{id}")]
         public ActionResult<VariantDto> GetById(int id)
         {

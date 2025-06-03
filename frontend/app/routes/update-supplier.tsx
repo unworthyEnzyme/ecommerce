@@ -13,7 +13,7 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
   return { supplier };
 }
 
-async function clientAction({ request }: Route.ActionArgs) {
+export async function clientAction({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const supplierId = formData.get("supplierId");
   const name = formData.get("name") as string;

@@ -3,7 +3,7 @@ using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
 
-namespace ECommerceApp.Business.Concrete
+namespace ECommerceApp.Worker.Services
 {
     public class RabbitMQService : IMessageQueueService, IDisposable
     {

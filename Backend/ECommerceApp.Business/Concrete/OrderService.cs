@@ -44,29 +44,16 @@ namespace ECommerceApp.Business.Concrete
           decimal totalAmount = 0;
           var itemsWithVariants = orderDto.Items.Select(item =>
           {
-            var variant = _context.Variants.Find(item.VariantId);
-            if (variant == null || !variant.IsActive)
-              throw new InvalidOperationException($"Variant {item.VariantId} not found or inactive");
+          var variant = _context.Variants.Find(item.VariantId);
+          if (variant == null || !variant.IsActive)
+          throw new InvalidOperationException($"Variant {item.VariantId} not found or inactive");
 
-            if (!_variantRepository.HasSufficientStock(item.VariantId, item.Quantity))
-              throw new InvalidOperationException($"Insufficient stock for variant {item.VariantId}");
+          if (!_variantRepository.HasSufficientStock(item.VariantId, item.Quantity))
+          throw new InvalidOperationException($"Insufficient stock for variant {item.VariantId}");
 
-            totalAmount += variant.Price * item.Quantity;
+          totalAmount += variant.Price * item.Quantity;
 
-            // Create stock movement for the order
-            var stockMovement = new StockMovement
-            {
-              VariantId = item.VariantId,
-              Quantity = item.Quantity,
-              MovementType = "OUT",
-              Reference = "Order",
-              Notes = "Stock reduction from order",
-              CreatedAt = DateTime.Now,
-              IsActive = true
-            };
-            AddStockMovement(stockMovement);
-
-            return (Item: item, Variant: variant);
+          return (Item: item, Variant: variant);
           }).ToList();
 
           // Add tax
@@ -185,35 +172,7 @@ namespace ECommerceApp.Business.Concrete
       return order;
     }
 
-    public void AddStockMovement(StockMovement movement)
-    {
-      _context.StockMovements.Add(movement);
 
-      var stock = GetOrCreateStock(movement.VariantId);
-      stock.Quantity += movement.MovementType == "IN" ? movement.Quantity : -movement.Quantity;
-      stock.LastUpdated = DateTime.UtcNow;
-
-      _context.SaveChanges();
-    }
-
-
-    private Stock GetOrCreateStock(int variantId)
-    {
-      var stock = _context.Stocks.FirstOrDefault(s => s.VariantId == variantId);
-      if (stock == null)
-      {
-        stock = new Stock
-        {
-          VariantId = variantId,
-          Quantity = 0,
-          CreatedAt = DateTime.UtcNow,
-          LastUpdated = DateTime.UtcNow,
-          IsActive = true
-        };
-        _context.Stocks.Add(stock);
-      }
-      return stock;
-    }
     public IEnumerable<OrderDetailsDto> GetOrders(int userId)
     {
       var orders = _context.Orders

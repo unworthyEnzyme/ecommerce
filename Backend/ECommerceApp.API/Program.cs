@@ -1,6 +1,7 @@
 using System.Text;
 using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.Concrete;
+using ECommerceApp.Worker.Services;
 using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.DataAccess.Concrete.EntityFramework;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -68,9 +69,6 @@ builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IEmployeeInvitationRepository, EmployeeInvitationRepository>();
 builder.Services.AddScoped<IUserAddressService, UserAddressService>();
 builder.Services.AddScoped<IMessageQueueService, RabbitMQService>();
-
-// Register the Order Consumer as a hosted service
-builder.Services.AddHostedService<OrderConsumerHostedService>();
 
 var app = builder.Build();
 

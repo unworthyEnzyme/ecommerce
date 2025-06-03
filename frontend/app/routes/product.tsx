@@ -3,7 +3,7 @@ import { href, Link, useNavigate } from "react-router";
 import { useLocalStorage } from "usehooks-ts";
 import * as api from "~/api/client";
 import type { Route } from "./+types/product";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, use } from "react";
 import { AxiosError } from "axios";
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
@@ -28,10 +28,12 @@ export default function Product({ loaderData }: Route.ComponentProps) {
   const [selectedAttributes, setSelectedAttributes] = useState<
     Record<number, string>
   >({});
+  const isInitializingRef = useRef(false);
 
   useEffect(() => {
     // Initialize selected attributes with current variant's values
     if (attributeOptions && variant.attributes) {
+      isInitializingRef.current = true;
       const initialSelections: Record<number, string> = {};
 
       // Map variant attributes to attribute options
@@ -46,6 +48,9 @@ export default function Product({ loaderData }: Route.ComponentProps) {
       });
 
       setSelectedAttributes(initialSelections);
+      setTimeout(() => {
+        isInitializingRef.current = false;
+      }, 0);
     }
 
     // Fetch favorites
@@ -63,7 +68,10 @@ export default function Product({ loaderData }: Route.ComponentProps) {
   // Watch for attribute selection changes and redirect to the corresponding variant
   useEffect(() => {
     const fetchVariantByAttributes = async () => {
-      if (Object.keys(selectedAttributes).length === 0) {
+      if (
+        Object.keys(selectedAttributes).length === 0 ||
+        isInitializingRef.current
+      ) {
         return;
       }
 

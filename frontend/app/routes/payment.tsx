@@ -10,6 +10,7 @@ import { href, Link, useNavigate, useOutletContext } from "react-router";
 import { useLocalStorage } from "usehooks-ts";
 import * as api from "~/api/client";
 import type { UserProfile, Address } from "./account.layout";
+import { InputMask } from "@react-input/mask";
 
 type AccountContextType = {
   profile: UserProfile;
@@ -283,7 +284,9 @@ export default function Payment() {
                   >
                     Phone Number
                   </label>
-                  <input
+                  <InputMask
+                    mask="+90 ___ ___ __ __"
+                    replacement={{ _: /\d/ }}
                     type="tel"
                     id="phoneNumber"
                     name="phoneNumber"
@@ -402,7 +405,9 @@ export default function Payment() {
                   >
                     Card Number
                   </label>
-                  <input
+                  <InputMask
+                    mask="____ ____ ____ ____"
+                    replacement={{ _: /\d/ }}
                     type="text"
                     id="cardNumber"
                     name="cardNumber"
@@ -424,7 +429,9 @@ export default function Payment() {
                   >
                     Expiry Date
                   </label>
-                  <input
+                  <InputMask
+                    mask="__ / __"
+                    replacement={{ _: /\d/ }}
                     type="text"
                     id="expiryDate"
                     name="expiryDate"
@@ -446,7 +453,9 @@ export default function Payment() {
                   >
                     CVV
                   </label>
-                  <input
+                  <InputMask
+                    mask="___"
+                    replacement={{ _: /\d/ }}
                     type="text"
                     id="cvv"
                     name="cvv"

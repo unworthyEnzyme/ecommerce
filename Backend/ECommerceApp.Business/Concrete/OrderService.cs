@@ -44,16 +44,16 @@ namespace ECommerceApp.Business.Concrete
           decimal totalAmount = 0;
           var itemsWithVariants = orderDto.Items.Select(item =>
           {
-          var variant = _context.Variants.Find(item.VariantId);
-          if (variant == null || !variant.IsActive)
-          throw new InvalidOperationException($"Variant {item.VariantId} not found or inactive");
+            var variant = _context.Variants.Find(item.VariantId);
+            if (variant == null || !variant.IsActive)
+              throw new InvalidOperationException($"Variant {item.VariantId} not found or inactive");
 
-          if (!_variantRepository.HasSufficientStock(item.VariantId, item.Quantity))
-          throw new InvalidOperationException($"Insufficient stock for variant {item.VariantId}");
+            if (!_variantRepository.HasSufficientStock(item.VariantId, item.Quantity))
+              throw new InvalidOperationException($"Insufficient stock for variant {item.VariantId}");
 
-          totalAmount += variant.Price * item.Quantity;
+            totalAmount += variant.Price * item.Quantity;
 
-          return (Item: item, Variant: variant);
+            return (Item: item, Variant: variant);
           }).ToList();
 
           // Add tax

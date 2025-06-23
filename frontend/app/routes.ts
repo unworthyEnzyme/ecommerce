@@ -23,6 +23,7 @@ export default [
       ),
       route("products/:id/add-variant", "routes/add-variant.tsx"),
       route("products/:id/edit", "routes/edit-product.tsx"),
+      route("dashboard", "routes/admin-dashboard.tsx"),
     ]),
     route("products/:id", "routes/product.tsx"),
     route("cart", "routes/cart.tsx"),

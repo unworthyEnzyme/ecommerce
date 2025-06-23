@@ -1,6 +1,8 @@
 import { ChevronLeft, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { useEffect } from "react";
 import { href, Link } from "react-router";
 import { useLocalStorage } from "usehooks-ts";
+import * as api from "~/api/client";
 
 type CartItem = {
   id: string;
@@ -32,6 +34,14 @@ export default function Cart() {
     updatedCart.splice(index, 1);
     setCart(updatedCart);
   };
+
+  useEffect(() => {
+    if (cart.length === 0) {
+      api.cart.clear().catch((error) => {
+        console.error("Failed to clear cart on backend:", error);
+      });
+    }
+  }, [cart]);
 
   if (cart.length === 0) {
     return (

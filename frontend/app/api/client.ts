@@ -495,6 +495,14 @@ export const assets = {
 };
 
 export const cart = {
+  clear: async () => {
+    const token = localStorage.getItem("token");
+    return await apiClient.delete("/ShoppingCart", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
   mergeLocalCart: async (
     items: Array<{
       variantId: number;

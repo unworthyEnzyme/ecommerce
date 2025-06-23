@@ -12,6 +12,7 @@ namespace ECommerceApp.Worker.Services
         private readonly ILogger<OrderConsumerHostedService> _logger;
         private readonly IStockRepository _stockRepository;
         private readonly IStockMovementRepository _stockMovementRepository;
+        private readonly IOrderRepository _orderRepository;
         private IConnection? _connection;
         private IChannel? _channel;
         private readonly string _queueName = "order_processing";
@@ -19,11 +20,13 @@ namespace ECommerceApp.Worker.Services
         public OrderConsumerHostedService(
             ILogger<OrderConsumerHostedService> logger,
             IStockRepository stockRepository,
-            IStockMovementRepository stockMovementRepository)
+            IStockMovementRepository stockMovementRepository,
+            IOrderRepository orderRepository)
         {
             _logger = logger;
             _stockRepository = stockRepository;
             _stockMovementRepository = stockMovementRepository;
+            _orderRepository = orderRepository;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -123,6 +126,8 @@ namespace ECommerceApp.Worker.Services
                                 };
                                 await AddStockMovementAsync(stockMovement);
                             }
+                            await _orderRepository.ChangeStatus(outerMessage.OrderId, Status.Shipped);
+                            _logger.LogInformation("Order {OrderId} processed successfully", outerMessage.OrderId);
                         }
                     }
 

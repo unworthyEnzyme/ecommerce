@@ -11,6 +11,7 @@ builder.Services.AddDbContext<AppDbContext>();
 // Register repositories as singleton (they handle their own scoping)
 builder.Services.AddSingleton<IStockRepository, ECommerceApp.Worker.Repositories.StockRepository>();
 builder.Services.AddSingleton<IStockMovementRepository, StockMovementRepository>();
+builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
 
 // Register the hosted service
 builder.Services.AddHostedService<OrderConsumerHostedService>();

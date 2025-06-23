@@ -9,5 +9,6 @@ namespace ECommerceApp.Core.DataAccess.Abstract
         void Add(User user);
         void Update(User user);
         bool EmailExists(string email);
+        IEnumerable<User> GetAll();
     }
 }

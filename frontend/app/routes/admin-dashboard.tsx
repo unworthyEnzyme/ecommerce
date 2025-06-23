@@ -1,25 +1,23 @@
 import {
-  Package,
-  ShoppingCart,
-  Users,
-  TrendingUp,
-  DollarSign,
-  PlusCircle,
-  Tag,
-  Truck,
-  FileText,
-  BarChart3,
-  Settings,
   AlertCircle,
+  BarChart3,
   CheckCircle,
   Clock,
-  Eye,
-  Edit,
-  Trash2,
+  DollarSign,
+  FileText,
+  Package,
+  PlusCircle,
+  Settings,
+  ShoppingCart,
+  Tag,
+  TrendingUp,
+  Truck,
+  Users,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import * as api from "~/api/client";
+import apiClient from "~/api/client";
+import type { Route } from "./+types/admin-dashboard";
 
 type DashboardStats = {
   totalProducts: number;
@@ -41,7 +39,21 @@ type DashboardStats = {
   }>;
 };
 
-export default function AdminDashboard() {
+export async function clientLoader() {
+  try {
+    const stats = await apiClient.get<DashboardStats>("/dashboard/stats", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return stats;
+  } catch (error) {
+    console.error("Failed to load dashboard stats:", error);
+    throw new Response("Failed to load dashboard stats", { status: 500 });
+  }
+}
+
+export default function AdminDashboard({ loaderData }: Route.ComponentProps) {
   const [stats, setStats] = useState<DashboardStats>({
     totalProducts: 0,
     totalOrders: 0,
@@ -57,7 +69,25 @@ export default function AdminDashboard() {
     async function loadDashboardData() {
       try {
         setLoading(true);
-        // Mock data for now - replace with actual API calls when available
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setError("Authentication required");
+          return;
+        }
+
+        const response = await apiClient.get<DashboardStats>(
+          "/dashboard/stats",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        setStats(response.data);
+      } catch (err) {
+        console.error("Failed to load dashboard data:", err);
+        // Fallback to mock data if API fails
         const mockStats: DashboardStats = {
           totalProducts: 156,
           totalOrders: 342,
@@ -108,9 +138,7 @@ export default function AdminDashboard() {
           ],
         };
         setStats(mockStats);
-      } catch (err) {
-        console.error("Failed to load dashboard data:", err);
-        setError("Failed to load dashboard data");
+        setError("Using mock data - API connection failed");
       } finally {
         setLoading(false);
       }
@@ -129,6 +157,8 @@ export default function AdminDashboard() {
         return "bg-blue-100 text-blue-800";
       case "cancelled":
         return "bg-red-100 text-red-800";
+      case "shipped":
+        return "bg-green-100 text-green-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -142,6 +172,8 @@ export default function AdminDashboard() {
         return <Clock size={16} className="text-yellow-600" />;
       case "processing":
         return <AlertCircle size={16} className="text-blue-600" />;
+      case "shipped":
+        return <Truck size={16} className="text-green-600" />;
       default:
         return <Clock size={16} className="text-gray-600" />;
     }

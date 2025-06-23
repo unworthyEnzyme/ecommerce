@@ -43,5 +43,14 @@ namespace ECommerceApp.DataAccess.Concrete.EntityFramework
                 .Include(u => u.UserAddresses.Where(a => a.IsActive))
                 .FirstOrDefault(u => u.UserId == userId && u.IsActive);
         }
+
+        public IEnumerable<User> GetAll()
+        {
+            return _context.Users
+                .Include(u => u.Role)
+                .Include(u => u.UserAddresses.Where(a => a.IsActive))
+                .Where(u => u.IsActive)
+                .ToList();
+        }
     }
 }

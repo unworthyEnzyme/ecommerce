@@ -430,7 +430,7 @@ export default function Payment() {
                     Expiry Date
                   </label>
                   <InputMask
-                    mask="__ / __"
+                    mask="__/__"
                     replacement={{ _: /\d/ }}
                     type="text"
                     id="expiryDate"

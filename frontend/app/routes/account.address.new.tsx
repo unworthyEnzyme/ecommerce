@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { href, useNavigate, useOutletContext } from "react-router";
-import { Link } from "react-router";
+import { href, Link, useNavigate, useOutletContext } from "react-router";
 import apiClient from "~/api/client";
 import type { UserProfile } from "./account.layout";
 

@@ -1,7 +1,5 @@
-import { href, useSearchParams } from "react-router";
 import { CheckCircle2, ChevronLeft } from "lucide-react";
-import { Link } from "react-router";
-import { hr } from "@faker-js/faker";
+import { href, Link, useSearchParams } from "react-router";
 
 export default function OrderConfirmation() {
   let [searchParams] = useSearchParams();

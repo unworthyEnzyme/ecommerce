@@ -1,6 +1,6 @@
+import { href, Link } from "react-router";
 import apiClient from "~/api/client";
 import type { Route } from "./+types/base-products";
-import { href, Link } from "react-router";
 
 export async function clientLoader() {
   type Product = {

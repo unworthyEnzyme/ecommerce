@@ -1,6 +1,6 @@
-import { Form, redirect, Link, href } from "react-router";
+import { Form, Link, href, redirect } from "react-router";
+import { auth } from "~/api/client";
 import type { Route } from "./+types/signup";
-import { auth } from "../api/client";
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();

@@ -1,9 +1,8 @@
-import { Form, redirect } from "react-router";
+import { Form } from "react-router";
+import apiClient, * as api from "~/api/client";
 import type { Route } from "./+types/new-employee";
-import * as api from "~/api/client";
-import apiClient from "~/api/client";
 
-export async function clientLoader({ request }: Route.LoaderArgs) {
+export async function clientLoader({}: Route.LoaderArgs) {
   const suppliers = await api.suppliers.getSuppliers();
 
   return { suppliers };

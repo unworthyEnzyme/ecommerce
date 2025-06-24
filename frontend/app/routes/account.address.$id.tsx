@@ -1,12 +1,11 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
-  Navigate,
-  useNavigate,
-  useParams,
-  useOutletContext,
   href,
+  Link,
+  useNavigate,
+  useOutletContext,
+  useParams,
 } from "react-router";
-import { Link } from "react-router";
 import { userAddress } from "~/api/client";
 import type { UserProfile } from "./account.layout";
 

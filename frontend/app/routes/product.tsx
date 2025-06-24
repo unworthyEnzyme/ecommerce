@@ -1,10 +1,10 @@
+import { AxiosError } from "axios";
 import { Heart } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { href, Link, useNavigate } from "react-router";
 import { useLocalStorage } from "usehooks-ts";
 import * as api from "~/api/client";
 import type { Route } from "./+types/product";
-import { useEffect, useState, useRef, use } from "react";
-import { AxiosError } from "axios";
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
   const data = await api.variants.getById(Number(params.id));

@@ -1,8 +1,8 @@
-import { Form } from "react-router";
-import { products } from "~/api/client";
 import { useState } from "react";
-import type { Route } from "./+types/edit-product";
+import { Form } from "react-router";
 import * as api from "~/api/client";
+import { products } from "~/api/client";
+import type { Route } from "./+types/edit-product";
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
   const product = await api.products.getProductById(params.id);

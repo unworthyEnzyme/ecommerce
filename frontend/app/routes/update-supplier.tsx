@@ -1,6 +1,6 @@
 import { Form } from "react-router";
-import type { Route } from "./+types/update-supplier";
 import * as api from "~/api/client";
+import type { Route } from "./+types/update-supplier";
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
   const { id } = params;

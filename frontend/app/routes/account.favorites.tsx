@@ -1,8 +1,7 @@
 import { Heart, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { href, Link } from "react-router";
-import apiClient from "~/api/client";
-import { type Variant } from "~/api/client";
+import apiClient, { type Variant } from "~/api/client";
 
 type FavoriteItem = {
   id: string;

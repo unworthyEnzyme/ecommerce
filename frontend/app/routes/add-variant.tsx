@@ -1,7 +1,7 @@
-import { Form, redirect } from "react-router";
-import type { Route } from "./+types/add-variant";
-import * as api from "~/api/client";
 import { useState } from "react";
+import { Form, redirect } from "react-router";
+import * as api from "~/api/client";
+import type { Route } from "./+types/add-variant";
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
   try {

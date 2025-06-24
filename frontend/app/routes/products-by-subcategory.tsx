@@ -1,7 +1,7 @@
-import { ShoppingCart, Filter, X } from "lucide-react";
+import { Filter, ShoppingCart, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useLocalStorage } from "usehooks-ts";
-import { useState, useEffect } from "react";
 import * as api from "~/api/client";
 import type { Route } from "./+types/products-by-subcategory";
 

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Form, redirect } from "react-router";
-import { products } from "~/api/client";
 import * as api from "~/api/client";
+import { products } from "~/api/client";
 import type { Route } from "./+types/add-product";
 
-export async function clientLoader({ request }: Route.LoaderArgs) {
+export async function clientLoader() {
   const topCategories = await products.getTopCategories();
   const suppliers = await api.suppliers.getSuppliers();
 

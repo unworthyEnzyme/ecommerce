@@ -1,6 +1,6 @@
 import { Form, redirect } from "react-router";
-import type { Route } from "./+types/complete-auth";
 import apiClient from "~/api/client";
+import type { Route } from "./+types/complete-auth";
 
 export async function clientAction({
   request,

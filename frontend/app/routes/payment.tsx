@@ -1,3 +1,4 @@
+import { InputMask } from "@react-input/mask";
 import {
   ChevronLeft,
   CreditCard,
@@ -5,12 +6,11 @@ import {
   PlusCircle,
   ShieldCheck,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { href, Link, useNavigate, useOutletContext } from "react-router";
 import { useLocalStorage } from "usehooks-ts";
 import * as api from "~/api/client";
-import type { UserProfile, Address } from "./account.layout";
-import { InputMask } from "@react-input/mask";
+import type { Address, UserProfile } from "./account.layout";
 
 type AccountContextType = {
   profile: UserProfile;

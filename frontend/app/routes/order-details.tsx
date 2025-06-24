@@ -2,7 +2,6 @@ import apiClient from "~/api/client";
 import { cn } from "../lib/utils";
 import type { Route } from "./+types/order-details";
 
-// Backend DTO interfaces that match the C# models
 interface OrderVariantAttribute {
   attributeName: string;
   attributeValue: string;
@@ -25,14 +24,6 @@ interface Order {
   status: OrderStatus;
   items: OrderItem[];
 }
-
-type CartItem = {
-  id: string;
-  price: number;
-  name: string;
-  attributes?: Array<{ attributeName: string; attributeValue: string }>;
-  amount: number;
-};
 
 type OrderStatus =
   | "pending"

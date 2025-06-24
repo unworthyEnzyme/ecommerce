@@ -1,7 +1,7 @@
 import { Heart, LogOut, Package, ShoppingBag, User } from "lucide-react";
-import { href, Link, Outlet, useLocation, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
-import { auth } from "../api/client";
+import { href, Link, Outlet, useLocation, useNavigate } from "react-router";
+import { auth } from "~/api/client";
 
 export type Address = {
   userAddressId: number;

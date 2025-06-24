@@ -1,28 +1,23 @@
 import {
   ChevronDown,
-  Edit,
   Globe,
   Home,
   LayoutDashboard,
   LogIn,
   Menu,
-  PlusCircle,
   Search,
-  Settings,
   ShoppingCart,
-  Tag,
-  Truck,
   User,
   UserPlus,
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { href, Link, Outlet, useNavigate, useSearchParams } from "react-router";
+import { href, Link, Outlet, useSearchParams } from "react-router";
 import { useLocalStorage, useOnClickOutside } from "usehooks-ts";
 import * as api from "~/api/client";
-import { LanguageProvider, useLanguage } from "../hooks/useLanguage";
 import { If } from "~/lib/conditional";
 import { isAdmin } from "~/lib/jwt";
+import { LanguageProvider, useLanguage } from "../hooks/useLanguage";
 
 type CategoryDropdownProps = {
   category: { id: number; name: string };
@@ -92,16 +87,13 @@ function CategoryDropdown({
 
 function Header() {
   const { language, setLanguage, t } = useLanguage();
-  const navigate = useNavigate();
   const [topCategories, setTopCategories] = useState<
     Array<{ id: number; name: string }>
   >([]);
-  const [dashboardOpen, setDashboardOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
   const [token, setToken] = useState<string | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const cartDropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const languageDropdownRef = useRef<HTMLDivElement>(null);
@@ -154,9 +146,8 @@ function Header() {
 
   useOnClickOutside(
     //@ts-ignore
-    [dropdownRef, cartDropdownRef, mobileMenuRef, languageDropdownRef],
+    [cartDropdownRef, mobileMenuRef, languageDropdownRef],
     () => {
-      setDashboardOpen(false);
       setCartOpen(false);
       setMobileMenuOpen(false);
       setLanguageOpen(false);
@@ -512,87 +503,16 @@ function Header() {
             )}
           </div>
 
-          {/* Dashboard Dropdown */}
+          {/* Dashboard Link */}
           {If(token !== null && isAdmin(token))
             .then(
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setDashboardOpen(!dashboardOpen)}
-                  className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
-                    dashboardOpen
-                      ? "bg-indigo-600 text-white shadow-md"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
-                  }`}
-                >
-                  <LayoutDashboard size={16} className="mr-1" />
-                  {t("dashboard")}
-                  <ChevronDown
-                    size={16}
-                    className={`ml-1 transition-transform duration-200 ${dashboardOpen ? "rotate-180" : ""}`}
-                  />
-                </button>
-
-                {dashboardOpen && (
-                  <div
-                    className="ring-opacity-5 absolute right-0 z-10 mt-2 w-64 origin-top-right rounded-xl bg-white py-2 shadow-xl ring-1 ring-black transition-all duration-200"
-                    style={{
-                      animation: "fadeIn 0.2s ease-out forwards",
-                    }}
-                  >
-                    <div className="border-b border-gray-100 px-4 py-2">
-                      <h3 className="text-sm font-medium text-gray-500">
-                        {t("adminDashboard")}
-                      </h3>
-                    </div>
-
-                    <div className="py-1">
-                      <Link
-                        to={href("/products/add")}
-                        className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50"
-                        onClick={() => setDashboardOpen(false)}
-                      >
-                        <PlusCircle
-                          size={18}
-                          className="mr-3 text-gray-400 group-hover:text-indigo-500"
-                        />
-                        <span className="group-hover:text-indigo-600">
-                          {t("addProduct")}
-                        </span>
-                      </Link>
-
-                      <Link
-                        to={href("/products/create-attribute-type")}
-                        className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50"
-                        onClick={() => setDashboardOpen(false)}
-                      >
-                        <Tag
-                          size={18}
-                          className="mr-3 text-gray-400 group-hover:text-indigo-500"
-                        />
-                        <span className="group-hover:text-indigo-600">
-                          {t("createAttribute")}
-                        </span>
-                      </Link>
-
-                      <div className="my-1 border-t border-gray-100"></div>
-
-                      <Link
-                        to={href("/suppliers")}
-                        className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50"
-                        onClick={() => setDashboardOpen(false)}
-                      >
-                        <Truck
-                          size={18}
-                          className="mr-3 text-gray-400 group-hover:text-indigo-500"
-                        />
-                        <span className="group-hover:text-indigo-600">
-                          {t("suppliers")}
-                        </span>
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </div>,
+              <Link
+                to={href("/dashboard")}
+                className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-gray-100 hover:text-indigo-600"
+              >
+                <LayoutDashboard size={16} className="mr-1" />
+                {t("dashboard")}
+              </Link>,
             )
             .else(null)}
         </div>

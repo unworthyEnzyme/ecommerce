@@ -1,3 +1,4 @@
+using ECommerceApp.Core.Logging.Extensions;
 using ECommerceApp.DataAccess.Concrete.EntityFramework;
 using ECommerceApp.Worker.Repositories;
 using ECommerceApp.Worker.Services;
@@ -7,6 +8,9 @@ var builder = Host.CreateApplicationBuilder(args);
 
 // Register DbContext with connection string
 builder.Services.AddDbContext<AppDbContext>();
+
+// Add Console Logging
+builder.Services.AddConsoleLogging(ECommerceApp.Core.Logging.LogLevel.Information);
 
 // Register repositories as singleton (they handle their own scoping)
 builder.Services.AddSingleton<IStockRepository, ECommerceApp.Worker.Repositories.StockRepository>();

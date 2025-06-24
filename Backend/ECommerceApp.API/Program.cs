@@ -3,6 +3,7 @@ using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.Concrete;
 using ECommerceApp.Worker.Services;
 using ECommerceApp.Core.DataAccess.Abstract;
+using ECommerceApp.Core.Logging.Extensions;
 using ECommerceApp.DataAccess.Concrete.EntityFramework;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -44,6 +45,9 @@ builder.Services.AddCors(options =>
 
 // Register DbContext
 builder.Services.AddDbContext<AppDbContext>();
+
+// Add Console Logging
+builder.Services.AddConsoleLogging(ECommerceApp.Core.Logging.LogLevel.Information);
 
 // Register Services
 builder.Services.AddScoped<IUserRepository, UserRepository>();

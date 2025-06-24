@@ -14,7 +14,6 @@ export default [
       "categories/:topCategoryId/subcategories/:subcategoryId",
       "routes/products-by-subcategory.tsx",
     ),
-    //TODO: Only users who have access to the admin panel should be able to access this route
     layout("routes/admin-layout.tsx", [
       route("products/add", "routes/add-product.tsx"),
       route(

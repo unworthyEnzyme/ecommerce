@@ -179,6 +179,38 @@ export default function AdminDashboard({ loaderData }: Route.ComponentProps) {
     }
   };
 
+  const generateReport = () => {
+    const reportData = {
+      generatedAt: new Date().toISOString(),
+      reportType: "Dashboard Statistics",
+      summary: {
+        totalProducts: stats.totalProducts,
+        totalOrders: stats.totalOrders,
+        totalCustomers: stats.totalCustomers,
+        totalRevenue: stats.totalRevenue,
+      },
+      recentOrders: stats.recentOrders,
+      topProducts: stats.topProducts,
+      metadata: {
+        reportVersion: "1.0",
+        generatedBy: "Admin Dashboard",
+        currency: "USD",
+      },
+    };
+
+    const jsonString = JSON.stringify(reportData, null, 2);
+    const blob = new Blob([jsonString], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `dashboard-report-${new Date().toISOString().split("T")[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -342,7 +374,10 @@ export default function AdminDashboard({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
 
-          <div className="group flex cursor-pointer items-center rounded-lg border border-gray-200 p-4 transition-colors hover:border-indigo-300 hover:bg-gray-50">
+          <button
+            onClick={generateReport}
+            className="group flex w-full cursor-pointer items-center rounded-lg border border-gray-200 p-4 text-left transition-colors hover:border-indigo-300 hover:bg-gray-50"
+          >
             <FileText className="h-8 w-8 text-gray-400 group-hover:text-indigo-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-900 group-hover:text-indigo-600">
@@ -350,7 +385,7 @@ export default function AdminDashboard({ loaderData }: Route.ComponentProps) {
               </p>
               <p className="text-sm text-gray-500">Export sales reports</p>
             </div>
-          </div>
+          </button>
 
           <div className="group flex cursor-pointer items-center rounded-lg border border-gray-200 p-4 transition-colors hover:border-indigo-300 hover:bg-gray-50">
             <Settings className="h-8 w-8 text-gray-400 group-hover:text-indigo-600" />

@@ -37,7 +37,7 @@ const Sidebar = ({ profile }: { profile: UserProfile }) => {
   return (
     <div className="rounded-lg bg-white p-6 shadow-md">
       <div className="mb-6 flex items-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100">
+        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100">
           <User className="text-indigo-600" size={24} />
         </div>
         <div className="ml-4">

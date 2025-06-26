@@ -8,6 +8,8 @@ import {
 } from "react-router";
 import type { Route } from "./+types/root";
 import "./app.css";
+import "@radix-ui/themes/styles.css";
+import { Theme } from "@radix-ui/themes";
 import { LanguageProvider, useLanguage } from "./hooks/useLanguage";
 
 export const links: Route.LinksFunction = () => [
@@ -34,7 +36,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <Theme accentColor="indigo">{children}</Theme>
         <ScrollRestoration />
         <Scripts />
       </body>

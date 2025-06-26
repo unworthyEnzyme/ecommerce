@@ -1,3 +1,15 @@
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Container,
+  Flex,
+  Grid,
+  Heading,
+  IconButton,
+  Text,
+} from "@radix-ui/themes";
 import { AxiosError } from "axios";
 import { Heart } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -131,19 +143,19 @@ export default function Product({ loaderData }: Route.ComponentProps) {
   const isFavorite = favorites.some((item) => item.variant.id === variant.id);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
+    <Container size="4" px="4">
+      <Box mb="6">
         <Link
           to={href("/")}
           className="text-indigo-600 hover:text-indigo-800 hover:underline"
         >
           ← Back to Products
         </Link>
-      </div>
+      </Box>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+      <Grid columns={{ initial: "1", lg: "2" }} gap="8">
         {/* Image Carousel */}
-        <div className="relative h-96 overflow-hidden rounded-lg bg-gray-100 shadow-md">
+        <Card className="relative h-96 overflow-hidden">
           <div className="flex h-full snap-x snap-mandatory overflow-x-auto scroll-smooth">
             {variant.images.length > 0 ? (
               variant.images.map((image) => (
@@ -159,58 +171,71 @@ export default function Product({ loaderData }: Route.ComponentProps) {
                 </div>
               ))
             ) : (
-              <div className="flex h-full w-full flex-none snap-center items-center justify-center text-gray-400">
-                No images available
-              </div>
+              <Flex
+                className="h-full w-full flex-none snap-center"
+                align="center"
+                justify="center"
+              >
+                <Text color="gray">No images available</Text>
+              </Flex>
             )}
           </div>
-        </div>
+        </Card>
 
         {/* Product Details */}
-        <div className="flex flex-col">
-          <div className="mb-4">
-            <h1 className="mb-2 text-3xl font-bold text-gray-900">
+        <Flex direction="column">
+          <Box mb="4">
+            <Heading size="8" mb="2" color="gray">
               {variant.name}
-            </h1>
-            <p className="mb-2 text-xl font-bold text-indigo-600">
-              ${variant.price}
-            </p>
-            <p className="text-sm text-gray-500">Stock: {variant.stock}</p>
-          </div>
+            </Heading>
+            <Flex direction="column" gap="1">
+              <Text size="6" weight="bold" color="indigo">
+                ${variant.price}
+              </Text>
+              <Text size="2" color="gray">
+                Stock: {variant.stock}
+              </Text>
+            </Flex>
+          </Box>
 
-          <div className="mb-6">
-            <h2 className="mb-2 font-semibold text-gray-700">Categories</h2>
-            <div className="flex space-x-2">
-              <span className="rounded-full bg-indigo-100 px-3 py-1 text-sm text-indigo-800">
+          <Box mb="6">
+            <Heading size="4" mb="2" color="gray">
+              Categories
+            </Heading>
+            <Flex gap="2">
+              <Badge color="indigo" variant="soft">
                 {variant.product.topCategory.name}
-              </span>
+              </Badge>
               {variant.product.subCategory && (
-                <span className="rounded-full bg-indigo-50 px-3 py-1 text-sm text-indigo-700">
+                <Badge color="indigo" variant="outline">
                   {variant.product.subCategory.name}
-                </span>
+                </Badge>
               )}
-            </div>
-          </div>
+            </Flex>
+          </Box>
 
           {/* Attribute Options */}
           {attributeOptions && attributeOptions.length > 0 && (
-            <div className="mb-6">
-              <h2 className="mb-3 font-semibold text-gray-700">Options</h2>
-              <div className="space-y-4">
+            <Box mb="6">
+              <Heading size="4" mb="3" color="gray">
+                Options
+              </Heading>
+              <Flex direction="column" gap="4">
                 {attributeOptions.map((option) => (
-                  <div key={option.id}>
-                    <label className="mb-2 block font-medium text-gray-700">
+                  <Box key={option.id}>
+                    <Text weight="medium" color="gray" mb="2" as="div">
                       {option.name}
-                    </label>
-                    <div className="flex flex-wrap gap-2">
+                    </Text>
+                    <Flex wrap="wrap" gap="2">
                       {option.values.map((value) => (
-                        <button
+                        <Button
                           key={`${option.id}-${value}`}
-                          className={`rounded-md border px-4 py-2 text-sm ${
+                          variant={
                             selectedAttributes[option.id] === value
-                              ? "border-indigo-600 bg-indigo-600 text-white"
-                              : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                          }`}
+                              ? "solid"
+                              : "outline"
+                          }
+                          size="2"
                           onClick={() => {
                             setSelectedAttributes((prev) => ({
                               ...prev,
@@ -219,52 +244,49 @@ export default function Product({ loaderData }: Route.ComponentProps) {
                           }}
                         >
                           {value}
-                        </button>
+                        </Button>
                       ))}
-                    </div>
-                  </div>
+                    </Flex>
+                  </Box>
                 ))}
-              </div>
-            </div>
+              </Flex>
+            </Box>
           )}
 
           {/* Attributes */}
-          <div className="mb-6">
-            <h2 className="mb-2 font-semibold text-gray-700">Specifications</h2>
-            <div className="space-y-2">
+          <Box mb="6">
+            <Heading size="4" mb="2" color="gray">
+              Specifications
+            </Heading>
+            <Flex direction="column" gap="2">
               {variant.attributes.map((attr, index) => (
-                <div key={index} className="flex items-center">
-                  <span className="mr-2 font-medium text-gray-700">
+                <Flex key={index} align="center">
+                  <Text weight="medium" color="gray" mr="2">
                     {attr.attributeName}:
-                  </span>
-                  <span className="text-gray-600">{attr.attributeValue}</span>
-                </div>
+                  </Text>
+                  <Text color="gray">{attr.attributeValue}</Text>
+                </Flex>
               ))}
-            </div>
-          </div>
+            </Flex>
+          </Box>
 
           {/* Add to cart and favorite buttons */}
-          <div className="mt-auto flex gap-2">
-            <button
-              className="focus:ring-opacity-50 flex-1 rounded-md bg-indigo-600 px-4 py-3 text-center text-white shadow-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              onClick={addToCart}
-            >
+          <Flex gap="2" mt="auto">
+            <Button onClick={addToCart} size="3" style={{ flex: 1 }}>
               Add to Cart
-            </button>
-            <button
-              className={`focus:ring-opacity-50 flex items-center justify-center rounded-md px-4 py-3 shadow-md focus:ring-2 focus:outline-none ${
-                isFavorite
-                  ? "bg-red-100 text-red-600 focus:ring-red-500"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 focus:ring-gray-500"
-              }`}
+            </Button>
+            <IconButton
+              variant={isFavorite ? "soft" : "outline"}
+              color={isFavorite ? "red" : "gray"}
+              size="3"
               onClick={toggleFavorite}
               aria-label="Add to favorites"
             >
               <Heart size={20} fill={isFavorite ? "currentColor" : "none"} />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+            </IconButton>
+          </Flex>
+        </Flex>
+      </Grid>
+    </Container>
   );
 }

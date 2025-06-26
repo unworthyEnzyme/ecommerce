@@ -2,6 +2,17 @@ import { useState } from "react";
 import { href, Link, useNavigate, useOutletContext } from "react-router";
 import apiClient from "~/api/client";
 import type { UserProfile } from "./account.layout";
+import {
+  Box,
+  Button,
+  Card,
+  Flex,
+  Grid,
+  Heading,
+  Text,
+  TextField,
+  Select,
+} from "@radix-ui/themes";
 
 type AccountContextType = {
   profile: UserProfile;
@@ -73,132 +84,136 @@ export default function NewAddressForm() {
   };
 
   return (
-    <div className="rounded-lg bg-white p-6 shadow-md">
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-800">Add New Address</h2>
-      </div>
+    <Card>
+      <Box p="6">
+        <Flex justify="between" align="center" mb="6">
+          <Heading size="6">Add New Address</Heading>
+        </Flex>
 
-      {error && (
-        <div className="mb-4 rounded-md bg-red-50 p-4 text-red-600">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Address Line 1 *
-            </label>
-            <input
-              type="text"
-              name="addressLine1"
-              required
-              value={address.addressLine1}
-              onChange={handleChange}
-              placeholder="Street address"
-              className="mt-1 w-full rounded-md border border-gray-300 p-2"
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Address Line 2
-            </label>
-            <input
-              type="text"
-              name="addressLine2"
-              value={address.addressLine2}
-              onChange={handleChange}
-              placeholder="Apartment, suite, unit, etc. (optional)"
-              className="mt-1 w-full rounded-md border border-gray-300 p-2"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              City *
-            </label>
-            <input
-              type="text"
-              name="city"
-              required
-              value={address.city}
-              onChange={handleChange}
-              placeholder="City"
-              className="mt-1 w-full rounded-md border border-gray-300 p-2"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Postal Code *
-            </label>
-            <input
-              type="text"
-              name="postalCode"
-              required
-              value={address.postalCode}
-              onChange={handleChange}
-              placeholder="Postal code"
-              className="mt-1 w-full rounded-md border border-gray-300 p-2"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Country *
-            </label>
-            <select
-              name="country"
-              required
-              value={address.country}
-              onChange={handleChange}
-              className="mt-1 w-full rounded-md border border-gray-300 p-2"
-            >
-              <option value="">Select a country</option>
-              <option value="Turkey">Turkey</option>
-              <option value="United States">United States</option>
-              <option value="United Kingdom">United Kingdom</option>
-              <option value="Germany">Germany</option>
-              <option value="France">France</option>
-              <option value="Canada">Canada</option>
-              <option value="Australia">Australia</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Phone Number *
-            </label>
-            <input
-              type="tel"
-              name="phoneNumber"
-              required
-              value={address.phoneNumber}
-              onChange={handleChange}
-              placeholder="Phone number"
-              className="mt-1 w-full rounded-md border border-gray-300 p-2"
-            />
-          </div>
-        </div>
-
-        <div className="flex justify-end space-x-4">
-          <Link
-            to={href("/account/profile")}
-            className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+        {error && (
+          <Box
+            mb="4"
+            p="4"
+            style={{ backgroundColor: "var(--red-3)", color: "var(--red-11)" }}
           >
-            Cancel
-          </Link>
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {loading ? "Saving..." : "Save Address"}
-          </button>
-        </div>
-      </form>
-    </div>
+            {error}
+          </Box>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <Grid columns="2" gap="6" mb="8">
+            <Box style={{ gridColumn: "span 2" }}>
+              <Text as="label" size="2" weight="medium" color="gray">
+                Address Line 1 *
+              </Text>
+              <TextField.Root
+                mt="1"
+                name="addressLine1"
+                required
+                value={address.addressLine1}
+                onChange={handleChange}
+                placeholder="Street address"
+              />
+            </Box>
+
+            <Box style={{ gridColumn: "span 2" }}>
+              <Text as="label" size="2" weight="medium" color="gray">
+                Address Line 2
+              </Text>
+              <TextField.Root
+                mt="1"
+                name="addressLine2"
+                value={address.addressLine2}
+                onChange={handleChange}
+                placeholder="Apartment, suite, unit, etc. (optional)"
+              />
+            </Box>
+
+            <Box>
+              <Text as="label" size="2" weight="medium" color="gray">
+                City *
+              </Text>
+              <TextField.Root
+                mt="1"
+                name="city"
+                required
+                value={address.city}
+                onChange={handleChange}
+                placeholder="City"
+              />
+            </Box>
+
+            <Box>
+              <Text as="label" size="2" weight="medium" color="gray">
+                Postal Code *
+              </Text>
+              <TextField.Root
+                mt="1"
+                name="postalCode"
+                required
+                value={address.postalCode}
+                onChange={handleChange}
+                placeholder="Postal code"
+              />
+            </Box>
+
+            <Box>
+              <Text as="label" size="2" weight="medium" color="gray">
+                Country *
+              </Text>
+              <Box>
+                <Select.Root
+                  name="country"
+                  required
+                  value={address.country}
+                  onValueChange={(value) =>
+                    setAddress((prev) => ({ ...prev, country: value }))
+                  }
+                >
+                  <Select.Trigger mt="1" placeholder="Select a country" />
+                  <Select.Content>
+                    <Select.Item value="Turkey">Turkey</Select.Item>
+                    <Select.Item value="United States">
+                      United States
+                    </Select.Item>
+                    <Select.Item value="United Kingdom">
+                      United Kingdom
+                    </Select.Item>
+                    <Select.Item value="Germany">Germany</Select.Item>
+                    <Select.Item value="France">France</Select.Item>
+                    <Select.Item value="Canada">Canada</Select.Item>
+                    <Select.Item value="Australia">Australia</Select.Item>
+                  </Select.Content>
+                </Select.Root>
+              </Box>
+            </Box>
+
+            <Box>
+              <Text as="label" size="2" weight="medium" color="gray">
+                Phone Number *
+              </Text>
+              <TextField.Root
+                mt="1"
+                type="tel"
+                name="phoneNumber"
+                required
+                value={address.phoneNumber}
+                onChange={handleChange}
+                placeholder="Phone number"
+              />
+            </Box>
+          </Grid>
+
+          <Flex justify="end" align="center" gap="3">
+            <Button asChild variant="ghost">
+              <Link to={href("/account/profile")}>Cancel</Link>
+            </Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Saving..." : "Save Address"}
+            </Button>
+          </Flex>
+        </form>
+      </Box>
+    </Card>
   );
 }

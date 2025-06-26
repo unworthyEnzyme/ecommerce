@@ -4,6 +4,17 @@ import { href, Link, useOutletContext } from "react-router";
 import * as client from "~/api/client";
 import { auth } from "../api/client";
 import type { UserProfile } from "./account.layout";
+import {
+  Box,
+  Button,
+  Card,
+  Flex,
+  Grid,
+  Heading,
+  IconButton,
+  Text,
+  TextField,
+} from "@radix-ui/themes";
 
 type AccountContextType = {
   profile: UserProfile;
@@ -63,189 +74,208 @@ export default function ProfileTab() {
       : null;
 
   return (
-    <div className="rounded-lg bg-white p-6 shadow-md">
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-800">
-          Profile Information
-        </h2>
-        {!isEditing ? (
-          <button
-            onClick={() => setIsEditing(true)}
-            className="flex items-center text-indigo-600 hover:text-indigo-800"
-          >
-            <Edit size={16} className="mr-2" /> Edit
-          </button>
-        ) : (
-          <div className="flex space-x-3">
-            <button
-              onClick={saveProfile}
-              className="flex items-center text-green-600 hover:text-green-800"
+    <Card>
+      <Box p="6">
+        <Flex justify="between" align="center" mb="6">
+          <Heading size="6">Profile Information</Heading>
+          {!isEditing ? (
+            <Button
+              variant="ghost"
+              onClick={() => setIsEditing(true)}
+              color="indigo"
             >
-              <Save size={16} className="mr-2" /> Save
-            </button>
-            <button
-              onClick={cancelEditing}
-              className="flex items-center text-red-600 hover:text-red-800"
-            >
-              <X size={16} className="mr-2" /> Cancel
-            </button>
-          </div>
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <p className="mt-1 text-gray-900">{profile.email}</p>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            First Name
-          </label>
-          {isEditing ? (
-            <input
-              type="text"
-              name="firstName"
-              placeholder="Enter your first name"
-              value={editableProfile.firstName || ""}
-              onChange={handleProfileChange}
-              className="mt-1 w-full rounded-md border border-gray-300 p-2"
-            />
+              <Edit size={16} />
+              Edit
+            </Button>
           ) : (
-            <p className="mt-1 text-gray-900">
-              {profile.firstName || (
-                <span className="text-gray-400 italic">Not provided</span>
-              )}
-            </p>
+            <Flex gap="3">
+              <Button variant="ghost" onClick={saveProfile} color="green">
+                <Save size={16} />
+                Save
+              </Button>
+              <Button variant="ghost" onClick={cancelEditing} color="red">
+                <X size={16} />
+                Cancel
+              </Button>
+            </Flex>
           )}
-        </div>
+        </Flex>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Last Name
-          </label>
-          {isEditing ? (
-            <input
-              type="text"
-              name="lastName"
-              placeholder="Enter your last name"
-              value={editableProfile.lastName || ""}
-              onChange={handleProfileChange}
-              className="mt-1 w-full rounded-md border border-gray-300 p-2"
-            />
+        <Grid columns="2" gap="6" mb="8">
+          <Box>
+            <Text as="label" size="2" weight="medium" color="gray">
+              Email
+            </Text>
+            <Text as="p" size="3" mt="1">
+              {profile.email}
+            </Text>
+          </Box>
+
+          <Box>
+            <Text as="label" size="2" weight="medium" color="gray">
+              First Name
+            </Text>
+            {isEditing ? (
+              <TextField.Root
+                mt="1"
+                placeholder="Enter your first name"
+                value={editableProfile.firstName || ""}
+                onChange={(e) => handleProfileChange(e)}
+                name="firstName"
+              />
+            ) : (
+              <Text as="p" size="3" mt="1">
+                {profile.firstName || (
+                  <Text color="gray" style={{ fontStyle: "italic" }}>
+                    Not provided
+                  </Text>
+                )}
+              </Text>
+            )}
+          </Box>
+
+          <Box>
+            <Text as="label" size="2" weight="medium" color="gray">
+              Last Name
+            </Text>
+            {isEditing ? (
+              <TextField.Root
+                mt="1"
+                placeholder="Enter your last name"
+                value={editableProfile.lastName || ""}
+                onChange={(e) => handleProfileChange(e)}
+                name="lastName"
+              />
+            ) : (
+              <Text as="p" size="3" mt="1">
+                {profile.lastName || (
+                  <Text color="gray" style={{ fontStyle: "italic" }}>
+                    Not provided
+                  </Text>
+                )}
+              </Text>
+            )}
+          </Box>
+
+          <Box>
+            <Text as="label" size="2" weight="medium" color="gray">
+              Phone Number
+            </Text>
+            {isEditing ? (
+              <TextField.Root
+                mt="1"
+                type="tel"
+                placeholder="Enter your phone number"
+                value={editableProfile.phoneNumber || ""}
+                onChange={(e) => handleProfileChange(e)}
+                name="phoneNumber"
+              />
+            ) : (
+              <Text as="p" size="3" mt="1">
+                {profile.phoneNumber || (
+                  <Text color="gray" style={{ fontStyle: "italic" }}>
+                    Not provided
+                  </Text>
+                )}
+              </Text>
+            )}
+          </Box>
+        </Grid>
+
+        <Box>
+          <Flex justify="between" align="center" mb="4">
+            <Heading size="5">Addresses</Heading>
+            <Button asChild variant="ghost" color="indigo">
+              <Link to={href("/account/address/new")}>
+                <PlusCircle size={16} />
+                Add Address
+              </Link>
+            </Button>
+          </Flex>
+
+          {profile.addresses && profile.addresses.length > 0 ? (
+            <Flex direction="column" gap="4">
+              {profile.addresses.map((address) => (
+                <Card key={address.userAddressId}>
+                  <Box p="4">
+                    <Grid columns="2" gap="4">
+                      <Flex direction="column">
+                        <Text size="2" color="gray" weight="medium">
+                          Address Line 1
+                        </Text>
+                        <Text size="3">{address.addressLine1}</Text>
+                      </Flex>
+                      {address.addressLine2 && (
+                        <Flex direction="column">
+                          <Text size="2" color="gray" weight="medium">
+                            Address Line 2
+                          </Text>
+                          <Text size="3">{address.addressLine2}</Text>
+                        </Flex>
+                      )}
+                      <Flex direction="column">
+                        <Text size="2" color="gray" weight="medium">
+                          City
+                        </Text>
+                        <Text size="3">{address.city}</Text>
+                      </Flex>
+                      <Flex direction="column">
+                        <Text size="2" color="gray" weight="medium">
+                          Postal Code
+                        </Text>
+                        <Text size="3">{address.postalCode}</Text>
+                      </Flex>
+                      <Flex direction="column">
+                        <Text size="2" color="gray" weight="medium">
+                          Country
+                        </Text>
+                        <Text size="3">{address.country}</Text>
+                      </Flex>
+                      <Flex direction="column">
+                        <Text size="2" color="gray" weight="medium">
+                          Phone Number
+                        </Text>
+                        <Text size="3">{address.phoneNumber}</Text>
+                      </Flex>
+                    </Grid>
+                    <Flex justify="end" align="center" gap="4" mt="3">
+                      <Button asChild variant="ghost" size="2" color="indigo">
+                        <Link to={`/account/address/${address.userAddressId}`}>
+                          Edit
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="2"
+                        color="red"
+                        onClick={() =>
+                          handleDeleteAddress(address.userAddressId)
+                        }
+                      >
+                        <Trash2 size={14} />
+                        Delete
+                      </Button>
+                    </Flex>
+                  </Box>
+                </Card>
+              ))}
+            </Flex>
           ) : (
-            <p className="mt-1 text-gray-900">
-              {profile.lastName || (
-                <span className="text-gray-400 italic">Not provided</span>
-              )}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Phone Number
-          </label>
-          {isEditing ? (
-            <input
-              type="tel"
-              name="phoneNumber"
-              placeholder="Enter your phone number"
-              value={editableProfile.phoneNumber || ""}
-              onChange={handleProfileChange}
-              className="mt-1 w-full rounded-md border border-gray-300 p-2"
-            />
-          ) : (
-            <p className="mt-1 text-gray-900">
-              {profile.phoneNumber || (
-                <span className="text-gray-400 italic">Not provided</span>
-              )}
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div className="mt-8">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-800">Addresses</h3>
-          <Link
-            to={href("/account/address/new")}
-            className="flex items-center text-indigo-600 hover:text-indigo-800"
-          >
-            <PlusCircle size={16} className="mr-2" /> Add Address
-          </Link>
-        </div>
-
-        {profile.addresses && profile.addresses.length > 0 ? (
-          <div className="space-y-4">
-            {profile.addresses.map((address) => (
-              <div
-                key={address.userAddressId}
-                className="rounded-md border border-gray-200 p-4"
-              >
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div>
-                    <p className="text-sm text-gray-500">Address Line 1</p>
-                    <p className="text-gray-900">{address.addressLine1}</p>
-                  </div>
-                  {address.addressLine2 && (
-                    <div>
-                      <p className="text-sm text-gray-500">Address Line 2</p>
-                      <p className="text-gray-900">{address.addressLine2}</p>
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-sm text-gray-500">City</p>
-                    <p className="text-gray-900">{address.city}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Postal Code</p>
-                    <p className="text-gray-900">{address.postalCode}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Country</p>
-                    <p className="text-gray-900">{address.country}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Phone Number</p>
-                    <p className="text-gray-900">{address.phoneNumber}</p>
-                  </div>{" "}
-                </div>
-                <div className="mt-3 flex items-center justify-end space-x-4">
-                  <Link
-                    to={`/account/address/${address.userAddressId}`}
-                    className="flex items-center text-sm text-indigo-600 hover:underline"
-                  >
-                    Edit
+            <Card>
+              <Box p="8" style={{ textAlign: "center" }}>
+                <Text color="gray" mb="2" as="p">
+                  You haven't added any addresses yet.
+                </Text>
+                <Button asChild variant="ghost" color="indigo">
+                  <Link to={href("/account/address/new")}>
+                    Add your first address
                   </Link>
-                  <button
-                    onClick={() => handleDeleteAddress(address.userAddressId)}
-                    className="flex items-center text-sm text-red-600 hover:text-red-800"
-                  >
-                    <Trash2 size={14} className="mr-1" />
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-md bg-gray-50 p-8 text-center">
-            <p className="text-gray-500">
-              You haven't added any addresses yet.
-            </p>
-            <Link
-              to={href("/account/address/new")}
-              className="mt-2 inline-block text-indigo-600 hover:underline"
-            >
-              Add your first address
-            </Link>
-          </div>
-        )}
-      </div>
-    </div>
+                </Button>
+              </Box>
+            </Card>
+          )}
+        </Box>
+      </Box>
+    </Card>
   );
 }

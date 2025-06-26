@@ -8,9 +8,10 @@ namespace ECommerceApp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class FavoriteController(IFavoriteService favoriteService) : ControllerBase
+    public class FavoriteController(IFavoriteService favoriteService, Core.Logging.Abstract.ILoggerFactory loggerFactory) : ControllerBase
     {
         private readonly IFavoriteService _favoriteService = favoriteService;
+        private readonly Core.Logging.Abstract.ILogger _logger = loggerFactory.CreateLogger<FavoriteController>();
 
         private int GetCurrentUserId()
         {
@@ -31,6 +32,7 @@ namespace ECommerceApp.API.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error retrieving favorites");
                 return BadRequest(new { message = ex.Message });
             }
         }
@@ -47,6 +49,7 @@ namespace ECommerceApp.API.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Failed to add favorite");
                 return BadRequest(new { message = ex.Message });
             }
         }
@@ -62,6 +65,7 @@ namespace ECommerceApp.API.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Failed to delete favorite with ID: {FavoriteId}", id);
                 return BadRequest(new { message = ex.Message });
             }
         }

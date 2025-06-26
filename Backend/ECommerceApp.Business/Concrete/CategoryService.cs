@@ -6,13 +6,9 @@ using ECommerceApp.Entities.Concrete;
 
 namespace ECommerceApp.Business.Concrete
 {
-    public class CategoryService : ICategoryService
+    public class CategoryService(ICategoryRepository categoryRepository) : ICategoryService
     {
-        private readonly ICategoryRepository _categoryRepository;
-        public CategoryService(ICategoryRepository categoryRepository)
-        {
-            _categoryRepository = categoryRepository;
-        }
+        private readonly ICategoryRepository _categoryRepository = categoryRepository;
 
         public void AddSubCategory(CreateSubCategoryDto createSubCategoryDto)
         {

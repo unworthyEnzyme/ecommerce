@@ -5,14 +5,9 @@ using ECommerceApp.Entities.Concrete;
 
 namespace ECommerceApp.Business.Concrete
 {
-    public class AttributeTypeService : IAttributeTypeService
+    public class AttributeTypeService(IAttributeTypeRepository attributeTypeRepository) : IAttributeTypeService
     {
-        private readonly IAttributeTypeRepository _attributeTypeRepository;
-
-        public AttributeTypeService(IAttributeTypeRepository attributeTypeRepository)
-        {
-            _attributeTypeRepository = attributeTypeRepository;
-        }
+        private readonly IAttributeTypeRepository _attributeTypeRepository = attributeTypeRepository;
 
         public void Add(CreateAttributeTypeDto createAttributeTypeDto)
         {

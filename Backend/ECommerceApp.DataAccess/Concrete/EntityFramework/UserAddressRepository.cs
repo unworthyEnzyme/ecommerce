@@ -3,14 +3,9 @@ using ECommerceApp.Entities.Concrete;
 
 namespace ECommerceApp.DataAccess.Concrete.EntityFramework
 {
-    public class UserAddressRepository : IUserAddressRepository
+    public class UserAddressRepository(AppDbContext context) : IUserAddressRepository
     {
-        private readonly AppDbContext _context;
-
-        public UserAddressRepository(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDbContext _context = context;
 
         public int Add(UserAddress userAddress)
         {

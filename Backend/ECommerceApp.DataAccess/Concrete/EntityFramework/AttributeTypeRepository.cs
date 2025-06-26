@@ -3,14 +3,9 @@ using ECommerceApp.Entities.Concrete;
 
 namespace ECommerceApp.DataAccess.Concrete.EntityFramework
 {
-    public class AttributeTypeRepository : IAttributeTypeRepository
+    public class AttributeTypeRepository(AppDbContext context) : IAttributeTypeRepository
     {
-        private readonly AppDbContext _context;
-
-        public AttributeTypeRepository(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDbContext _context = context;
 
         public void Add(AttributeType attributeType)
         {

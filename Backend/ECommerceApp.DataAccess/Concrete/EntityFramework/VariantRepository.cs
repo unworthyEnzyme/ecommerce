@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ECommerceApp.DataAccess.Concrete.EntityFramework
 {
-    public class VariantRepository : IVariantRepository
+    public class VariantRepository(AppDbContext context) : IVariantRepository
     {
-        private readonly AppDbContext _context;
-
-        public VariantRepository(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDbContext _context = context;
 
         private int CalculateStock(int variantId)
         {

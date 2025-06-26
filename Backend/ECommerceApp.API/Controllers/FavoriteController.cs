@@ -8,14 +8,9 @@ namespace ECommerceApp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class FavoriteController : ControllerBase
+    public class FavoriteController(IFavoriteService favoriteService) : ControllerBase
     {
-        private readonly IFavoriteService _favoriteService;
-
-        public FavoriteController(IFavoriteService favoriteService)
-        {
-            _favoriteService = favoriteService;
-        }
+        private readonly IFavoriteService _favoriteService = favoriteService;
 
         private int GetCurrentUserId()
         {

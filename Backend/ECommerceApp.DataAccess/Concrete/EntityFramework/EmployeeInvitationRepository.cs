@@ -4,15 +4,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ECommerceApp.DataAccess.Concrete.EntityFramework
 {
-    public class EmployeeInvitationRepository : IEmployeeInvitationRepository
+    public class EmployeeInvitationRepository(AppDbContext context) : IEmployeeInvitationRepository
     {
-        private readonly AppDbContext _context;
-        public EmployeeInvitationRepository(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDbContext _context = context;
 
-        public int Add(EmployeeInvitation invitation) {
+        public int Add(EmployeeInvitation invitation)
+        {
             _context.EmployeeInvitations.Add(invitation);
             _context.SaveChanges();
             return invitation.EmployeeInvitationId;

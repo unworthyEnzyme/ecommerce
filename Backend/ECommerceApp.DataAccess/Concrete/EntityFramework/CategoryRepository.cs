@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ECommerceApp.DataAccess.Concrete.EntityFramework
 {
-    public class CategoryRepository : ICategoryRepository
+    public class CategoryRepository(AppDbContext context) : ICategoryRepository
     {
-        private readonly AppDbContext _context;
-
-        public CategoryRepository(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDbContext _context = context;
 
         public void AddSubCategory(SubCategory subCategory, int topCategoryId)
         {

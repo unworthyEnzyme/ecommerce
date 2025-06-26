@@ -1,7 +1,6 @@
 using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.DTOs.Auth;
 using ECommerceApp.Business.DTOs.Profile;
-using ECommerceApp.Core.Logging.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -10,16 +9,10 @@ namespace ECommerceApp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    public class AuthController(IAuthService authService, Core.Logging.Abstract.ILoggerFactory loggerFactory) : ControllerBase
     {
-        private readonly IAuthService _authService;
-        private readonly Core.Logging.Abstract.ILogger _logger;
-
-        public AuthController(IAuthService authService, Core.Logging.Abstract.ILoggerFactory loggerFactory)
-        {
-            _authService = authService;
-            _logger = loggerFactory.CreateLogger<AuthController>();
-        }
+        private readonly IAuthService _authService = authService;
+        private readonly Core.Logging.Abstract.ILogger _logger = loggerFactory.CreateLogger<AuthController>();
 
         private int GetCurrentUserId()
         {

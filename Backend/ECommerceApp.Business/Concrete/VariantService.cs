@@ -7,18 +7,12 @@ using ECommerceApp.Entities.Concrete;
 
 namespace ECommerceApp.Business.Concrete
 {
-    public class VariantService : IVariantService
+    public class VariantService(
+        IVariantRepository variantRepository,
+        IVariantImageRepository variantImageRepository) : IVariantService
     {
-        private readonly IVariantRepository _variantRepository;
-        private readonly IVariantImageRepository _variantImageRepository;
-
-        public VariantService(
-            IVariantRepository variantRepository,
-            IVariantImageRepository variantImageRepository)
-        {
-            _variantRepository = variantRepository;
-            _variantImageRepository = variantImageRepository;
-        }
+        private readonly IVariantRepository _variantRepository = variantRepository;
+        private readonly IVariantImageRepository _variantImageRepository = variantImageRepository;
 
         public int Add(CreateVariantDto createVariantDto)
         {

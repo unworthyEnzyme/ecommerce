@@ -9,14 +9,9 @@ namespace ECommerceApp.API.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
-    public class CategoryController : ControllerBase
+    public class CategoryController(ICategoryService categoryService) : ControllerBase
     {
-
-        private readonly ICategoryService _categoryService;
-        public CategoryController(ICategoryService categoryService)
-        {
-            _categoryService = categoryService;
-        }
+        private readonly ICategoryService _categoryService = categoryService;
 
         [HttpGet("top-categories")]
         public ActionResult<IEnumerable<TopCategoryDto>> GetTopCategories()

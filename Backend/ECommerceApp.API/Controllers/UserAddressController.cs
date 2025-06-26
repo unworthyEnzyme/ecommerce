@@ -9,14 +9,9 @@ namespace ECommerceApp.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class UserAddressController : ControllerBase
+    public class UserAddressController(IUserAddressService userAddressService) : ControllerBase
     {
-        private readonly IUserAddressService _userAddressService;
-
-        public UserAddressController(IUserAddressService userAddressService)
-        {
-            _userAddressService = userAddressService;
-        }
+        private readonly IUserAddressService _userAddressService = userAddressService;
 
         private int GetCurrentUserId()
         {

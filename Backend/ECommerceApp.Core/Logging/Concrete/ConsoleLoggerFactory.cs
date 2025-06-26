@@ -2,14 +2,9 @@ using ECommerceApp.Core.Logging.Abstract;
 
 namespace ECommerceApp.Core.Logging.Concrete;
 
-public class ConsoleLoggerFactory : ILoggerFactory
+public class ConsoleLoggerFactory(LogLevel minimumLogLevel = LogLevel.Information) : ILoggerFactory
 {
-  private readonly LogLevel _minimumLogLevel;
-
-  public ConsoleLoggerFactory(LogLevel minimumLogLevel = LogLevel.Information)
-  {
-    _minimumLogLevel = minimumLogLevel;
-  }
+  private readonly LogLevel _minimumLogLevel = minimumLogLevel;
 
   public ILogger CreateLogger(string categoryName)
   {

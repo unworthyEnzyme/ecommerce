@@ -8,13 +8,9 @@ namespace ECommerceApp.API.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
-    public class AttributeTypeController : ControllerBase
+    public class AttributeTypeController(IAttributeTypeService attributeTypeService) : ControllerBase
     {
-        private readonly IAttributeTypeService _attributeTypeService;
-        public AttributeTypeController(IAttributeTypeService attributeTypeService)
-        {
-            _attributeTypeService = attributeTypeService;
-        }
+        private readonly IAttributeTypeService _attributeTypeService = attributeTypeService;
 
         [HttpGet]
         public ActionResult<IEnumerable<AttributeTypeDto>> GetAll()

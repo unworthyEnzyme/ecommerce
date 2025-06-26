@@ -6,14 +6,9 @@ using ECommerceApp.Entities.Concrete;
 
 namespace ECommerceApp.Business.Concrete
 {
-  public class ShoppingCartService : IShoppingCartService
+  public class ShoppingCartService(IShoppingCartRepository cartRepository) : IShoppingCartService
   {
-    private readonly IShoppingCartRepository _cartRepository;
-
-    public ShoppingCartService(IShoppingCartRepository cartRepository)
-    {
-      _cartRepository = cartRepository;
-    }
+    private readonly IShoppingCartRepository _cartRepository = cartRepository;
 
     public CartDto GetCart(int userId)
     {

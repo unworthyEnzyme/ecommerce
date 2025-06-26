@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ECommerceApp.Worker.Repositories
 {
-    public class StockRepository : IStockRepository
+    public class StockRepository(IServiceScopeFactory scopeFactory) : IStockRepository
     {
-        private readonly IServiceScopeFactory _scopeFactory;
-
-        public StockRepository(IServiceScopeFactory scopeFactory)
-        {
-            _scopeFactory = scopeFactory;
-        }
+        private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
 
         public async Task<Stock?> GetStockByVariantIdAsync(int variantId)
         {

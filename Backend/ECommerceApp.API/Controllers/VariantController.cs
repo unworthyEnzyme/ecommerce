@@ -7,14 +7,9 @@ namespace ECommerceApp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class VariantController : ControllerBase
+    public class VariantController(IVariantService variantService) : ControllerBase
     {
-        private readonly IVariantService _variantService;
-
-        public VariantController(IVariantService variantService)
-        {
-            _variantService = variantService;
-        }
+        private readonly IVariantService _variantService = variantService;
 
         [HttpGet]
         public ActionResult GetAll()

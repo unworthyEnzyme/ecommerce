@@ -5,14 +5,9 @@ using ECommerceApp.Entities.Concrete;
 
 namespace ECommerceApp.Business.Concrete
 {
-    public class UserAddressService : IUserAddressService
+    public class UserAddressService(IUserAddressRepository userAddressRepository) : IUserAddressService
     {
-        private readonly IUserAddressRepository _userAddressRepository;
-
-        public UserAddressService(IUserAddressRepository userAddressRepository)
-        {
-            _userAddressRepository = userAddressRepository;
-        }
+        private readonly IUserAddressRepository _userAddressRepository = userAddressRepository;
 
         public int CreateUserAddress(int userId, CreateUserAddressDto createUserAddressDto)
         {

@@ -9,14 +9,9 @@ namespace ECommerceApp.API.Controllers
   [Route("api/[controller]")]
   [ApiController]
   [Authorize]
-  public class OrderController : ControllerBase
+  public class OrderController(IOrderService orderService) : ControllerBase
   {
-    private readonly IOrderService _orderService;
-
-    public OrderController(IOrderService orderService)
-    {
-      _orderService = orderService;
-    }
+    private readonly IOrderService _orderService = orderService;
 
     private int GetCurrentUserId()
     {

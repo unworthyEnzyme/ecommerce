@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ECommerceApp.DataAccess.Concrete.EntityFramework
 {
-    public class FavoriteRepository : IFavoriteRepository
+    public class FavoriteRepository(AppDbContext context) : IFavoriteRepository
     {
-        private readonly AppDbContext _context;
-
-        public FavoriteRepository(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDbContext _context = context;
 
         public IEnumerable<Favorite> GetAll()
         {

@@ -4,14 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ECommerceApp.DataAccess.Concrete.EntityFramework
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository(AppDbContext context) : IUserRepository
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _context = context;
 
-        public UserRepository(AppDbContext context)
-        {
-            _context = context;
-        }
         public User? GetByEmail(string email)
         {
             return _context.Users

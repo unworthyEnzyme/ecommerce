@@ -8,14 +8,9 @@ namespace ECommerceApp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class SupplierController : ControllerBase
+    public class SupplierController(ISupplierService supplierService) : ControllerBase
     {
-        private readonly ISupplierService _supplierService;
-
-        public SupplierController(ISupplierService supplierService)
-        {
-            _supplierService = supplierService;
-        }
+        private readonly ISupplierService _supplierService = supplierService;
 
         private int GetCurrentUserId()
         {

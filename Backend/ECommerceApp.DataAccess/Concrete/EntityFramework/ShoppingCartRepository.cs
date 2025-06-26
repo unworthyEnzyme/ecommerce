@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ECommerceApp.DataAccess.Concrete.EntityFramework
 {
-  public class ShoppingCartRepository : IShoppingCartRepository
+  public class ShoppingCartRepository(AppDbContext context) : IShoppingCartRepository
   {
-    private readonly AppDbContext _context;
-
-    public ShoppingCartRepository(AppDbContext context)
-    {
-      _context = context;
-    }
+    private readonly AppDbContext _context = context;
 
     public ShoppingCart GetByUserId(int userId)
     {

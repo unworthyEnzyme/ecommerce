@@ -2,16 +2,10 @@ using ECommerceApp.Core.Logging.Abstract;
 
 namespace ECommerceApp.Core.Logging.Concrete;
 
-public class ConsoleLogger : ILogger
+public class ConsoleLogger(string categoryName, LogLevel minimumLogLevel = LogLevel.Information) : ILogger
 {
-  private readonly string _categoryName;
-  private readonly LogLevel _minimumLogLevel;
-
-  public ConsoleLogger(string categoryName, LogLevel minimumLogLevel = LogLevel.Information)
-  {
-    _categoryName = categoryName;
-    _minimumLogLevel = minimumLogLevel;
-  }
+  private readonly string _categoryName = categoryName;
+  private readonly LogLevel _minimumLogLevel = minimumLogLevel;
 
   public void LogTrace(string message) => Log(LogLevel.Trace, message);
   public void LogDebug(string message) => Log(LogLevel.Debug, message);

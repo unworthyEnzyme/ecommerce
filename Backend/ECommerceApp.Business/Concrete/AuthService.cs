@@ -11,17 +11,12 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace ECommerceApp.Business.Concrete
 {
-    public class AuthService : IAuthService
+    public class AuthService(IUserRepository userRepository, IEmployeeInvitationRepository employeeInvitationRepository) : IAuthService
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IEmployeeInvitationRepository _employeeInvitationRepository;
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IEmployeeInvitationRepository _employeeInvitationRepository = employeeInvitationRepository;
         private const string SecretKey = "your-very-long-secret-key-here-min-16-characters";
 
-        public AuthService(IUserRepository userRepository, IEmployeeInvitationRepository employeeInvitationRepository)
-        {
-            _userRepository = userRepository;
-            _employeeInvitationRepository = employeeInvitationRepository;
-        }
         public string Login(LoginDto loginDto)
         {
             var user = _userRepository.GetByEmail(loginDto.Email);

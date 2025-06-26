@@ -7,27 +7,19 @@ using ECommerceApp.Worker.Repositories;
 
 namespace ECommerceApp.Worker.Services
 {
-    public class OrderConsumerHostedService : BackgroundService
+    public class OrderConsumerHostedService(
+        ILogger<OrderConsumerHostedService> logger,
+        IStockRepository stockRepository,
+        IStockMovementRepository stockMovementRepository,
+        IOrderRepository orderRepository) : BackgroundService
     {
-        private readonly ILogger<OrderConsumerHostedService> _logger;
-        private readonly IStockRepository _stockRepository;
-        private readonly IStockMovementRepository _stockMovementRepository;
-        private readonly IOrderRepository _orderRepository;
+        private readonly ILogger<OrderConsumerHostedService> _logger = logger;
+        private readonly IStockRepository _stockRepository = stockRepository;
+        private readonly IStockMovementRepository _stockMovementRepository = stockMovementRepository;
+        private readonly IOrderRepository _orderRepository = orderRepository;
         private IConnection? _connection;
         private IChannel? _channel;
         private readonly string _queueName = "order_processing";
-
-        public OrderConsumerHostedService(
-            ILogger<OrderConsumerHostedService> logger,
-            IStockRepository stockRepository,
-            IStockMovementRepository stockMovementRepository,
-            IOrderRepository orderRepository)
-        {
-            _logger = logger;
-            _stockRepository = stockRepository;
-            _stockMovementRepository = stockMovementRepository;
-            _orderRepository = orderRepository;
-        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {

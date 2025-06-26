@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ECommerceApp.DataAccess.Concrete.EntityFramework
 {
-    public class VariantAttributeValueRepository : IVariantAttributeValueRepository
+    public class VariantAttributeValueRepository(AppDbContext context) : IVariantAttributeValueRepository
     {
-        private readonly AppDbContext _context;
-
-        public VariantAttributeValueRepository(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDbContext _context = context;
 
         public IEnumerable<VariantAttributeValue> GetAll()
         {

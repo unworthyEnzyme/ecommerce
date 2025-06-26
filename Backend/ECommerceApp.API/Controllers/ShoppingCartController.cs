@@ -9,14 +9,9 @@ namespace ECommerceApp.API.Controllers
   [ApiController]
   [Route("api/[controller]")]
   [Authorize]
-  public class ShoppingCartController : ControllerBase
+  public class ShoppingCartController(IShoppingCartService shoppingCartService) : ControllerBase
   {
-    private readonly IShoppingCartService _shoppingCartService;
-
-    public ShoppingCartController(IShoppingCartService shoppingCartService)
-    {
-      _shoppingCartService = shoppingCartService;
-    }
+    private readonly IShoppingCartService _shoppingCartService = shoppingCartService;
 
     private int GetCurrentUserId()
     {

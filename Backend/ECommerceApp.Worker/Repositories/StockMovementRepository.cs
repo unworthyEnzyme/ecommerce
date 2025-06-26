@@ -3,14 +3,9 @@ using ECommerceApp.Entities.Concrete;
 
 namespace ECommerceApp.Worker.Repositories
 {
-    public class StockMovementRepository : IStockMovementRepository
+    public class StockMovementRepository(IServiceScopeFactory scopeFactory) : IStockMovementRepository
     {
-        private readonly IServiceScopeFactory _scopeFactory;
-
-        public StockMovementRepository(IServiceScopeFactory scopeFactory)
-        {
-            _scopeFactory = scopeFactory;
-        }
+        private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
 
         public async Task AddStockMovementAsync(StockMovement movement)
         {

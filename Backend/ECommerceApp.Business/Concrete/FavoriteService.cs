@@ -6,14 +6,10 @@ using ECommerceApp.Business.DTOs.Variant;
 
 namespace ECommerceApp.Business.Concrete
 {
-    public class FavoriteService : IFavoriteService
+    public class FavoriteService(IFavoriteRepository favoriteRepository) : IFavoriteService
     {
-        private readonly IFavoriteRepository _favoriteRepository;
+        private readonly IFavoriteRepository _favoriteRepository = favoriteRepository;
 
-        public FavoriteService(IFavoriteRepository favoriteRepository)
-        {
-            _favoriteRepository = favoriteRepository;
-        }
         public IEnumerable<FavoriteDto> GetAll(int userId)
         {
             var favorites = _favoriteRepository.GetByUserId(userId);

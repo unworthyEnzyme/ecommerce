@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ECommerceApp.DataAccess.Concrete.EntityFramework
 {
-    public class StockRepository : IStockRepository
+    public class StockRepository(AppDbContext context) : IStockRepository
     {
-        private readonly AppDbContext _context;
-
-        public StockRepository(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDbContext _context = context;
 
         public void Add(Stock stock)
         {

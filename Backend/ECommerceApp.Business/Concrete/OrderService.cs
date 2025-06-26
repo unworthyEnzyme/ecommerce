@@ -7,17 +7,13 @@ using System.Text.Json;
 
 namespace ECommerceApp.Business.Concrete
 {
-  public class OrderService : IOrderService
+  public class OrderService(AppDbContext context, IVariantRepository variantRepository, IMessageQueueService messageQueueService) : IOrderService
   {
-    private readonly AppDbContext _context;
-    private readonly IVariantRepository _variantRepository;
-    private readonly IMessageQueueService _messageQueueService;
-    public OrderService(AppDbContext context, IVariantRepository variantRepository, IMessageQueueService messageQueueService)
-    {
-      _context = context;
-      _variantRepository = variantRepository;
-      _messageQueueService = messageQueueService;
-    }
+    private readonly AppDbContext _context = context;
+    private readonly IVariantRepository _variantRepository = variantRepository;
+    private readonly IMessageQueueService _messageQueueService = messageQueueService;
+
+
     public async Task<int> CreateOrder(CreateOrderDto orderDto, int userId)
     {
       using (var transaction = _context.Database.BeginTransaction())

@@ -9,21 +9,14 @@ using ECommerceApp.Business.DTOs.Product;
 
 namespace ECommerceApp.Business.Concrete
 {
-    public class SupplierService : ISupplierService
+    public class SupplierService(
+        ISupplierRepository supplierRepository,
+        AppDbContext context,
+        IEmployeeInvitationRepository employeeInvitationRepository) : ISupplierService
     {
-        private readonly ISupplierRepository _supplierRepository;
-        private readonly IEmployeeInvitationRepository _employeeInvitationRepository;
-        private readonly AppDbContext _context;
-
-        public SupplierService(
-            ISupplierRepository supplierRepository,
-            AppDbContext context,
-            IEmployeeInvitationRepository employeeInvitationRepository)
-        {
-            _supplierRepository = supplierRepository;
-            _context = context;
-            _employeeInvitationRepository = employeeInvitationRepository;
-        }
+        private readonly ISupplierRepository _supplierRepository = supplierRepository;
+        private readonly IEmployeeInvitationRepository _employeeInvitationRepository = employeeInvitationRepository;
+        private readonly AppDbContext _context = context;
 
         public void AddEmployee(int id, CreateEmployeeDto employeeDto)
         {

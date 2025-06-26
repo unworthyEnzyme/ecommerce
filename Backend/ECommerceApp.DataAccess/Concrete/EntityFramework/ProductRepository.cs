@@ -4,14 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ECommerceApp.DataAccess.Concrete.EntityFramework
 {
-    public class ProductRepository : IProductRepository
+    public class ProductRepository(AppDbContext context) : IProductRepository
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _context = context;
 
-        public ProductRepository(AppDbContext context)
-        {
-            _context = context;
-        }
         public IEnumerable<Product> GetAll()
         {
             return _context.Products

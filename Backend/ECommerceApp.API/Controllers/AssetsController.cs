@@ -10,8 +10,9 @@ namespace ECommerceApp.API.Controllers
   {
     private readonly string _uploadsPath;
     private readonly FileExtensionContentTypeProvider _contentTypeProvider;
+    private readonly Core.Logging.Abstract.ILogger _logger;
 
-    public AssetsController()
+    public AssetsController(Core.Logging.Abstract.ILoggerFactory loggerFactory)
     {
       _uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "assets");
       if (!Directory.Exists(_uploadsPath))
@@ -19,6 +20,7 @@ namespace ECommerceApp.API.Controllers
         Directory.CreateDirectory(_uploadsPath);
       }
       _contentTypeProvider = new FileExtensionContentTypeProvider();
+      _logger = loggerFactory.CreateLogger<AssetsController>();
     }
 
     [HttpPost("upload")]
@@ -58,6 +60,7 @@ namespace ECommerceApp.API.Controllers
       }
       catch (Exception ex)
       {
+        _logger.LogError(ex, "Error occurred while uploading files");
         return BadRequest(new { message = ex.Message });
       }
     }

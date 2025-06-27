@@ -9,9 +9,10 @@ namespace ECommerceApp.API.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
-    public class CategoryController(ICategoryService categoryService) : ControllerBase
+    public class CategoryController(ICategoryService categoryService, Core.Logging.Abstract.ILoggerFactory loggerFactory) : ControllerBase
     {
         private readonly ICategoryService _categoryService = categoryService;
+        private readonly Core.Logging.Abstract.ILogger _logger = loggerFactory.CreateLogger<CategoryController>();
 
         [HttpGet("top-categories")]
         public ActionResult<IEnumerable<TopCategoryDto>> GetTopCategories()
@@ -23,6 +24,7 @@ namespace ECommerceApp.API.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error occurred while getting top categories");
                 return BadRequest(new { message = ex.Message });
             }
         }
@@ -37,6 +39,7 @@ namespace ECommerceApp.API.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error occurred while getting sub categories for top category ID: {TopCategoryId}", topCategoryId);
                 return BadRequest(new { message = ex.Message });
             }
         }
@@ -52,6 +55,7 @@ namespace ECommerceApp.API.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error occurred while adding top category");
                 return BadRequest(new { message = ex.Message });
             }
         }
@@ -68,6 +72,7 @@ namespace ECommerceApp.API.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error occurred while adding sub category");
                 return BadRequest(new { message = ex.Message });
             }
         }

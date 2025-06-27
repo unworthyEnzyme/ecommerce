@@ -8,9 +8,10 @@ namespace ECommerceApp.API.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
-    public class AttributeTypeController(IAttributeTypeService attributeTypeService) : ControllerBase
+    public class AttributeTypeController(IAttributeTypeService attributeTypeService, Core.Logging.Abstract.ILoggerFactory loggerFactory) : ControllerBase
     {
         private readonly IAttributeTypeService _attributeTypeService = attributeTypeService;
+        private readonly Core.Logging.Abstract.ILogger _logger = loggerFactory.CreateLogger<AttributeTypeController>();
 
         [HttpGet]
         public ActionResult<IEnumerable<AttributeTypeDto>> GetAll()
@@ -22,6 +23,7 @@ namespace ECommerceApp.API.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error occurred while getting all attribute types");
                 return BadRequest(new { message = ex.Message });
             }
         }
@@ -37,6 +39,7 @@ namespace ECommerceApp.API.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error occurred while adding attribute type");
                 return BadRequest(new { message = ex.Message });
             }
         }

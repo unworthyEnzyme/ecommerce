@@ -36,6 +36,68 @@ export async function clientLoader() {
   };
 }
 
+type ProductCardProps = {
+  variant: api.Variant;
+  onAddToCart: (variant: api.Variant) => void;
+};
+
+function ProductCard({ variant, onAddToCart }: ProductCardProps) {
+  return (
+    <div className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg transition-all duration-300 ease-in-out hover:shadow-2xl">
+      <div className="flex h-56 items-center justify-center overflow-hidden bg-gray-50">
+        <img
+          src={`https://localhost:7215/api${variant.images[0]?.imageUrl}`}
+          alt={variant.name}
+          className="h-full w-full object-contain object-center"
+          onError={(e) => {
+            e.currentTarget.src =
+              "https://via.placeholder.com/400x300?text=No+Image";
+            e.currentTarget.className = "h-full w-full object-cover";
+          }}
+        />
+      </div>
+      <div className="flex flex-grow flex-col p-5">
+        <Link to={`/products/${variant.id}`} className="group">
+          <h3 className="text-md mb-1 line-clamp-2 font-semibold text-gray-800 group-hover:text-indigo-600">
+            {variant.name}
+          </h3>
+        </Link>
+        <p className="my-1 text-xl font-bold text-indigo-600">
+          ${variant.price}
+        </p>
+        <p className="mb-3 line-clamp-3 flex-grow text-xs text-gray-500">
+          {variant.product.description}
+        </p>
+
+        {/* Display variant attributes */}
+        <div className="mt-auto pt-3">
+          <div className="mb-3 space-y-1 space-x-1">
+            {variant.attributes.map((attr: any, idx: number) => (
+              <span
+                key={idx}
+                className="mr-1 inline-block rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-700"
+              >
+                {attr.attributeName}: {attr.attributeValue}
+              </span>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-between text-xs text-gray-400">
+            <span>{variant.product.topCategory.name}</span>
+            {/* Potential stock status or other info here */}
+          </div>
+          <button
+            onClick={() => onAddToCart(variant)}
+            className="mt-3 flex w-full items-center justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+          >
+            <ShoppingCart size={16} className="mr-2" /> Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Home({ loaderData }: Route.ComponentProps) {
   const {
     variants: initialVariants,
@@ -346,62 +408,11 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           ) : variants.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
               {variants.map((variant) => (
-                <div
+                <ProductCard
                   key={variant.id}
-                  className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg transition-all duration-300 ease-in-out hover:shadow-2xl"
-                >
-                  <div className="flex h-56 items-center justify-center overflow-hidden bg-gray-50">
-                    <img
-                      src={`https://localhost:7215/api${variant.images[0]?.imageUrl}`}
-                      alt={variant.name}
-                      className="h-full w-full object-contain object-center"
-                      onError={(e) => {
-                        e.currentTarget.src =
-                          "https://via.placeholder.com/400x300?text=No+Image";
-                        e.currentTarget.className =
-                          "h-full w-full object-cover";
-                      }}
-                    />
-                  </div>
-                  <div className="flex flex-grow flex-col p-5">
-                    <Link to={`/products/${variant.id}`} className="group">
-                      <h3 className="text-md mb-1 line-clamp-2 font-semibold text-gray-800 group-hover:text-indigo-600">
-                        {variant.name}
-                      </h3>
-                    </Link>
-                    <p className="my-1 text-xl font-bold text-indigo-600">
-                      ${variant.price}
-                    </p>
-                    <p className="mb-3 line-clamp-3 flex-grow text-xs text-gray-500">
-                      {variant.product.description}
-                    </p>
-
-                    {/* Display variant attributes */}
-                    <div className="mt-auto pt-3">
-                      <div className="mb-3 space-y-1 space-x-1">
-                        {variant.attributes.map((attr, idx) => (
-                          <span
-                            key={idx}
-                            className="mr-1 inline-block rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-700"
-                          >
-                            {attr.attributeName}: {attr.attributeValue}
-                          </span>
-                        ))}
-                      </div>
-
-                      <div className="flex items-center justify-between text-xs text-gray-400">
-                        <span>{variant.product.topCategory.name}</span>
-                        {/* Potential stock status or other info here */}
-                      </div>
-                      <button
-                        onClick={() => addToCart(variant)}
-                        className="mt-3 flex w-full items-center justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-                      >
-                        <ShoppingCart size={16} className="mr-2" /> Add to Cart
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                  variant={variant}
+                  onAddToCart={addToCart}
+                />
               ))}
             </div>
           ) : (

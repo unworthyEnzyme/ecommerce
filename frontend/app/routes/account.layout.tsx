@@ -2,6 +2,18 @@ import { Heart, LogOut, Package, ShoppingBag, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { href, Link, Outlet, useLocation, useNavigate } from "react-router";
 import { auth } from "~/api/client";
+import {
+  Box,
+  Button,
+  Card,
+  Container,
+  Flex,
+  Grid,
+  Heading,
+  Separator,
+  Spinner,
+  Text,
+} from "@radix-ui/themes";
 
 export type Address = {
   userAddressId: number;
@@ -35,74 +47,140 @@ const Sidebar = ({ profile }: { profile: UserProfile }) => {
       : profile.email;
 
   return (
-    <div className="rounded-lg bg-white p-6 shadow-md">
-      <div className="mb-6 flex items-center">
-        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100">
-          <User className="text-indigo-600" size={24} />
-        </div>
-        <div className="ml-4">
-          <p className="font-medium text-gray-800">{displayName}</p>
-          <p className="text-sm text-gray-500">{profile.email}</p>
-        </div>
-      </div>
-
-      <nav className="space-y-2">
-        {[
-          {
-            id: "profile",
-            path: "/account/profile",
-            icon: User,
-            label: "Profile",
-          },
-          {
-            id: "orders",
-            path: "/account/orders",
-            icon: Package,
-            label: "Order History",
-          },
-          {
-            id: "favorites",
-            path: "/account/favorites",
-            icon: Heart,
-            label: "Favorites",
-          },
-        ].map(({ id, path, icon: Icon, label }) => (
-          <Link
-            key={id}
-            to={path}
-            className={`flex w-full items-center rounded-md px-3 py-2 text-left ${
-              currentPath === path
-                ? "bg-indigo-50 text-indigo-700"
-                : "text-gray-700 hover:bg-gray-100"
-            }`}
+    <Card>
+      <Box p="6">
+        <Flex align="center" mb="6">
+          <Flex
+            direction="column"
+            align="start"
+            style={{ minWidth: 0, flex: 1 }}
           >
-            <Icon size={18} className="mr-3" />
-            <span>{label}</span>
-          </Link>
-        ))}
+            <Text
+              size="3"
+              weight="medium"
+              style={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {displayName}
+            </Text>
+            <Text
+              size="2"
+              color="gray"
+              style={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {profile.email}
+            </Text>
+          </Flex>
+        </Flex>
 
-        <Link
-          to={href("/cart")}
-          className="flex w-full items-center rounded-md px-3 py-2 text-left text-gray-700 hover:bg-gray-100"
-        >
-          <ShoppingBag size={18} className="mr-3" />
-          <span>Cart</span>
-        </Link>
+        <Flex direction="column" gap="1">
+          {[
+            {
+              id: "profile",
+              path: "/account/profile",
+              icon: User,
+              label: "Profile",
+            },
+            {
+              id: "orders",
+              path: "/account/orders",
+              icon: Package,
+              label: "Order History",
+            },
+            {
+              id: "favorites",
+              path: "/account/favorites",
+              icon: Heart,
+              label: "Favorites",
+            },
+          ].map(({ id, path, icon: Icon, label }) => (
+            <Box key={id}>
+              <Link
+                to={path}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  textDecoration: "none",
+                  padding: "8px 12px",
+                  borderRadius: "6px",
+                  backgroundColor:
+                    currentPath === path ? "var(--indigo-3)" : "transparent",
+                  color:
+                    currentPath === path
+                      ? "var(--indigo-11)"
+                      : "var(--gray-12)",
+                  transition: "background-color 0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  if (currentPath !== path) {
+                    e.currentTarget.style.backgroundColor = "var(--gray-3)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (currentPath !== path) {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                  }
+                }}
+              >
+                <Icon size={18} style={{ marginRight: "12px" }} />
+                <Text>{label}</Text>
+              </Link>
+            </Box>
+          ))}
 
-        <hr className="my-2 border-gray-200" />
+          <Box mb="2">
+            <Link
+              to={href("/cart")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                textDecoration: "none",
+                padding: "8px 12px",
+                borderRadius: "6px",
+                backgroundColor: "transparent",
+                color: "var(--gray-12)",
+                transition: "background-color 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--gray-3)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
+            >
+              <ShoppingBag size={18} style={{ marginRight: "12px" }} />
+              <Text>Cart</Text>
+            </Link>
+          </Box>
 
-        <button
-          className="flex w-full items-center rounded-md px-3 py-2 text-left text-red-600 hover:bg-red-50"
-          onClick={() => {
-            localStorage.removeItem("token");
-            navigate("/login", { replace: true });
-          }}
-        >
-          <LogOut size={18} className="mr-3" />
-          <span>Sign Out</span>
-        </button>
-      </nav>
-    </div>
+          <Separator my="4" size="4" />
+
+          <Button
+            variant="ghost"
+            color="red"
+            style={{
+              width: "100%",
+              justifyContent: "flex-start",
+              textAlign: "left",
+            }}
+            onClick={() => {
+              localStorage.removeItem("token");
+              navigate("/login", { replace: true });
+            }}
+          >
+            <LogOut size={18} style={{ marginRight: "12px" }} />
+            <Text>Sign Out</Text>
+          </Button>
+        </Flex>
+      </Box>
+    </Card>
   );
 };
 
@@ -130,44 +208,50 @@ export default function AccountLayout() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex h-48 items-center justify-center">
-          <div className="text-center">
-            <div className="spinner-border mb-4 h-8 w-8 text-indigo-600"></div>
-            <p>Loading profile...</p>
-          </div>
-        </div>
-      </div>
+      <Container size="4" py="8">
+        <Flex justify="center" align="center" style={{ height: "192px" }}>
+          <Flex direction="column" align="center">
+            <Spinner size="3" mb="4" />
+            <Text>Loading profile...</Text>
+          </Flex>
+        </Flex>
+      </Container>
     );
   }
 
   if (error || !profile) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="rounded-lg bg-red-50 p-4">
-          <p className="text-red-600">{error || "Unable to load profile"}</p>
-          <button
-            className="mt-2 text-indigo-600 hover:underline"
-            onClick={() => window.location.reload()}
-          >
-            Try again
-          </button>
-        </div>
-      </div>
+      <Container size="4" py="8">
+        <Card>
+          <Box p="4" style={{ backgroundColor: "var(--red-3)" }}>
+            <Text color="red">{error || "Unable to load profile"}</Text>
+            <Button
+              variant="ghost"
+              color="blue"
+              mt="2"
+              onClick={() => window.location.reload()}
+            >
+              Try again
+            </Button>
+          </Box>
+        </Card>
+      </Container>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-8 text-2xl font-bold text-gray-800">My Account</h1>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
-        <div className="md:col-span-1">
+    <Container size="4" py="8">
+      <Heading size="6" mb="8">
+        My Account
+      </Heading>
+      <Grid columns={{ initial: "1", md: "4" }} gap="6">
+        <Box style={{ gridColumn: "span 1" }}>
           <Sidebar profile={profile} />
-        </div>
-        <div className="md:col-span-3">
+        </Box>
+        <Box style={{ gridColumn: "span 3" }}>
           <Outlet context={{ profile, setProfile }} />
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Grid>
+    </Container>
   );
 }

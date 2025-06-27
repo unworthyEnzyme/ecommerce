@@ -36,7 +36,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <Theme accentColor="indigo">{children}</Theme>
+        <Theme accentColor="brown">{children}</Theme>
         <ScrollRestoration />
         <Scripts />
       </body>

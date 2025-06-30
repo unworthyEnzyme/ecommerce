@@ -20,7 +20,6 @@
   <ItemGroup>
     <ProjectReference Include="..\ECommerceApp.Business\ECommerceApp.Business.csproj" />
     <ProjectReference Include="..\ECommerceApp.DataAccess\ECommerceApp.DataAccess.csproj" />
-    <ProjectReference Include="..\ECommerceApp.Worker\ECommerceApp.Worker.csproj" />
   </ItemGroup>
 
 </Project>

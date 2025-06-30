@@ -1,4 +1,5 @@
 using ECommerceApp.Business.Abstract;
+using Microsoft.Extensions.Configuration;
 using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
@@ -11,14 +12,16 @@ namespace ECommerceApp.Worker.Services
         private readonly IChannel _channel;
         private readonly string _queueName = "order_processing";
 
-        public RabbitMQService()
+        public RabbitMQService(IConfiguration configuration)
         {
+            var rabbitMQSection = configuration.GetSection("RabbitMQ");
+
             var factory = new ConnectionFactory()
             {
-                HostName = "localhost",
-                Port = 5672,
-                UserName = "admin",
-                Password = "password"
+                HostName = rabbitMQSection["Host"] ?? "localhost",
+                Port = int.Parse(rabbitMQSection["Port"] ?? "5672"),
+                UserName = rabbitMQSection["Username"] ?? "admin",
+                Password = rabbitMQSection["Password"] ?? "password"
             };
 
             _connection = factory.CreateConnectionAsync().GetAwaiter().GetResult();

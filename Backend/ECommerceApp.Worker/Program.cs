@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore;
 var builder = Host.CreateApplicationBuilder(args);
 
 // Register DbContext with connection string
-builder.Services.AddDbContext<AppDbContext>();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add Console Logging
 builder.Services.AddConsoleLogging(ECommerceApp.Core.Logging.LogLevel.Information);

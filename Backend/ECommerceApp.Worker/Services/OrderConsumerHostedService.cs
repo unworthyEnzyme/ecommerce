@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using ECommerceApp.Entities.Concrete;
 using ECommerceApp.Worker.Repositories;
+using Microsoft.Extensions.Configuration;
 
 namespace ECommerceApp.Worker.Services
 {
@@ -11,12 +12,14 @@ namespace ECommerceApp.Worker.Services
         ILogger<OrderConsumerHostedService> logger,
         IStockRepository stockRepository,
         IStockMovementRepository stockMovementRepository,
-        IOrderRepository orderRepository) : BackgroundService
+        IOrderRepository orderRepository,
+        IConfiguration configuration) : BackgroundService
     {
         private readonly ILogger<OrderConsumerHostedService> _logger = logger;
         private readonly IStockRepository _stockRepository = stockRepository;
         private readonly IStockMovementRepository _stockMovementRepository = stockMovementRepository;
         private readonly IOrderRepository _orderRepository = orderRepository;
+        private readonly IConfiguration _configuration = configuration;
         private IConnection? _connection;
         private IChannel? _channel;
         private readonly string _queueName = "order_processing";
@@ -38,12 +41,14 @@ namespace ECommerceApp.Worker.Services
 
         private async Task InitializeRabbitMQ()
         {
+            var rabbitMQSection = _configuration.GetSection("RabbitMQ");
+
             var factory = new ConnectionFactory()
             {
-                HostName = "localhost",
-                Port = 5672,
-                UserName = "admin",
-                Password = "password"
+                HostName = rabbitMQSection["Host"] ?? "localhost",
+                Port = int.Parse(rabbitMQSection["Port"] ?? "5672"),
+                UserName = rabbitMQSection["Username"] ?? "admin",
+                Password = rabbitMQSection["Password"] ?? "password"
             };
 
             _connection = await factory.CreateConnectionAsync();

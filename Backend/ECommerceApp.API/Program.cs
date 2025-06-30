@@ -1,7 +1,7 @@
 using System.Text;
 using ECommerceApp.Business.Abstract;
 using ECommerceApp.Business.Concrete;
-using ECommerceApp.Worker.Services;
+using ECommerceApp.Business.Services;
 using ECommerceApp.Core.DataAccess.Abstract;
 using ECommerceApp.Core.Logging.Extensions;
 using ECommerceApp.DataAccess.Concrete.EntityFramework;
@@ -20,12 +20,15 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        var jwtSettings = builder.Configuration.GetSection("JWT");
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("your-very-long-secret-key-here-min-16-characters")),
-            ValidateIssuer = false,
-            ValidateAudience = false,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings["SecretKey"] ?? "your-very-long-secret-key-here-min-16-characters")),
+            ValidateIssuer = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidateAudience = true,
+            ValidAudience = jwtSettings["Audience"],
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
@@ -44,7 +47,8 @@ builder.Services.AddCors(options =>
 });
 
 // Register DbContext
-builder.Services.AddDbContext<AppDbContext>();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add Console Logging
 builder.Services.AddConsoleLogging(ECommerceApp.Core.Logging.LogLevel.Information);
@@ -94,6 +98,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Configure SPA fallback for frontend routing
+app.MapFallbackToFile("index.html");
 
 // Create database and apply migrations
 using (var scope = app.Services.CreateScope())

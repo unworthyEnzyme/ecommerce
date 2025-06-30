@@ -62,6 +62,8 @@ namespace ECommerceApp.Business.Concrete
                     new Claim(ClaimTypes.Role, user.Role?.Name ?? "User")
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
+                Issuer = "ECommerceApp",
+                Audience = "ECommerceApp",
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 

@@ -1,6 +1,23 @@
-version: '3.8'
+version: "3.8"
 
 services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: ecommerce-sqlserver
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: YourStrong!Passw0rd
+      MSSQL_PID: Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - ecommerce-network
+    restart: unless-stopped
+
+  # RabbitMQ Message Queue
   rabbitmq:
     image: rabbitmq:3-management
     container_name: ecommerce-rabbitmq
@@ -14,8 +31,52 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - ecommerce-network
+    restart: unless-stopped
+
+  # ECommerce API Service
+  ecommerce-api:
+    build:
+      context: ./Backend
+      dockerfile: ECommerceApp.API/Dockerfile
+    container_name: ecommerce-api
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=ECommerceDB;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=true;
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=admin
+      - RabbitMQ__Password=password
+    depends_on:
+      - sqlserver
+      - rabbitmq
+    networks:
+      - ecommerce-network
+    restart: unless-stopped
+
+  # ECommerce Worker Service
+  ecommerce-worker:
+    build:
+      context: ./Backend
+      dockerfile: ECommerceApp.Worker/Dockerfile
+    container_name: ecommerce-worker
+    environment:
+      - DOTNET_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=ECommerceDB;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=true;
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=admin
+      - RabbitMQ__Password=password
+    depends_on:
+      - sqlserver
+      - rabbitmq
+    networks:
+      - ecommerce-network
+    restart: unless-stopped
 
 volumes:
+  sqlserver_data:
   rabbitmq_data:
 
 networks:
